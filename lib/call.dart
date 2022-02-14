@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:xapptor_router/app_screen.dart';
-import 'package:xapptor_router/app_screens.dart';
 import 'package:xapptor_ui/screens/qr_scanner.dart';
-import 'create_room.dart';
-import 'hang_up.dart';
-import 'join_room.dart';
-import 'open_user_media.dart';
 import 'signaling.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -27,32 +21,18 @@ class _CallState extends State<Call> {
   TextEditingController room_id_controller = TextEditingController();
   RTCVideoRenderer local_renderer = RTCVideoRenderer();
   RTCVideoRenderer remote_renderer = RTCVideoRenderer();
-  MediaStream? local_stream;
-  MediaStream? remote_stream;
+
+  Signaling signaling = Signaling();
+
   String room_id = "";
 
   bool show_qr_scanner = false;
-
-  Map<String, dynamic> configuration = {
-    'iceServers': [
-      {
-        'urls': [
-          'stun:stun1.l.google.com:19302',
-          'stun:stun2.l.google.com:19302'
-        ]
-      }
-    ]
-  };
-
-  RTCPeerConnection? peer_connection;
-  String? current_room_text;
-  StreamStateCallback? on_add_remote_stream;
 
   init_video_renderers() {
     local_renderer.initialize();
     remote_renderer.initialize();
 
-    on_add_remote_stream = ((stream) {
+    signaling.on_add_remote_stream = ((stream) {
       remote_renderer.srcObject = stream;
       setState(() {});
     });
@@ -118,10 +98,9 @@ class _CallState extends State<Call> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          open_user_media(
-                            local_video: local_renderer,
-                            remote_video: remote_renderer,
-                            local_stream: local_stream,
+                          signaling.open_user_media(
+                            local_renderer,
+                            remote_renderer,
                           );
                           setState(() {});
                         },
@@ -132,15 +111,7 @@ class _CallState extends State<Call> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          room_id = await create_room(
-                            remote_renderer: remote_renderer,
-                            configuration: configuration,
-                            peer_connection: peer_connection,
-                            local_stream: local_stream,
-                            remote_stream: remote_stream,
-                            current_room_text: current_room_text,
-                            on_add_remote_stream: on_add_remote_stream,
-                          );
+                          room_id = await signaling.create_room(local_renderer);
                           room_id_controller.text = room_id;
                           setState(() {});
                         },
@@ -156,14 +127,9 @@ class _CallState extends State<Call> {
                       ElevatedButton(
                         onPressed: () {
                           // Add roomId
-                          join_room(
-                            room_id: room_id_controller.text,
-                            remote_video: remote_renderer,
-                            configuration: configuration,
-                            peer_connection: peer_connection,
-                            local_stream: local_stream,
-                            remote_stream: remote_stream,
-                            on_add_remote_stream: on_add_remote_stream,
+                          signaling.join_room(
+                            room_id_controller.text,
+                            remote_renderer,
                           );
                         },
                         child: Text("Join room"),
@@ -173,13 +139,7 @@ class _CallState extends State<Call> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          hang_up(
-                            local_video: local_renderer,
-                            local_stream: local_stream,
-                            remote_stream: remote_stream,
-                            peer_connection: peer_connection,
-                            room_id: room_id,
-                          );
+                          signaling.hang_up(local_renderer);
                         },
                         child: Text("Hangup"),
                       )
