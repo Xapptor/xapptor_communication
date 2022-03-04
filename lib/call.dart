@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_ui/screens/qr_scanner.dart';
 import 'signaling.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'dart:ui' as ui;
 
 class Call extends StatefulWidget {
   Call({
@@ -49,6 +53,13 @@ class _CallState extends State<Call> {
     local_renderer.dispose();
     remote_renderer.dispose();
     super.dispose();
+  }
+
+  Future<ui.Image> get_qr_image(String src) async {
+    final completer = Completer<ui.Image>();
+    final byteData = await rootBundle.load(src);
+    ui.decodeImageFromList(byteData.buffer.asUint8List(), completer.complete);
+    return completer.future;
   }
 
   @override
@@ -210,10 +221,34 @@ class _CallState extends State<Call> {
                       Expanded(
                         flex: 3,
                         child: room_id_controller.text.isNotEmpty
-                            ? QrImage(
-                                data: room_id_controller.text,
-                                version: QrVersions.auto,
-                                size: 200.0,
+                            ? FutureBuilder<ui.Image>(
+                                future: get_qr_image("assets/images/logo.png"),
+                                builder: (ctx, snapshot) {
+                                  final size = 280.0;
+                                  if (!snapshot.hasData) {
+                                    return Container(width: size, height: size);
+                                  }
+                                  return CustomPaint(
+                                    size: Size(200, 200),
+                                    painter: QrPainter(
+                                      data: room_id_controller.text,
+                                      version: QrVersions.auto,
+                                      eyeStyle: const QrEyeStyle(
+                                        eyeShape: QrEyeShape.square,
+                                        color: Color(0xff128760),
+                                      ),
+                                      dataModuleStyle: const QrDataModuleStyle(
+                                        dataModuleShape:
+                                            QrDataModuleShape.square,
+                                        color: Color(0xff1a5441),
+                                      ),
+                                      // embeddedImage: snapshot.data,
+                                      // embeddedImageStyle: QrEmbeddedImageStyle(
+                                      //   size: Size.square(60),
+                                      // ),
+                                    ),
+                                  );
+                                },
                               )
                             : Container(),
                       ),
