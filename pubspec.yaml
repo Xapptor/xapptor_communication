@@ -12,8 +12,8 @@ dependencies:
     sdk: flutter
 
   flutter_webrtc: ^0.8.2
-  firebase_core: ^1.13.1
-  cloud_firestore: ^3.1.10
+  firebase_core: ^1.16.0
+  cloud_firestore: ^3.1.14
   qr_flutter: ^4.0.0
 
   xapptor_logic: ^0.0.3
