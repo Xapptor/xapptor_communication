@@ -1,57 +1,53 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:xapptor_communication/qr_generator.dart';
 import 'package:xapptor_ui/screens/qr_scanner.dart';
+import 'package:xapptor_ui/widgets/is_portrait.dart';
 import 'signaling.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'dart:ui' as ui;
 
-class Call extends StatefulWidget {
-  Call({
+class CallView extends StatefulWidget {
+  CallView({
     required this.main_color,
     required this.background_color,
+    required this.signaling,
+    required this.local_renderer,
+    required this.remote_renderer,
+    required this.enable_audio,
+    required this.enable_video,
+    required this.text_list,
   });
 
   final Color main_color;
   final Color background_color;
+  final Signaling signaling;
+  final RTCVideoRenderer local_renderer;
+  final RTCVideoRenderer remote_renderer;
+  bool enable_audio = false;
+  bool enable_video = false;
+  final List<String> text_list;
 
   @override
-  _CallState createState() => _CallState();
+  _CallViewState createState() => _CallViewState();
 }
 
-class _CallState extends State<Call> {
+class _CallViewState extends State<CallView> {
   TextEditingController room_id_controller = TextEditingController();
-  RTCVideoRenderer local_renderer = RTCVideoRenderer();
-  RTCVideoRenderer remote_renderer = RTCVideoRenderer();
-
-  Signaling signaling = Signaling();
 
   String room_id = "";
-
   bool show_qr_scanner = false;
-
-  init_video_renderers() {
-    local_renderer.initialize();
-    remote_renderer.initialize();
-
-    signaling.on_add_remote_stream = ((stream) {
-      remote_renderer.srcObject = stream;
-      setState(() {});
-    });
-  }
 
   @override
   void initState() {
-    init_video_renderers();
     super.initState();
   }
 
   @override
   void dispose() {
-    local_renderer.dispose();
-    remote_renderer.dispose();
+    widget.local_renderer.dispose();
+    widget.remote_renderer.dispose();
     super.dispose();
   }
 
@@ -64,6 +60,7 @@ class _CallState extends State<Call> {
 
   @override
   Widget build(BuildContext context) {
+    bool portrait = is_portrait(context);
     double screen_height = MediaQuery.of(context).size.height;
     double screen_width = MediaQuery.of(context).size.width;
 
@@ -109,9 +106,12 @@ class _CallState extends State<Call> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          signaling.open_user_media(
-                            local_renderer,
-                            remote_renderer,
+                          widget.signaling.open_user_media(
+                            local_renderer: widget.local_renderer,
+                            remote_renderer: widget.remote_renderer,
+                            device_id: "",
+                            enable_audio: widget.enable_audio,
+                            enable_video: widget.enable_video,
                           );
                           setState(() {});
                         },
@@ -122,7 +122,8 @@ class _CallState extends State<Call> {
                       ),
                       ElevatedButton(
                         onPressed: () async {
-                          room_id = await signaling.create_room(local_renderer);
+                          room_id = await widget.signaling
+                              .create_room(widget.local_renderer);
                           room_id_controller.text = room_id;
                           setState(() {});
                         },
@@ -138,9 +139,9 @@ class _CallState extends State<Call> {
                       ElevatedButton(
                         onPressed: () {
                           // Add roomId
-                          signaling.join_room(
+                          widget.signaling.join_room(
                             room_id_controller.text,
-                            remote_renderer,
+                            widget.remote_renderer,
                           );
                         },
                         child: Text("Join room"),
@@ -150,7 +151,11 @@ class _CallState extends State<Call> {
                       ),
                       ElevatedButton(
                         onPressed: () {
-                          signaling.hang_up(local_renderer);
+                          widget.signaling
+                              .hang_up(widget.local_renderer)
+                              .then((value) {
+                            room_id_controller.clear();
+                          });
                         },
                         child: Text("Hangup"),
                       )
@@ -162,13 +167,14 @@ class _CallState extends State<Call> {
                   height: screen_height / 1.8,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Row(
+                    child: Flex(
+                      direction: portrait ? Axis.vertical : Axis.horizontal,
                       children: [
                         Expanded(
                           child: Container(
                             color: Colors.orange,
                             child: RTCVideoView(
-                              local_renderer,
+                              widget.local_renderer,
                               mirror: true,
                             ),
                           ),
@@ -177,7 +183,7 @@ class _CallState extends State<Call> {
                           child: Container(
                             color: Colors.cyan,
                             child: RTCVideoView(
-                              remote_renderer,
+                              widget.remote_renderer,
                             ),
                           ),
                         ),
@@ -228,26 +234,29 @@ class _CallState extends State<Call> {
                                   if (!snapshot.hasData) {
                                     return Container(width: size, height: size);
                                   }
-                                  return CustomPaint(
-                                    size: Size(200, 200),
-                                    painter: QrPainter(
-                                      data: room_id_controller.text,
-                                      version: QrVersions.auto,
-                                      eyeStyle: const QrEyeStyle(
-                                        eyeShape: QrEyeShape.square,
-                                        color: Color(0xff128760),
-                                      ),
-                                      dataModuleStyle: const QrDataModuleStyle(
-                                        dataModuleShape:
-                                            QrDataModuleShape.square,
-                                        color: Color(0xff1a5441),
-                                      ),
-                                      // embeddedImage: snapshot.data,
-                                      // embeddedImageStyle: QrEmbeddedImageStyle(
-                                      //   size: Size.square(60),
-                                      // ),
-                                    ),
-                                  );
+
+                                  return qr_generator(room_id_controller.text);
+
+                                  // return CustomPaint(
+                                  //   size: Size(200, 200),
+                                  //   painter: QrPainter(
+                                  //     data: room_id_controller.text,
+                                  //     version: QrVersions.auto,
+                                  //     eyeStyle: const QrEyeStyle(
+                                  //       eyeShape: QrEyeShape.square,
+                                  //       color: Color(0xff128760),
+                                  //     ),
+                                  //     dataModuleStyle: const QrDataModuleStyle(
+                                  //       dataModuleShape:
+                                  //           QrDataModuleShape.square,
+                                  //       color: Color(0xff1a5441),
+                                  //     ),
+                                  //     // embeddedImage: snapshot.data,
+                                  //     // embeddedImageStyle: QrEmbeddedImageStyle(
+                                  //     //   size: Size.square(60),
+                                  //     // ),
+                                  //   ),
+                                  // );
                                 },
                               )
                             : Container(),

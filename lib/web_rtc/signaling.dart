@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
@@ -23,6 +22,8 @@ class Signaling {
   String? room_id;
   String? current_room_text;
   StreamStateCallback? on_add_remote_stream;
+
+  // Create room and return ID
 
   Future<String> create_room(RTCVideoRenderer remote_renderer) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
@@ -104,9 +105,10 @@ class Signaling {
       });
     });
     // Listen for remote ICE candidates above
-
     return room_id;
   }
+
+  // Join room call
 
   Future<void> join_room(String room_id, RTCVideoRenderer remote_video) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
@@ -182,24 +184,37 @@ class Signaling {
     }
   }
 
-  Future<void> open_user_media(
-    RTCVideoRenderer local_video,
-    RTCVideoRenderer remoteVideo,
-  ) async {
+  // Open camera and microphone
+
+  Future<void> open_user_media({
+    required RTCVideoRenderer local_renderer,
+    required RTCVideoRenderer remote_renderer,
+    required String device_id,
+    required bool enable_audio,
+    required bool enable_video,
+  }) async {
     var stream = await navigator.mediaDevices.getUserMedia(
       {
-        'audio': false,
-        'video': {
-          'facingMode': 'user',
-        },
+        'audio': enable_audio
+            ? {
+                'deviceId': device_id,
+              }
+            : false,
+        'video': enable_video
+            ? {
+                'facingMode': 'user',
+                'deviceId': device_id,
+              }
+            : false,
       },
     );
 
-    local_video.srcObject = stream;
+    local_renderer.srcObject = stream;
     local_stream = stream;
-
-    remoteVideo.srcObject = await createLocalMediaStream('key');
+    remote_renderer.srcObject = await createLocalMediaStream('key');
   }
+
+  // Hang Up Call
 
   Future<void> hang_up(RTCVideoRenderer local_video) async {
     List<MediaStreamTrack> tracks = local_video.srcObject!.getTracks();
@@ -227,6 +242,8 @@ class Signaling {
     local_stream!.dispose();
     remote_stream?.dispose();
   }
+
+  // Registering peer connection listeners
 
   void register_peer_connection_listeners() {
     peer_connection?.onIceGatheringState = (RTCIceGatheringState state) {
