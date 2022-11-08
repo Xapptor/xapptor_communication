@@ -189,7 +189,8 @@ class Signaling {
   Future<void> open_user_media({
     required RTCVideoRenderer local_renderer,
     required RTCVideoRenderer remote_renderer,
-    required String device_id,
+    required String audio_device_id,
+    required String video_device_id,
     required bool enable_audio,
     required bool enable_video,
   }) async {
@@ -197,13 +198,14 @@ class Signaling {
       {
         'audio': enable_audio
             ? {
-                'deviceId': device_id,
+                'deviceId': audio_device_id,
               }
             : false,
         'video': enable_video
             ? {
-                'facingMode': 'user',
-                'deviceId': device_id,
+                //'facingMode': video_device_id == "0" ? 'environment' : 'user',
+                'facingMode': 'environment',
+                'deviceId': video_device_id,
               }
             : false,
       },

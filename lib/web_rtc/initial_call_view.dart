@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:universal_platform/universal_platform.dart';
@@ -5,7 +6,6 @@ import 'package:xapptor_communication/web_rtc/call_view.dart';
 import 'package:xapptor_communication/web_rtc/get_media_devices.dart';
 import 'package:xapptor_communication/web_rtc/signaling.dart';
 import 'package:xapptor_ui/screens/qr_scanner.dart';
-import 'package:xapptor_ui/values/ui.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 
 class InitialCallView extends StatefulWidget {
@@ -42,7 +42,9 @@ class _InitialCallViewState extends State<InitialCallView> {
   List<MediaDeviceInfo> audio_devices = [];
   List<MediaDeviceInfo> video_devices = [];
   String current_audio_device = "";
-  String current_video_device = "";
+  String current_video_device = "0";
+  String current_audio_device_id = "";
+  String current_video_device_id = "";
 
   String room_id = "";
   bool show_qr_scanner = false;
@@ -51,17 +53,19 @@ class _InitialCallViewState extends State<InitialCallView> {
   void initState() {
     init_video_renderers();
     super.initState();
-    call_open_user_media("").then((_) {
+
+    call_open_user_media().then((_) {
       get_media_devices();
     });
   }
 
-  Future<void> call_open_user_media(String device_id) async {
+  Future<void> call_open_user_media() async {
     if (widget.enable_audio || widget.enable_video) {
       await widget.signaling.open_user_media(
         local_renderer: widget.local_renderer,
         remote_renderer: widget.remote_renderer,
-        device_id: device_id,
+        audio_device_id: current_audio_device_id,
+        video_device_id: current_video_device_id,
         enable_audio: widget.enable_audio,
         enable_video: widget.enable_video,
       );
@@ -88,8 +92,16 @@ class _InitialCallViewState extends State<InitialCallView> {
   get_media_devices() async {
     audio_devices = await get_audio_devices();
     video_devices = await get_video_devices();
-    current_audio_device = audio_devices.first.label;
-    current_video_device = video_devices.first.label;
+
+    if (audio_devices.length > 0) {
+      current_audio_device = audio_devices[0].label;
+      current_audio_device_id = audio_devices[0].deviceId;
+    }
+
+    if (video_devices.length > 0) {
+      current_video_device = video_devices[0].label;
+      current_video_device_id = video_devices[0].deviceId;
+    }
     setState(() {});
   }
 
@@ -128,6 +140,10 @@ class _InitialCallViewState extends State<InitialCallView> {
             update_qr_value: (new_value) {
               room_id_controller.text = new_value;
               show_qr_scanner = false;
+
+              if (widget.enable_video) {
+                call_open_user_media();
+              }
               setState(() {});
             },
             border_color: widget.main_color,
@@ -185,11 +201,8 @@ class _InitialCallViewState extends State<InitialCallView> {
                                     setState(() {
                                       widget.enable_audio =
                                           !widget.enable_audio;
-                                      if (widget.enable_audio) {
-                                        widget.local_renderer.muted = false;
-                                      } else {
-                                        widget.local_renderer.muted = true;
-                                      }
+                                      widget.local_renderer.muted =
+                                          !widget.enable_audio;
                                     });
                                   },
                                 ),
@@ -201,10 +214,24 @@ class _InitialCallViewState extends State<InitialCallView> {
                                     color: widget.main_color,
                                   ),
                                   onPressed: () {
-                                    setState(() {
-                                      widget.enable_video =
-                                          !widget.enable_video;
-                                    });
+                                    widget.enable_video = !widget.enable_video;
+
+                                    if (widget.local_renderer.srcObject !=
+                                        null) {
+                                      if (widget.local_renderer.srcObject!
+                                              .getVideoTracks()
+                                              .length >
+                                          0) {
+                                        widget.local_renderer.srcObject
+                                            ?.getVideoTracks()[0]
+                                            .enabled = widget.enable_video;
+                                      } else {
+                                        call_open_user_media();
+                                      }
+                                    } else {
+                                      call_open_user_media();
+                                    }
+                                    setState(() {});
                                   },
                                 ),
                               ],
@@ -232,14 +259,13 @@ class _InitialCallViewState extends State<InitialCallView> {
                               onChanged: (String? new_value) {
                                 setState(() {
                                   current_audio_device = new_value!;
+                                  current_audio_device_id = audio_devices
+                                      .firstWhere((element) =>
+                                          element.label == current_audio_device)
+                                      .deviceId;
                                 });
 
-                                String current_device_id = audio_devices
-                                    .firstWhere((element) =>
-                                        element.label == current_audio_device)
-                                    .deviceId;
-
-                                call_open_user_media(current_device_id);
+                                call_open_user_media();
                               },
                               items: audio_devices
                                   .map((e) => e.label)
@@ -276,17 +302,24 @@ class _InitialCallViewState extends State<InitialCallView> {
                                 height: 2,
                                 color: Colors.deepPurpleAccent,
                               ),
-                              onChanged: (String? new_value) {
+                              onChanged: (String? new_value) async {
+                                var video_tracks = widget
+                                    .local_renderer.srcObject
+                                    ?.getVideoTracks();
+
                                 setState(() {
                                   current_video_device = new_value!;
+                                  current_video_device_id = video_devices
+                                      .firstWhere((element) =>
+                                          element.label == current_video_device)
+                                      .deviceId;
                                 });
 
-                                String current_device_id = video_devices
-                                    .firstWhere((element) =>
-                                        element.label == current_video_device)
-                                    .deviceId;
-
-                                call_open_user_media(current_device_id);
+                                await Helper.switchCamera(
+                                  video_tracks!.first,
+                                  current_video_device_id,
+                                  widget.local_renderer.srcObject,
+                                );
                               },
                               items: video_devices
                                   .map((e) => e.label)
@@ -317,9 +350,13 @@ class _InitialCallViewState extends State<InitialCallView> {
                                   ? Container()
                                   : IconButton(
                                       onPressed: () {
+                                        widget.local_renderer.srcObject
+                                            ?.getVideoTracks()
+                                            .forEach((element) {
+                                          element.stop();
+                                        });
+
                                         show_qr_scanner = true;
-                                        widget.local_renderer.dispose();
-                                        widget.remote_renderer.dispose();
                                         setState(() {});
                                       },
                                       icon: Icon(

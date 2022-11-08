@@ -38,15 +38,10 @@ class CallView extends StatefulWidget {
 }
 
 class _CallViewState extends State<CallView> {
-  String room_id = "";
-
   @override
   void initState() {
-    room_id = widget.room_id;
     super.initState();
-    if (widget.room_id_was_created) {
-      widget.signaling.join_room(widget.room_id, widget.remote_renderer);
-    }
+    widget.signaling.join_room(widget.room_id, widget.remote_renderer);
   }
 
   @override
@@ -117,7 +112,7 @@ class _CallViewState extends State<CallView> {
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Container(
-                    height: screen_height * (portrait ? 0.4 : 0.15),
+                    height: screen_height * (portrait ? 0.5 : 0.15),
                     child: Flex(
                       direction: portrait ? Axis.vertical : Axis.horizontal,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -207,7 +202,7 @@ class _CallViewState extends State<CallView> {
                       widget.signaling
                           .hang_up(widget.local_renderer)
                           .then((value) {
-                        //
+                        Navigator.pop(context);
                       });
                     },
                   ),
