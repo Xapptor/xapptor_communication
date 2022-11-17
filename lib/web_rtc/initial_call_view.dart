@@ -46,7 +46,6 @@ class _InitialCallViewState extends State<InitialCallView> {
   String current_audio_device_id = "";
   String current_video_device_id = "";
 
-  String room_id = "";
   bool show_qr_scanner = false;
 
   @override
@@ -106,7 +105,10 @@ class _InitialCallViewState extends State<InitialCallView> {
     setState(() {});
   }
 
-  join_room(bool room_id_was_created) {
+  join_room({
+    required String room_id,
+    required bool was_created,
+  }) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -121,7 +123,7 @@ class _InitialCallViewState extends State<InitialCallView> {
             enable_audio: widget.enable_audio,
             enable_video: widget.enable_video,
             room_id: room_id,
-            room_id_was_created: room_id_was_created,
+            room_id_was_created: was_created,
             call_base_url: widget.call_base_url,
           ),
         ),
@@ -394,9 +396,10 @@ class _InitialCallViewState extends State<InitialCallView> {
                                 backgroundColor: widget.main_color,
                               ),
                               onPressed: () async {
-                                room_id = room_id_controller.text;
-                                setState(() {});
-                                join_room(false);
+                                join_room(
+                                  room_id: room_id_controller.text,
+                                  was_created: false,
+                                );
                               },
                               child: Text(
                                 widget.text_list[widget.text_list.length - 2],
@@ -414,10 +417,12 @@ class _InitialCallViewState extends State<InitialCallView> {
                               backgroundColor: widget.main_color,
                             ),
                             onPressed: () async {
-                              room_id = await widget.signaling
+                              String room_id = await widget.signaling
                                   .create_room(widget.local_renderer);
-                              setState(() {});
-                              join_room(true);
+                              join_room(
+                                room_id: room_id,
+                                was_created: true,
+                              );
                             },
                             child: Text(
                               widget.text_list.last,
