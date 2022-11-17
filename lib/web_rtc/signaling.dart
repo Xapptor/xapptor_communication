@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 typedef void StreamStateCallback(MediaStream stream);
 
@@ -194,6 +195,19 @@ class Signaling {
     required bool enable_audio,
     required bool enable_video,
   }) async {
+    String facing_mode = '';
+    if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+      facing_mode = video_device_id == "0" ? 'environment' : 'user';
+    }
+
+    Map video_json = {
+      'deviceId': video_device_id,
+    };
+
+    if (facing_mode != '') {
+      video_json['facingMode'] = facing_mode;
+    }
+
     var stream = await navigator.mediaDevices.getUserMedia(
       {
         'audio': enable_audio
@@ -201,13 +215,7 @@ class Signaling {
                 'deviceId': audio_device_id,
               }
             : false,
-        'video': enable_video
-            ? {
-                //'facingMode': video_device_id == "0" ? 'environment' : 'user',
-                'facingMode': 'environment',
-                'deviceId': video_device_id,
-              }
-            : false,
+        'video': enable_video ? video_json : false,
       },
     );
 

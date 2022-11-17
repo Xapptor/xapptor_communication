@@ -42,7 +42,7 @@ class _InitialCallViewState extends State<InitialCallView> {
   List<MediaDeviceInfo> audio_devices = [];
   List<MediaDeviceInfo> video_devices = [];
   String current_audio_device = "";
-  String current_video_device = "0";
+  String current_video_device = "";
   String current_audio_device_id = "";
   String current_video_device_id = "";
 
@@ -69,6 +69,7 @@ class _InitialCallViewState extends State<InitialCallView> {
         enable_audio: widget.enable_audio,
         enable_video: widget.enable_video,
       );
+      widget.local_renderer.muted = !widget.enable_audio;
     }
   }
 
@@ -198,12 +199,13 @@ class _InitialCallViewState extends State<InitialCallView> {
                                     color: widget.main_color,
                                   ),
                                   onPressed: () {
-                                    setState(() {
-                                      widget.enable_audio =
-                                          !widget.enable_audio;
-                                      widget.local_renderer.muted =
-                                          !widget.enable_audio;
-                                    });
+                                    widget.enable_audio = !widget.enable_audio;
+
+                                    widget.local_renderer.muted =
+                                        !widget.enable_audio;
+
+                                    call_open_user_media();
+                                    setState(() {});
                                   },
                                 ),
                                 IconButton(
@@ -257,15 +259,22 @@ class _InitialCallViewState extends State<InitialCallView> {
                                 color: Colors.deepPurpleAccent,
                               ),
                               onChanged: (String? new_value) {
-                                setState(() {
-                                  current_audio_device = new_value!;
-                                  current_audio_device_id = audio_devices
-                                      .firstWhere((element) =>
-                                          element.label == current_audio_device)
-                                      .deviceId;
+                                var audio_tracks = widget
+                                    .local_renderer.srcObject
+                                    ?.getAudioTracks();
+
+                                current_audio_device = new_value!;
+                                current_audio_device_id = audio_devices
+                                    .firstWhere((element) =>
+                                        element.label == current_audio_device)
+                                    .deviceId;
+
+                                audio_tracks?.forEach((element) {
+                                  element.stop();
                                 });
 
                                 call_open_user_media();
+                                setState(() {});
                               },
                               items: audio_devices
                                   .map((e) => e.label)
@@ -307,19 +316,18 @@ class _InitialCallViewState extends State<InitialCallView> {
                                     .local_renderer.srcObject
                                     ?.getVideoTracks();
 
-                                setState(() {
-                                  current_video_device = new_value!;
-                                  current_video_device_id = video_devices
-                                      .firstWhere((element) =>
-                                          element.label == current_video_device)
-                                      .deviceId;
+                                current_video_device = new_value!;
+                                current_video_device_id = video_devices
+                                    .firstWhere((element) =>
+                                        element.label == current_video_device)
+                                    .deviceId;
+
+                                video_tracks?.forEach((element) {
+                                  element.stop();
                                 });
 
-                                await Helper.switchCamera(
-                                  video_tracks!.first,
-                                  current_video_device_id,
-                                  widget.local_renderer.srcObject,
-                                );
+                                call_open_user_media();
+                                setState(() {});
                               },
                               items: video_devices
                                   .map((e) => e.label)
