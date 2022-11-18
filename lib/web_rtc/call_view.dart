@@ -17,7 +17,7 @@ class CallView extends StatefulWidget {
     required this.enable_video,
     required this.text_list,
     required this.room_id,
-    required this.room_id_was_created,
+    required this.was_created,
     required this.call_base_url,
   });
 
@@ -30,7 +30,7 @@ class CallView extends StatefulWidget {
   bool enable_video = false;
   final List<String> text_list;
   final String room_id;
-  final bool room_id_was_created;
+  final bool was_created;
   final String call_base_url;
 
   @override
@@ -41,7 +41,9 @@ class _CallViewState extends State<CallView> {
   @override
   void initState() {
     super.initState();
-    widget.signaling.join_room(widget.room_id, widget.remote_renderer);
+    if (!widget.was_created) {
+      widget.signaling.join_room(widget.room_id, widget.remote_renderer);
+    }
   }
 
   @override

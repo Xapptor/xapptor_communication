@@ -123,7 +123,7 @@ class _InitialCallViewState extends State<InitialCallView> {
             enable_audio: widget.enable_audio,
             enable_video: widget.enable_video,
             room_id: room_id,
-            room_id_was_created: was_created,
+            was_created: was_created,
             call_base_url: widget.call_base_url,
           ),
         ),
