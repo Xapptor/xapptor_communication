@@ -195,33 +195,36 @@ class Signaling {
     required bool enable_audio,
     required bool enable_video,
   }) async {
-    String facing_mode = '';
-    if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
-      facing_mode = video_device_id == "0" ? 'environment' : 'user';
+    if (enable_audio || enable_video) {
+      String facing_mode = '';
+      if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+        facing_mode = video_device_id == "0" ? 'environment' : 'user';
+      }
+
+      Map video_json = {
+        'deviceId': video_device_id,
+      };
+
+      if (facing_mode != '') {
+        video_json['facingMode'] = facing_mode;
+      }
+
+      var stream = await navigator.mediaDevices.getUserMedia(
+        {
+          'audio': enable_audio
+              ? {
+                  'deviceId': audio_device_id,
+                }
+              : false,
+          'video': enable_video ? video_json : false,
+        },
+      );
+
+      local_renderer.srcObject = stream;
+      local_stream = stream;
+      remote_renderer.srcObject = await createLocalMediaStream('key');
+      local_renderer.muted = !enable_audio;
     }
-
-    Map video_json = {
-      'deviceId': video_device_id,
-    };
-
-    if (facing_mode != '') {
-      video_json['facingMode'] = facing_mode;
-    }
-
-    var stream = await navigator.mediaDevices.getUserMedia(
-      {
-        'audio': enable_audio
-            ? {
-                'deviceId': audio_device_id,
-              }
-            : false,
-        'video': enable_video ? video_json : false,
-      },
-    );
-
-    local_renderer.srcObject = stream;
-    local_stream = stream;
-    remote_renderer.srcObject = await createLocalMediaStream('key');
   }
 
   // Hang Up Call
