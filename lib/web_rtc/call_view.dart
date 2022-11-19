@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:xapptor_communication/web_rtc/room_info_container.dart';
 import 'package:xapptor_ui/values/ui.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 import 'signaling.dart';
-import 'package:barcode_widget/barcode_widget.dart';
 
 class CallView extends StatefulWidget {
   CallView({
@@ -111,89 +110,10 @@ class _CallViewState extends State<CallView> {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Container(
-                    height: screen_height * (portrait ? 0.5 : 0.15),
-                    child: Flex(
-                      direction: portrait ? Axis.vertical : Axis.horizontal,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: BarcodeWidget(
-                            barcode: Barcode.qrCode(),
-                            data: widget.room_id,
-                          ),
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Room ID:",
-                              style: TextStyle(
-                                color: widget.main_color,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                ClipboardData data = ClipboardData(
-                                  text: widget.room_id,
-                                );
-                                await Clipboard.setData(data);
-
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text("ID copied to clipboard"),
-                                  duration: Duration(milliseconds: 300),
-                                ));
-                              },
-                              child: Text(
-                                widget.room_id,
-                                style: TextStyle(
-                                  color: widget.main_color,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: sized_box_space),
-                            Text(
-                              "Room URL:",
-                              style: TextStyle(
-                                color: widget.main_color,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                ClipboardData data = ClipboardData(
-                                  text: widget.call_base_url + widget.room_id,
-                                );
-                                await Clipboard.setData(data);
-
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text("URL copied to clipboard"),
-                                  duration: Duration(milliseconds: 300),
-                                ));
-                              },
-                              child: Text(
-                                widget.call_base_url + widget.room_id,
-                                style: TextStyle(
-                                  color: widget.main_color,
-                                  fontSize: 20,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
+                RoomInfoContainer(
+                  main_color: widget.main_color,
+                  room_id: widget.room_id,
+                  call_base_url: widget.call_base_url,
                 ),
                 Align(
                   alignment: Alignment.bottomRight,
