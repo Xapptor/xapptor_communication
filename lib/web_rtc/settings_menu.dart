@@ -1,34 +1,24 @@
 import 'package:flutter/material.dart';
 import 'custom_dropdown_button.dart';
 
-class Settings extends StatefulWidget {
-  Settings({
+class SettingsMenu extends StatelessWidget {
+  SettingsMenu({
     required this.background_color,
     required this.audio_dropdown_button,
     required this.video_dropdown_button,
-    required this.close_button_callback,
+    required this.callback,
   });
 
   final Color background_color;
   final CustomDropdownButton audio_dropdown_button;
   final CustomDropdownButton video_dropdown_button;
-  final Function close_button_callback;
-
-  @override
-  _SettingsState createState() => _SettingsState();
-}
-
-class _SettingsState extends State<Settings> {
-  @override
-  void initState() {
-    super.initState();
-  }
+  final Function callback;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: widget.background_color,
+        color: background_color,
         borderRadius: BorderRadius.circular(10),
       ),
       child: FractionallySizedBox(
@@ -45,12 +35,12 @@ class _SettingsState extends State<Settings> {
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  widget.close_button_callback();
+                  callback();
                 },
               ),
             ),
-            widget.audio_dropdown_button,
-            widget.video_dropdown_button,
+            audio_dropdown_button,
+            video_dropdown_button,
           ],
         ),
       ),
