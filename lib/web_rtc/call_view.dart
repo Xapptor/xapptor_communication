@@ -8,6 +8,7 @@ import 'package:xapptor_communication/web_rtc/settings_menu.dart';
 import 'package:xapptor_communication/web_rtc/signaling.dart';
 import 'package:xapptor_ui/screens/qr_scanner.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
+import 'add_remote_renderer.dart';
 import 'custom_dropdown_button.dart';
 import 'join_another_room_container.dart';
 import 'remote_renderer.dart';
@@ -23,6 +24,7 @@ class CallView extends StatefulWidget {
     required this.text_list,
     required this.call_base_url,
     required this.room_id,
+    required this.user_id,
   });
 
   final Color main_color;
@@ -32,6 +34,7 @@ class CallView extends StatefulWidget {
   final List<String> text_list;
   final String call_base_url;
   final String room_id;
+  final String user_id;
 
   @override
   _CallViewState createState() => _CallViewState();
@@ -43,17 +46,20 @@ class _CallViewState extends State<CallView> {
 
   Signaling signaling = Signaling();
   RTCVideoRenderer local_renderer = RTCVideoRenderer();
-  List<RemoteRenderer> remote_renderers = [];
+  ValueNotifier<List<RemoteRenderer>> remote_renderers =
+      ValueNotifier<List<RemoteRenderer>>([]);
 
   TextEditingController room_id_controller = TextEditingController();
 
-  List<MediaDeviceInfo> audio_devices = [];
-  List<MediaDeviceInfo> video_devices = [];
-  String current_audio_device = "";
-  String current_video_device = "";
-  String current_audio_device_id = "";
-  String current_video_device_id = "";
+  ValueNotifier<List<MediaDeviceInfo>> audio_devices =
+      ValueNotifier<List<MediaDeviceInfo>>([]);
+  ValueNotifier<List<MediaDeviceInfo>> video_devices =
+      ValueNotifier<List<MediaDeviceInfo>>([]);
 
+  ValueNotifier<String> current_audio_device = ValueNotifier<String>("");
+  ValueNotifier<String> current_video_device = ValueNotifier<String>("");
+  ValueNotifier<String> current_audio_device_id = ValueNotifier<String>("");
+  ValueNotifier<String> current_video_device_id = ValueNotifier<String>("");
   ValueNotifier<bool> show_qr_scanner = ValueNotifier<bool>(false);
   ValueNotifier<bool> show_settings = ValueNotifier<bool>(false);
   ValueNotifier<bool> show_info = ValueNotifier<bool>(false);
@@ -61,22 +67,19 @@ class _CallViewState extends State<CallView> {
   ValueNotifier<bool> in_a_call = ValueNotifier<bool>(false);
 
   String room_id = "";
-
-  late FirebaseFirestore db;
+  FirebaseFirestore db = FirebaseFirestore.instance;
 
   listen_call_participants() {
-    db = FirebaseFirestore.instance;
-
     if (room_id != "") {
       DocumentReference room_ref = db.collection('rooms').doc(room_id);
 
       room_ref.collection('calleeCandidates').snapshots().listen((snapshot) {
         snapshot.docChanges.forEach((change) {
           if (change.type == DocumentChangeType.added) {
-            remote_renderers.last.call_id = change.doc.id;
+            remote_renderers.value.last.call_id = change.doc.id;
+            print("call_id: ${change.doc.id}");
           } else if (change.type == DocumentChangeType.removed) {
-            print("removed__00");
-            remote_renderers
+            remote_renderers.value
                 .removeWhere((element) => element.call_id == change.doc.id);
           }
         });
@@ -92,7 +95,17 @@ class _CallViewState extends State<CallView> {
     super.initState();
     listen_call_participants();
     call_open_user_media().then((_) {
-      get_media_devices().then((_) async {
+      get_media_devices(
+        audio_devices: audio_devices,
+        video_devices: video_devices,
+        current_audio_device: current_audio_device,
+        current_audio_device_id: current_audio_device_id,
+        current_video_device: current_video_device,
+        current_video_device_id: current_video_device_id,
+        callback: () {
+          setState(() {});
+        },
+      ).then((_) async {
         set_media_devices_enabled();
       });
     });
@@ -107,14 +120,14 @@ class _CallViewState extends State<CallView> {
 
   Future call_open_user_media() async {
     RTCVideoRenderer? remote_renderer;
-    if (remote_renderers.length > 0) {
-      remote_renderers.first.video_renderer;
+    if (remote_renderers.value.length > 0) {
+      remote_renderers.value.first.video_renderer;
     }
     await signaling.open_user_media(
       local_renderer: local_renderer,
       remote_renderer: remote_renderer,
-      audio_device_id: current_audio_device_id,
-      video_device_id: current_video_device_id,
+      audio_device_id: current_audio_device_id.value,
+      video_device_id: current_video_device_id.value,
       enable_audio: enable_audio.value,
       enable_video: enable_video.value,
     );
@@ -123,56 +136,27 @@ class _CallViewState extends State<CallView> {
   @override
   void dispose() {
     local_renderer.dispose();
-    remote_renderers.forEach((element) {
+    remote_renderers.value.forEach((element) {
       element.video_renderer.dispose();
     });
     super.dispose();
   }
 
-  add_remote_renderer() {
-    RTCVideoRenderer video_renderer = RTCVideoRenderer();
-    video_renderer.initialize();
-
-    remote_renderers.add(
-      RemoteRenderer(
-        video_renderer: video_renderer,
-        call_id: "",
-      ),
-    );
-  }
-
   init_video_renderers() {
     local_renderer.initialize();
-
     signaling.on_add_remote_stream = ((stream) {
-      print("_case_2");
-      add_remote_renderer();
-      remote_renderers.last.video_renderer.srcObject = stream;
+      add_remote_renderer(remote_renderers);
+      remote_renderers.value.last.video_renderer.srcObject = stream;
       setState(() {});
     });
   }
 
-  Future get_media_devices() async {
-    audio_devices = await get_audio_devices();
-    video_devices = await get_video_devices();
-
-    if (audio_devices.length > 0) {
-      current_audio_device = audio_devices[0].label;
-      current_audio_device_id = audio_devices[0].deviceId;
-    }
-    if (video_devices.length > 0) {
-      current_video_device = video_devices[0].label;
-      current_video_device_id = video_devices[0].deviceId;
-    }
-    setState(() {});
-  }
-
   CustomDropdownButton audio_dropdown_button() {
     return CustomDropdownButton(
-      value: current_audio_device,
+      value: current_audio_device.value,
       on_changed: (new_value) {
-        current_audio_device = new_value!;
-        current_audio_device_id = audio_devices
+        current_audio_device.value = new_value!;
+        current_audio_device_id.value = audio_devices.value
             .firstWhere((element) => element.label == new_value)
             .deviceId;
 
@@ -183,17 +167,17 @@ class _CallViewState extends State<CallView> {
         call_open_user_media();
         setState(() {});
       },
-      items: audio_devices.map((e) => e.label).toList(),
+      items: audio_devices.value.map((e) => e.label).toList(),
       title: widget.text_list[0],
     );
   }
 
   CustomDropdownButton video_dropdown_button() {
     return CustomDropdownButton(
-      value: current_video_device,
+      value: current_video_device.value,
       on_changed: (new_value) {
-        current_video_device = new_value!;
-        current_video_device_id = video_devices
+        current_video_device.value = new_value!;
+        current_video_device_id.value = video_devices.value
             .firstWhere((element) => element.label == new_value)
             .deviceId;
 
@@ -204,7 +188,7 @@ class _CallViewState extends State<CallView> {
         call_open_user_media();
         setState(() {});
       },
-      items: video_devices.map((e) => e.label).toList(),
+      items: video_devices.value.map((e) => e.label).toList(),
       title: widget.text_list[1],
     );
   }
@@ -277,7 +261,7 @@ class _CallViewState extends State<CallView> {
                           children: [
                             GridVideoView(
                               local_renderer: local_renderer,
-                              remote_renderers: remote_renderers,
+                              remote_renderers: remote_renderers.value,
                             ),
                             Align(
                               alignment: Alignment.centerLeft,
@@ -305,7 +289,7 @@ class _CallViewState extends State<CallView> {
                                             signaling
                                                 .hang_up(local_renderer)
                                                 .then((value) {
-                                              remote_renderers.clear();
+                                              remote_renderers.value.clear();
                                               in_a_call.value = false;
                                               room_id_controller.clear();
                                               room_id = "";
@@ -330,7 +314,10 @@ class _CallViewState extends State<CallView> {
                                         main_color: widget.main_color,
                                         join_room: () {
                                           room_id = room_id_controller.text;
-                                          signaling.join_room(room_id);
+                                          signaling.join_room(
+                                            room_id: room_id,
+                                            user_id: widget.user_id,
+                                          );
                                           in_a_call.value = !in_a_call.value;
                                           listen_call_participants();
                                           setState(() {});

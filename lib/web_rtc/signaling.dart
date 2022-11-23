@@ -23,6 +23,7 @@ class Signaling {
   String? room_id;
   String? current_room_text;
   StreamStateCallback? on_add_remote_stream;
+  String? user_id;
 
   // Create room and return ID
 
@@ -111,13 +112,19 @@ class Signaling {
 
   // Join room call
 
-  Future<void> join_room(String room_id) async {
+  Future join_room({
+    required String room_id,
+    required String user_id,
+  }) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     DocumentReference room_ref = db.collection('rooms').doc('$room_id');
     var room_snapshot = await room_ref.get();
     print('Got room ${room_snapshot.exists}');
 
     if (room_snapshot.exists) {
+      this.room_id = room_id;
+      this.user_id = user_id;
+
       print('Create PeerConnection with configuration: $configuration');
       peer_connection = await createPeerConnection(configuration);
 
@@ -136,7 +143,10 @@ class Signaling {
           return;
         }
         print('onIceCandidate: ${candidate.toMap()}');
-        callee_candidates_collection.add(candidate.toMap());
+
+        Map<String, dynamic> callee_candidate = candidate.toMap();
+        callee_candidate['user_id'] = user_id;
+        callee_candidates_collection.add(callee_candidate);
       };
       // Code for collecting ICE candidate above
 
@@ -187,7 +197,7 @@ class Signaling {
 
   // Open camera and microphone
 
-  Future<void> open_user_media({
+  Future open_user_media({
     required RTCVideoRenderer local_renderer,
     required RTCVideoRenderer? remote_renderer,
     required String audio_device_id,
@@ -230,7 +240,7 @@ class Signaling {
 
   // Hang Up Call
 
-  Future<void> hang_up(RTCVideoRenderer local_video) async {
+  Future hang_up(RTCVideoRenderer local_video) async {
     // List<MediaStreamTrack> tracks = local_video.srcObject!.getTracks();
     // tracks.forEach((track) {
     //   track.stop();
@@ -245,12 +255,8 @@ class Signaling {
       var db = FirebaseFirestore.instance;
       var roomRef = db.collection('rooms').doc(room_id);
       var calleeCandidates = await roomRef.collection('calleeCandidates').get();
-      calleeCandidates.docs.forEach((document) => document.reference.delete());
-
-      var callerCandidates = await roomRef.collection('callerCandidates').get();
-      callerCandidates.docs.forEach((document) => document.reference.delete());
-
-      await roomRef.delete();
+      calleeCandidates.docs
+          .removeWhere((element) => element['user_id'] == user_id);
     }
 
     //local_stream!.dispose();
@@ -259,7 +265,7 @@ class Signaling {
 
   // Registering peer connection listeners
 
-  void register_peer_connection_listeners() {
+  register_peer_connection_listeners() {
     peer_connection?.onIceGatheringState = (RTCIceGatheringState state) {
       print('ICE gathering state changed: $state');
     };
