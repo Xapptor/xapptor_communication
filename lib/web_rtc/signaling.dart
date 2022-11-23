@@ -19,7 +19,7 @@ class Signaling {
 
   RTCPeerConnection? peer_connection;
   MediaStream? local_stream;
-  List<MediaStream>? remote_streams;
+  MediaStream? remote_stream;
   String? room_id;
   String? current_room_text;
   StreamStateCallback? on_add_remote_stream;
@@ -67,9 +67,7 @@ class Signaling {
 
       event.streams[0].getTracks().forEach((track) {
         print('Add a track to the remoteStream $track');
-        remote_streams?.forEach((element) {
-          element.addTrack(track);
-        });
+        remote_stream?.addTrack(track);
       });
     };
 
@@ -113,9 +111,7 @@ class Signaling {
 
   // Join room call
 
-  Future<void> join_room({
-    required String room_id,
-  }) async {
+  Future<void> join_room(String room_id) async {
     FirebaseFirestore db = FirebaseFirestore.instance;
     DocumentReference room_ref = db.collection('rooms').doc('$room_id');
     var room_snapshot = await room_ref.get();
@@ -148,9 +144,7 @@ class Signaling {
         print('Got remote track: ${event.streams[0]}');
         event.streams[0].getTracks().forEach((track) {
           print('Add a track to the remoteStream: $track');
-          remote_streams?.forEach((element) {
-            element.addTrack(track);
-          });
+          remote_stream?.addTrack(track);
         });
       };
 
@@ -195,7 +189,7 @@ class Signaling {
 
   Future<void> open_user_media({
     required RTCVideoRenderer local_renderer,
-    required List<RTCVideoRenderer> remote_renderers,
+    required RTCVideoRenderer? remote_renderer,
     required String audio_device_id,
     required String video_device_id,
     required bool enable_audio,
@@ -228,9 +222,8 @@ class Signaling {
 
       local_renderer.srcObject = stream;
       local_stream = stream;
-      remote_renderers.forEach((element) async {
-        element.srcObject = await createLocalMediaStream('key');
-      });
+
+      remote_renderer?.srcObject = await createLocalMediaStream('key');
       local_renderer.muted = !enable_audio;
     }
   }
@@ -238,15 +231,13 @@ class Signaling {
   // Hang Up Call
 
   Future<void> hang_up(RTCVideoRenderer local_video) async {
-    List<MediaStreamTrack> tracks = local_video.srcObject!.getTracks();
-    tracks.forEach((track) {
-      track.stop();
-    });
+    // List<MediaStreamTrack> tracks = local_video.srcObject!.getTracks();
+    // tracks.forEach((track) {
+    //   track.stop();
+    // });
 
-    if (remote_streams!.isNotEmpty) {
-      remote_streams?.forEach((element) {
-        element.getTracks().forEach((track) => track.stop());
-      });
+    if (remote_stream != null) {
+      remote_stream!.getTracks().forEach((track) => track.stop());
     }
     if (peer_connection != null) peer_connection!.close();
 
@@ -262,11 +253,8 @@ class Signaling {
       await roomRef.delete();
     }
 
-    local_stream!.dispose();
-
-    remote_streams?.forEach((element) {
-      element.dispose();
-    });
+    //local_stream!.dispose();
+    remote_stream?.dispose();
   }
 
   // Registering peer connection listeners
@@ -291,10 +279,7 @@ class Signaling {
     peer_connection?.onAddStream = (MediaStream stream) {
       print("Add remote stream");
       on_add_remote_stream?.call(stream);
-
-      remote_streams?.forEach((element) {
-        element = stream;
-      });
+      remote_stream = stream;
     };
   }
 }

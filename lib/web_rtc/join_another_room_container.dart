@@ -76,7 +76,17 @@ class JoinAnotherRoomContainer extends StatelessWidget {
                 backgroundColor: main_color,
               ),
               onPressed: () async {
-                join_room();
+                if (room_id_controller.text.isNotEmpty) {
+                  join_room();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'You need to enter the room ID',
+                      ),
+                    ),
+                  );
+                }
               },
               child: Text(
                 text_list[text_list.length - 2],

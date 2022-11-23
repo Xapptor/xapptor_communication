@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:xapptor_communication/web_rtc/remote_renderer.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 import 'dart:math' as math;
 
 class GridVideoView extends StatelessWidget {
-  GridVideoView({
+  const GridVideoView({
     required this.local_renderer,
     required this.remote_renderers,
   });
 
-  RTCVideoRenderer local_renderer;
-  List<RTCVideoRenderer> remote_renderers;
+  final RTCVideoRenderer local_renderer;
+  final List<RemoteRenderer> remote_renderers;
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +48,23 @@ class GridVideoView extends StatelessWidget {
               Color((math.Random().nextDouble() * 0xFFFFFF).toInt())
                   .withOpacity(1.0);
 
+          late Widget video_view;
+
+          if (index == 0) {
+            video_view = RTCVideoView(
+              local_renderer,
+              mirror: true,
+            );
+          } else {
+            RTCVideoRenderer remote_renderer =
+                remote_renderers[index - 1].video_renderer;
+
+            video_view = RTCVideoView(
+              remote_renderer,
+              mirror: true,
+            );
+          }
+
           return Container(
             decoration: BoxDecoration(
               color: random_color,
@@ -56,10 +74,7 @@ class GridVideoView extends StatelessWidget {
                 color: Colors.blueGrey,
               ),
             ),
-            child: RTCVideoView(
-              index == 0 ? local_renderer : remote_renderers[index - 1],
-              mirror: true,
-            ),
+            child: video_view,
           );
         },
       ),
