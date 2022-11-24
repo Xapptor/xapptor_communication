@@ -77,11 +77,13 @@ class RoomInfo extends StatelessWidget {
                       text: room_id,
                     );
                     await Clipboard.setData(data);
-
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text("ID copied to clipboard"),
-                      duration: Duration(milliseconds: 300),
-                    ));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("ID copied to clipboard"),
+                        duration: Duration(milliseconds: 2000),
+                      ),
+                    );
+                    callback();
                   },
                   child: Text(
                     room_id,
@@ -108,11 +110,13 @@ class RoomInfo extends StatelessWidget {
                       text: call_base_url + room_id,
                     );
                     await Clipboard.setData(data);
-
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text("URL copied to clipboard"),
-                      duration: Duration(milliseconds: 300),
-                    ));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("URL copied to clipboard"),
+                        duration: Duration(milliseconds: 2000),
+                      ),
+                    );
+                    callback();
                   },
                   child: Text(
                     call_base_url + room_id,

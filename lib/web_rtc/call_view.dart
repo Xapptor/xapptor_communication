@@ -5,7 +5,11 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/get_media_devices.dart';
 import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
 import 'package:xapptor_communication/web_rtc/settings_menu.dart';
-import 'package:xapptor_communication/web_rtc/signaling.dart';
+import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
+import 'package:xapptor_communication/web_rtc/signaling/open_user_media.dart';
+import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
+import 'package:xapptor_communication/web_rtc/signaling/join_room.dart';
+import 'package:xapptor_communication/web_rtc/signaling/hang_up.dart';
 import 'package:xapptor_ui/screens/qr_scanner.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 import 'add_remote_renderer.dart';
@@ -14,6 +18,7 @@ import 'join_another_room_container.dart';
 import 'remote_renderer.dart';
 import 'room_info.dart';
 import 'settings_icons.dart';
+import 'signaling/model/room.dart';
 
 class CallView extends StatefulWidget {
   const CallView({
@@ -69,31 +74,65 @@ class _CallViewState extends State<CallView> {
   String room_id = "";
   FirebaseFirestore db = FirebaseFirestore.instance;
 
-  listen_call_participants() {
+  listen_call_participants({
+    required bool room_just_was_created,
+  }) {
     if (room_id != "") {
       DocumentReference room_ref = db.collection('rooms').doc(room_id);
+      room_ref.snapshots().listen((room_snap) {
+        Room room = Room.from_snapshot(
+            room_snap.id, room_snap.data() as Map<String, dynamic>);
 
-      room_ref.collection('calleeCandidates').snapshots().listen((snapshot) {
-        snapshot.docChanges.forEach((change) {
-          if (change.type == DocumentChangeType.added) {
-            remote_renderers.value.last.call_id = change.doc.id;
-            print("call_id: ${change.doc.id}");
-          } else if (change.type == DocumentChangeType.removed) {
-            remote_renderers.value
-                .removeWhere((element) => element.call_id == change.doc.id);
+        if (room.connections.length > 0 || remote_renderers.value.length > 0) {
+          bool connection_was_added =
+              room.connections.length > remote_renderers.value.length;
+
+          List<String> connections_ids =
+              room.connections.map((e) => e.id).toList();
+          List<String> remote_renderers_ids =
+              remote_renderers.value.map((e) => e.call_id).toList();
+
+          print("connections_ids: $connections_ids");
+          print("remote_renderers_ids: $remote_renderers_ids");
+
+          List<String> connection_changed_id_list = connections_ids
+              .toSet()
+              .difference(remote_renderers_ids.toSet())
+              .toList();
+
+          if (connection_changed_id_list.length > 0) {
+            String connection_changed_id = connection_changed_id_list[0];
+            print("connection_changed_id: $connection_changed_id");
+
+            if (connection_was_added) {
+              if (!room_just_was_created) {
+                remote_renderers.value.last.call_id = connection_changed_id;
+                print("call_id: ${connection_changed_id}");
+              } else {
+                room_just_was_created = false;
+              }
+            } else {
+              remote_renderers.value.removeWhere(
+                  (element) => element.call_id == connection_changed_id);
+            }
+            setState(() {});
+          } else {
+            exit_from_call();
           }
-        });
-        setState(() {});
+        } else {
+          exit_from_call();
+        }
       });
     }
   }
 
   @override
   void initState() {
+    signaling.init(user_id: widget.user_id);
     room_id = widget.room_id;
     init_video_renderers();
     super.initState();
-    listen_call_participants();
+    listen_call_participants(room_just_was_created: false);
     call_open_user_media().then((_) {
       get_media_devices(
         audio_devices: audio_devices,
@@ -121,7 +160,7 @@ class _CallViewState extends State<CallView> {
   Future call_open_user_media() async {
     RTCVideoRenderer? remote_renderer;
     if (remote_renderers.value.length > 0) {
-      remote_renderers.value.first.video_renderer;
+      remote_renderer = remote_renderers.value.first.video_renderer;
     }
     await signaling.open_user_media(
       local_renderer: local_renderer,
@@ -191,6 +230,14 @@ class _CallViewState extends State<CallView> {
       items: video_devices.value.map((e) => e.label).toList(),
       title: widget.text_list[1],
     );
+  }
+
+  exit_from_call() {
+    remote_renderers.value.clear();
+    in_a_call.value = false;
+    room_id_controller.clear();
+    room_id = "";
+    setState(() {});
   }
 
   @override
@@ -286,14 +333,8 @@ class _CallViewState extends State<CallView> {
                                           child: Icon(Icons.call_end),
                                           backgroundColor: Colors.red,
                                           onPressed: () {
-                                            signaling
-                                                .hang_up(local_renderer)
-                                                .then((value) {
-                                              remote_renderers.value.clear();
-                                              in_a_call.value = false;
-                                              room_id_controller.clear();
-                                              room_id = "";
-                                              setState(() {});
+                                            signaling.hang_up().then((value) {
+                                              exit_from_call();
                                             });
                                           },
                                         ),
@@ -312,14 +353,16 @@ class _CallViewState extends State<CallView> {
                                         show_qr_scanner: show_qr_scanner,
                                         setState: setState,
                                         main_color: widget.main_color,
-                                        join_room: () {
+                                        join_room: () async {
                                           room_id = room_id_controller.text;
-                                          signaling.join_room(
+                                          Room? room =
+                                              await signaling.join_room(
                                             room_id: room_id,
-                                            user_id: widget.user_id,
                                           );
                                           in_a_call.value = !in_a_call.value;
-                                          listen_call_participants();
+                                          listen_call_participants(
+                                            room_just_was_created: false,
+                                          );
                                           setState(() {});
                                         },
                                         room_id_controller: room_id_controller,
@@ -336,11 +379,15 @@ class _CallViewState extends State<CallView> {
                                                   widget.main_color,
                                             ),
                                             onPressed: () async {
-                                              room_id =
+                                              Room room =
                                                   await signaling.create_room();
+                                              room_id = room.id;
+
                                               in_a_call.value =
                                                   !in_a_call.value;
-                                              listen_call_participants();
+                                              listen_call_participants(
+                                                room_just_was_created: true,
+                                              );
                                               setState(() {});
                                             },
                                             child: Text(
