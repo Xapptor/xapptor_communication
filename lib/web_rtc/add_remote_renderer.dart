@@ -8,7 +8,7 @@ add_remote_renderer(ValueNotifier<List<RemoteRenderer>> remote_renderers) {
   remote_renderers.value.add(
     RemoteRenderer(
       video_renderer: video_renderer,
-      call_id: "",
+      connection_id: "",
     ),
   );
   print("remote_renderers_length ${remote_renderers.value.length}");

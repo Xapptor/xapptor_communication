@@ -5,12 +5,12 @@ import 'signaling.dart';
 
 extension HangUp on Signaling {
   Future hang_up() async {
-    if (remote_stream != null) {
-      remote_stream!.getTracks().forEach((track) => track.stop());
-    }
-    if (peer_connection != null) peer_connection!.close();
-
     if (room_id != null) {
+      if (remote_stream != null) {
+        remote_stream!.getTracks().forEach((track) => track.stop());
+      }
+      if (peer_connection != null) peer_connection!.close();
+
       DocumentReference room_ref = rooms_ref.doc(room_id);
       DocumentSnapshot room_snap = await room_ref.get();
       Room room = Room.from_snapshot(
@@ -21,12 +21,15 @@ extension HangUp on Signaling {
             connection.destination_user_id == user_id) {
           DocumentReference connection_ref = connections_ref.doc(connection.id);
 
-          connection_ref.collection('source_candidates').get().then((value) {
+          await connection_ref
+              .collection('source_candidates')
+              .get()
+              .then((value) {
             for (DocumentSnapshot ds in value.docs) {
               ds.reference.delete();
             }
           });
-          connection_ref
+          await connection_ref
               .collection('destination_candidates')
               .get()
               .then((value) {
@@ -43,10 +46,14 @@ extension HangUp on Signaling {
           connection.source_user_id == user_id ||
           connection.destination_user_id == user_id);
 
-      room_ref.update({
-        'connections': new_room_connections.map((e) => e.to_json()),
-      });
+      if (room.host_id == user_id) {
+        room_ref.delete();
+      } else {
+        room_ref.update({
+          'connections': new_room_connections.map((e) => e.to_json()),
+        });
+      }
+      remote_stream?.dispose();
     }
-    remote_stream?.dispose();
   }
 }

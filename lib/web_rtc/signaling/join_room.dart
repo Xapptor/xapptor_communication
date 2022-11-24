@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:xapptor_communication/web_rtc/signaling/create_peer_connection.dart';
+import 'package:xapptor_communication/web_rtc/signaling/create_connection_anwser.dart';
+import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'model/room.dart';
 import 'signaling.dart';
 
 extension JoinRoom on Signaling {
-  Future<Room?> join_room({
+  Future join_room({
     required String room_id,
   }) async {
     DocumentReference room_ref = rooms_ref.doc(room_id);
@@ -15,79 +15,45 @@ extension JoinRoom on Signaling {
         Room.from_snapshot(room_id, room_snap.data() as Map<String, dynamic>);
 
     List<Connection> connections = room.connections;
-    String connection_id = connections
-        .firstWhere((element) => element.destination_user_id == '')
-        .id;
+    List<String> pending_connections_id = connections
+        .where((element) => element.destination_user_id == '')
+        .map(
+          (e) => e.id,
+        )
+        .toList();
 
-    DocumentReference connection_ref = connections_ref.doc(connection_id);
-    DocumentSnapshot connection_snap = await connection_ref.get();
-    Map<String, dynamic> connection_data =
-        connection_snap.data() as Map<String, dynamic>;
+    if (pending_connections_id.length > 0) {
+      pending_connections_id.forEach((pending_connection_id) async {
+        Connection current_connection = connections
+            .firstWhere((element) => element.id == pending_connection_id);
 
-    print('Got connection ${connection_snap.exists}');
-
-    if (connection_snap.exists) {
-      this.room_id = room_id;
-
-      await create_peer_connection(
-        collection_name: 'destination_candidates',
-        connection_ref: connection_ref,
-      );
-
-      peer_connection?.onTrack = (RTCTrackEvent event) {
-        print('Got remote track: ${event.streams[0]}');
-        event.streams[0].getTracks().forEach((track) {
-          print('Add a track to the remoteStream: $track');
-          remote_stream?.addTrack(track);
-        });
-      };
-
-      // Code for creating SDP answer below
-      print('Got offer $connection_data');
-      var offer = connection_data['offer'];
-      await peer_connection?.setRemoteDescription(
-        RTCSessionDescription(offer['sdp'], offer['type']),
-      );
-      var answer = await peer_connection!.createAnswer();
-      print('Created Answer $answer');
-
-      await peer_connection!.setLocalDescription(answer);
-
-      await connection_ref.update({
-        'answer': {
-          'type': answer.type,
-          'sdp': answer.sdp,
-        }
+        create_connection_anwser(
+          connection: current_connection,
+          room_ref: room_ref,
+          connections: connections,
+          room: room,
+        );
       });
-      // Finished creating SDP answer
+    } else {
+      List<String> user_ids = [];
+      connections.forEach((connection) {
+        user_ids.add(connection.source_user_id);
+        user_ids.add(connection.destination_user_id);
+      });
+      user_ids = user_ids.toSet().toList();
 
-      // Listening for remote ICE candidates below
-      room_ref.collection('source_candidates').snapshots().listen((snapshot) {
-        snapshot.docChanges.forEach((document) {
-          var data = document.doc.data() as Map<String, dynamic>;
-          print(data);
-          print('Got new remote ICE candidate: $data');
-          peer_connection!.addCandidate(
-            RTCIceCandidate(
-              data['candidate'],
-              data['sdpMid'],
-              data['sdpMLineIndex'],
-            ),
-          );
+      user_ids.forEach((user_id) async {
+        String connection_id = await create_connection_offer();
+
+        Connection connection = Connection(
+          id: connection_id,
+          source_user_id: this.user_id,
+          destination_user_id: user_id,
+        );
+        room_ref.update({
+          'connections': FieldValue.arrayUnion([connection.to_json()]),
         });
       });
-
-      var new_connections = connections;
-      new_connections
-          .firstWhere((element) => element.id == connection_id)
-          .destination_user_id = user_id;
-
-      var new_connections_json = new_connections.map((e) => e.to_json());
-      room_ref.update({
-        'connections': new_connections_json,
-      });
-
-      return room;
     }
   }
 }

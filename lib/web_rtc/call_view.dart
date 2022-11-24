@@ -5,6 +5,9 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/get_media_devices.dart';
 import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
 import 'package:xapptor_communication/web_rtc/settings_menu.dart';
+import 'package:xapptor_communication/web_rtc/signaling/create_connection_anwser.dart';
+import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
+import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 import 'package:xapptor_communication/web_rtc/signaling/open_user_media.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
@@ -90,7 +93,7 @@ class _CallViewState extends State<CallView> {
           List<String> connections_ids =
               room.connections.map((e) => e.id).toList();
           List<String> remote_renderers_ids =
-              remote_renderers.value.map((e) => e.call_id).toList();
+              remote_renderers.value.map((e) => e.connection_id).toList();
 
           print("connections_ids: $connections_ids");
           print("remote_renderers_ids: $remote_renderers_ids");
@@ -106,21 +109,36 @@ class _CallViewState extends State<CallView> {
 
             if (connection_was_added) {
               if (!room_just_was_created) {
-                remote_renderers.value.last.call_id = connection_changed_id;
-                print("call_id: ${connection_changed_id}");
+                Connection connection = room.connections.firstWhere(
+                    (element) => element.id == connection_changed_id);
+                if (widget.user_id != connection.destination_user_id) {
+                  if (remote_renderers.value.length == 0) {
+                    //add_remote_renderer(remote_renderers);
+                  }
+                  remote_renderers.value.last.connection_id =
+                      connection_changed_id;
+                  print("connection_id: ${connection_changed_id}");
+                } else {
+                  signaling.create_connection_anwser(
+                    connection: connection,
+                    room_ref: room_ref,
+                    connections: room.connections,
+                    room: room,
+                  );
+                }
               } else {
                 room_just_was_created = false;
               }
             } else {
               remote_renderers.value.removeWhere(
-                  (element) => element.call_id == connection_changed_id);
+                  (element) => element.connection_id == connection_changed_id);
             }
             setState(() {});
           } else {
-            exit_from_call();
+            clean_the_call();
           }
         } else {
-          exit_from_call();
+          clean_the_call();
         }
       });
     }
@@ -232,6 +250,24 @@ class _CallViewState extends State<CallView> {
     );
   }
 
+  clean_the_call() async {
+    if (room_id != "") {
+      remote_renderers.value.clear();
+      String connection_id = await signaling.create_connection_offer();
+
+      DocumentReference room_ref = db.collection('rooms').doc(room_id);
+      Connection connection = Connection(
+        id: connection_id,
+        source_user_id: widget.user_id,
+        destination_user_id: '',
+      );
+      room_ref.update({
+        'connections': [connection.to_json()],
+      });
+      setState(() {});
+    }
+  }
+
   exit_from_call() {
     remote_renderers.value.clear();
     in_a_call.value = false;
@@ -332,10 +368,9 @@ class _CallViewState extends State<CallView> {
                                         child: FloatingActionButton(
                                           child: Icon(Icons.call_end),
                                           backgroundColor: Colors.red,
-                                          onPressed: () {
-                                            signaling.hang_up().then((value) {
-                                              exit_from_call();
-                                            });
+                                          onPressed: () async {
+                                            await signaling.hang_up();
+                                            exit_from_call();
                                           },
                                         ),
                                       ),
@@ -355,8 +390,7 @@ class _CallViewState extends State<CallView> {
                                         main_color: widget.main_color,
                                         join_room: () async {
                                           room_id = room_id_controller.text;
-                                          Room? room =
-                                              await signaling.join_room(
+                                          await signaling.join_room(
                                             room_id: room_id,
                                           );
                                           in_a_call.value = !in_a_call.value;
