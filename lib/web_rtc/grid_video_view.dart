@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:xapptor_communication/web_rtc/remote_renderer.dart';
+import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 import 'dart:math' as math;
 

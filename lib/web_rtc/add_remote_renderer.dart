@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'remote_renderer.dart';
+import 'model/remote_renderer.dart';
 
 add_remote_renderer(ValueNotifier<List<RemoteRenderer>> remote_renderers) {
   RTCVideoRenderer video_renderer = RTCVideoRenderer();

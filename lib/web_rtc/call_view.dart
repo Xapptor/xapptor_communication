@@ -15,7 +15,7 @@ import 'package:xapptor_ui/widgets/is_portrait.dart';
 import 'add_remote_renderer.dart';
 import 'custom_dropdown_button.dart';
 import 'join_another_room_container.dart';
-import 'remote_renderer.dart';
+import 'model/remote_renderer.dart';
 import 'room_info.dart';
 import 'settings_icons.dart';
 import 'signaling/model/room.dart';
