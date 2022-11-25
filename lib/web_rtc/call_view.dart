@@ -4,10 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/get_media_devices.dart';
 import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
+import 'package:xapptor_communication/web_rtc/listen_call_participants.dart';
 import 'package:xapptor_communication/web_rtc/settings_menu.dart';
-import 'package:xapptor_communication/web_rtc/signaling/create_connection_anwser.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
-import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 import 'package:xapptor_communication/web_rtc/signaling/open_user_media.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
@@ -76,78 +75,21 @@ class _CallViewState extends State<CallView> {
 
   FirebaseFirestore db = FirebaseFirestore.instance;
 
-  listen_call_participants({
-    required bool room_just_was_created,
-  }) {
-    if (widget.room_id.value != "") {
-      bool first_time = true;
-
-      CollectionReference connections_ref = db
-          .collection("rooms")
-          .doc(widget.room_id.value)
-          .collection("connections");
-
-      // At first call "snapshots().listen" retrieve all docs in the collection
-      connections_ref.snapshots().listen((event) async {
-        if (!first_time) {
-          if (event.docs.isEmpty) {
-            clean_the_call();
-          } else {
-            event.docChanges.forEach((element) {
-              if (element.type == DocumentChangeType.added) {
-                Connection connection = Connection.from_snapshot(
-                    element.doc.id, element.doc.data() as Map<String, dynamic>);
-
-                if (!room_just_was_created) {
-                  if (widget.user_id != connection.destination_user_id) {
-                    if (remote_renderers.value.length == 0) {
-                      add_remote_renderer(remote_renderers);
-                    }
-                    remote_renderers.value.last.connection_id = connection.id;
-                    print("connection_id: ${connection.id}");
-                  } else {
-                    DocumentReference room_ref =
-                        db.collection('rooms').doc(widget.room_id.value);
-
-                    signaling.create_connection_anwser(
-                      connection: connection,
-                      room_ref: room_ref,
-                      callback: () {
-                        if (remote_renderers.value.length == 0) {
-                          add_remote_renderer(remote_renderers);
-                        }
-                        remote_renderers.value.last.connection_id =
-                            connection.id;
-                        print("connection_id: ${connection.id}");
-                      },
-                    );
-                  }
-                } else {
-                  room_just_was_created = false;
-                }
-              } else if (element.type == DocumentChangeType.removed) {
-                Connection connection = Connection.from_snapshot(
-                    element.doc.id, element.doc.data() as Map<String, dynamic>);
-
-                remote_renderers.value.removeWhere(
-                    (element) => element.connection_id == connection.id);
-              }
-              setState(() {});
-            });
-          }
-        } else {
-          first_time = false;
-        }
-      });
-    }
-  }
-
   @override
   void initState() {
     signaling.init(user_id: widget.user_id);
     init_video_renderers();
     super.initState();
-    listen_call_participants(room_just_was_created: false);
+    listen_call_participants(
+      room_just_was_created: false,
+      room_id: widget.room_id.value,
+      user_id: widget.user_id,
+      remote_renderers: remote_renderers,
+      setState: setState,
+      signaling: signaling,
+      clean_the_call: clean_the_call,
+    );
+
     call_open_user_media().then((_) {
       get_media_devices(
         audio_devices: audio_devices,
@@ -389,6 +331,12 @@ class _CallViewState extends State<CallView> {
                                           in_a_call.value = !in_a_call.value;
                                           listen_call_participants(
                                             room_just_was_created: false,
+                                            room_id: widget.room_id.value,
+                                            user_id: widget.user_id,
+                                            remote_renderers: remote_renderers,
+                                            setState: setState,
+                                            signaling: signaling,
+                                            clean_the_call: clean_the_call,
                                           );
                                           setState(() {});
                                         },
@@ -414,6 +362,13 @@ class _CallViewState extends State<CallView> {
                                                   !in_a_call.value;
                                               listen_call_participants(
                                                 room_just_was_created: true,
+                                                room_id: widget.room_id.value,
+                                                user_id: widget.user_id,
+                                                remote_renderers:
+                                                    remote_renderers,
+                                                setState: setState,
+                                                signaling: signaling,
+                                                clean_the_call: clean_the_call,
                                               );
                                               setState(() {});
                                             },

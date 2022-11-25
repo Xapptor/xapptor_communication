@@ -28,7 +28,7 @@ extension CreateConnectionAnswer on Signaling {
     };
 
     // Code for creating SDP answer below
-    print('Got offer ${connection.to_json()}');
+    //print('Got offer ${connection.to_json()}');
     var offer = connection.offer;
     await peer_connections.last.value.setRemoteDescription(
       RTCSessionDescription(offer!.sdp, offer.type),
