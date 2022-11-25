@@ -75,7 +75,7 @@ class RoomInfo extends StatelessWidget {
                   onPressed: () async {
                     copy_to_clipboard(
                       data: room_id,
-                      message: "ID copied to clipboard",
+                      message: "Room ID copied to clipboard",
                       context: context,
                     );
                     callback();
@@ -103,7 +103,7 @@ class RoomInfo extends StatelessWidget {
                   onPressed: () async {
                     copy_to_clipboard(
                       data: call_base_url + room_id,
-                      message: "URL copied to clipboard",
+                      message: "Room URL copied to clipboard",
                       context: context,
                     );
                     callback();

@@ -22,7 +22,7 @@ extension CreateRoom on Signaling {
 
     copy_to_clipboard(
       data: room_ref.id,
-      message: "ID copied to clipboard",
+      message: "Room ID copied to clipboard",
       context: context,
     );
     return room;
