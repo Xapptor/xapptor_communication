@@ -81,65 +81,53 @@ class _CallViewState extends State<CallView> {
     required bool room_just_was_created,
   }) {
     if (room_id != "") {
-      DocumentReference room_ref = db.collection('rooms').doc(room_id);
-      room_ref.snapshots().listen((room_snap) {
-        Room room = Room.from_snapshot(
-            room_snap.id, room_snap.data() as Map<String, dynamic>);
+      db
+          .collection('connections')
+          .where('room_id', isEqualTo: room_id)
+          .snapshots()
+          .listen((event) {
+        event.docChanges.forEach((element) {
+          // Room room = Room.from_snapshot(
+          //     room_snap.id, room_snap.data() as Map<String, dynamic>);
 
-        if (room.connections.length > 0 || remote_renderers.value.length > 0) {
-          bool connection_was_added =
-              room.connections.length > remote_renderers.value.length;
+          // clean_the_call();
+          // setState(() {});
 
-          List<String> connections_ids =
-              room.connections.map((e) => e.id).toList();
-          List<String> remote_renderers_ids =
-              remote_renderers.value.map((e) => e.connection_id).toList();
+          Connection connection = Connection.from_snapshot(
+              element.doc.id, element.doc.data() as Map<String, dynamic>);
 
-          print("connections_ids: $connections_ids");
-          print("remote_renderers_ids: $remote_renderers_ids");
-
-          List<String> connection_changed_id_list = connections_ids
-              .toSet()
-              .difference(remote_renderers_ids.toSet())
-              .toList();
-
-          if (connection_changed_id_list.length > 0) {
-            String connection_changed_id = connection_changed_id_list[0];
-            print("connection_changed_id: $connection_changed_id");
-
-            if (connection_was_added) {
-              if (!room_just_was_created) {
-                Connection connection = room.connections.firstWhere(
-                    (element) => element.id == connection_changed_id);
-                if (widget.user_id != connection.destination_user_id) {
-                  if (remote_renderers.value.length == 0) {
-                    //add_remote_renderer(remote_renderers);
-                  }
-                  remote_renderers.value.last.connection_id =
-                      connection_changed_id;
-                  print("connection_id: ${connection_changed_id}");
-                } else {
-                  signaling.create_connection_anwser(
-                    connection: connection,
-                    room_ref: room_ref,
-                    connections: room.connections,
-                    room: room,
-                  );
+          if (element.type == DocumentChangeType.added) {
+            if (!room_just_was_created) {
+              if (widget.user_id != connection.destination_user_id) {
+                if (remote_renderers.value.length == 0) {
+                  //add_remote_renderer(remote_renderers);
                 }
+                remote_renderers.value.last.connection_id = connection.id;
+                print("connection_id: ${connection.id}");
               } else {
-                room_just_was_created = false;
+                DocumentReference room_ref =
+                    db.collection('rooms').doc(room_id);
+
+                signaling.create_connection_anwser(
+                  connection: connection,
+                  room_ref: room_ref,
+                  callback: () {
+                    if (remote_renderers.value.length == 0) {
+                      //add_remote_renderer(remote_renderers);
+                    }
+                    remote_renderers.value.last.connection_id = connection.id;
+                    print("connection_id: ${connection.id}");
+                  },
+                );
               }
             } else {
-              remote_renderers.value.removeWhere(
-                  (element) => element.connection_id == connection_changed_id);
+              room_just_was_created = false;
             }
-            setState(() {});
-          } else {
-            clean_the_call();
+          } else if (element.type == DocumentChangeType.removed) {
+            remote_renderers.value.removeWhere(
+                (element) => element.connection_id == connection.id);
           }
-        } else {
-          clean_the_call();
-        }
+        });
       });
     }
   }
@@ -258,6 +246,7 @@ class _CallViewState extends State<CallView> {
       DocumentReference room_ref = db.collection('rooms').doc(room_id);
       Connection connection = Connection(
         id: connection_id,
+        room_id: room_id,
         source_user_id: widget.user_id,
         destination_user_id: '',
       );

@@ -8,16 +8,17 @@ extension CreateRoom on Signaling {
   Future<Room> create_room() async {
     String connection_id = await create_connection_offer();
     DocumentReference room_ref = rooms_ref.doc();
-    this.room_id = room_ref.id;
+    room_id = room_ref.id;
 
     Connection connection = Connection(
       id: connection_id,
+      room_id: room_id!,
       source_user_id: user_id,
       destination_user_id: '',
     );
     Room room = Room(
       id: room_ref.id,
-      connections: [connection],
+      connections_ids: [connection.id],
       created: DateTime.now(),
       host_id: user_id,
     );

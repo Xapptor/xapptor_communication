@@ -14,7 +14,7 @@ extension JoinRoom on Signaling {
     Room room =
         Room.from_snapshot(room_id, room_snap.data() as Map<String, dynamic>);
 
-    List<Connection> connections = room.connections;
+    List<Connection> connections = await room.connections();
     List<String> pending_connections_id = connections
         .where((element) => element.destination_user_id == '')
         .map(
@@ -30,8 +30,6 @@ extension JoinRoom on Signaling {
         create_connection_anwser(
           connection: current_connection,
           room_ref: room_ref,
-          connections: connections,
-          room: room,
         );
       });
     } else {
@@ -41,17 +39,21 @@ extension JoinRoom on Signaling {
         user_ids.add(connection.destination_user_id);
       });
       user_ids = user_ids.toSet().toList();
+      print('user_ids: $user_ids');
 
       user_ids.forEach((user_id) async {
-        String connection_id = await create_connection_offer();
+        String connection_id = await create_connection_offer(
+          destination_user_id: user_id,
+        );
 
         Connection connection = Connection(
           id: connection_id,
+          room_id: room_id,
           source_user_id: this.user_id,
           destination_user_id: user_id,
         );
         room_ref.update({
-          'connections': FieldValue.arrayUnion([connection.to_json()]),
+          'connections': FieldValue.arrayUnion([connection.id]),
         });
       });
     }

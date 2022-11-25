@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'model/peer_connection.dart';
 
 typedef void StreamStateCallback(MediaStream stream);
 
@@ -22,8 +23,8 @@ class Signaling {
   late String user_id;
   String? room_id;
   MediaStream? local_stream;
-  MediaStream? remote_stream;
-  RTCPeerConnection? peer_connection;
+  List<MediaStream> remote_streams = [];
+  List<PeerConnection> peer_connections = [];
   StreamStateCallback? on_add_remote_stream;
 
   init({
