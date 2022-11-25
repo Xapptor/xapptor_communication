@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/get_media_devices.dart';
 import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
-import 'package:xapptor_communication/web_rtc/listen_call_participants.dart';
+import 'package:xapptor_communication/web_rtc/listen_connections.dart';
 import 'package:xapptor_communication/web_rtc/settings_menu.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
 import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
@@ -48,8 +48,14 @@ class CallView extends StatefulWidget {
 }
 
 class _CallViewState extends State<CallView> {
+  FirebaseFirestore db = FirebaseFirestore.instance;
+
   ValueNotifier<bool> enable_audio = ValueNotifier<bool>(true);
   ValueNotifier<bool> enable_video = ValueNotifier<bool>(true);
+  ValueNotifier<List<MediaDeviceInfo>> audio_devices =
+      ValueNotifier<List<MediaDeviceInfo>>([]);
+  ValueNotifier<List<MediaDeviceInfo>> video_devices =
+      ValueNotifier<List<MediaDeviceInfo>>([]);
 
   Signaling signaling = Signaling();
   RTCVideoRenderer local_renderer = RTCVideoRenderer();
@@ -57,12 +63,6 @@ class _CallViewState extends State<CallView> {
       ValueNotifier<List<RemoteRenderer>>([]);
 
   TextEditingController room_id_controller = TextEditingController();
-
-  ValueNotifier<List<MediaDeviceInfo>> audio_devices =
-      ValueNotifier<List<MediaDeviceInfo>>([]);
-  ValueNotifier<List<MediaDeviceInfo>> video_devices =
-      ValueNotifier<List<MediaDeviceInfo>>([]);
-
   ValueNotifier<String> current_audio_device = ValueNotifier<String>("");
   ValueNotifier<String> current_video_device = ValueNotifier<String>("");
   ValueNotifier<String> current_audio_device_id = ValueNotifier<String>("");
@@ -72,22 +72,23 @@ class _CallViewState extends State<CallView> {
   ValueNotifier<bool> show_info = ValueNotifier<bool>(false);
   ValueNotifier<int> call_participants = ValueNotifier<int>(1);
   ValueNotifier<bool> in_a_call = ValueNotifier<bool>(false);
-
-  FirebaseFirestore db = FirebaseFirestore.instance;
+  ValueNotifier<StreamSubscription?> connections_listener = ValueNotifier(null);
 
   @override
   void initState() {
     signaling.init(user_id: widget.user_id);
     init_video_renderers();
     super.initState();
-    listen_call_participants(
+    listen_connections(
       room_just_was_created: false,
       room_id: widget.room_id.value,
       user_id: widget.user_id,
       remote_renderers: remote_renderers,
       setState: setState,
       signaling: signaling,
-      clean_the_call: clean_the_call,
+      clean_the_room: clean_the_room,
+      exit_from_room: exit_from_room,
+      connections_listener: connections_listener,
     );
 
     call_open_user_media().then((_) {
@@ -135,6 +136,7 @@ class _CallViewState extends State<CallView> {
     remote_renderers.value.forEach((element) {
       element.video_renderer.dispose();
     });
+    if (connections_listener != null) connections_listener.value!.cancel();
     super.dispose();
   }
 
@@ -189,7 +191,7 @@ class _CallViewState extends State<CallView> {
     );
   }
 
-  clean_the_call() async {
+  clean_the_room() async {
     if (widget.room_id.value != "") {
       remote_renderers.value.clear();
       DocumentReference room_ref =
@@ -202,7 +204,7 @@ class _CallViewState extends State<CallView> {
     }
   }
 
-  exit_from_call() {
+  exit_from_room() {
     remote_renderers.value.clear();
     in_a_call.value = false;
     room_id_controller.clear();
@@ -303,8 +305,10 @@ class _CallViewState extends State<CallView> {
                                           child: Icon(Icons.call_end),
                                           backgroundColor: Colors.red,
                                           onPressed: () async {
+                                            await connections_listener.value!
+                                                .cancel();
                                             await signaling.hang_up();
-                                            exit_from_call();
+                                            exit_from_room();
                                           },
                                         ),
                                       ),
@@ -329,14 +333,17 @@ class _CallViewState extends State<CallView> {
                                             room_id: widget.room_id.value,
                                           );
                                           in_a_call.value = !in_a_call.value;
-                                          listen_call_participants(
+                                          listen_connections(
                                             room_just_was_created: false,
                                             room_id: widget.room_id.value,
                                             user_id: widget.user_id,
                                             remote_renderers: remote_renderers,
                                             setState: setState,
                                             signaling: signaling,
-                                            clean_the_call: clean_the_call,
+                                            clean_the_room: clean_the_room,
+                                            exit_from_room: exit_from_room,
+                                            connections_listener:
+                                                connections_listener,
                                           );
                                           setState(() {});
                                         },
@@ -360,7 +367,7 @@ class _CallViewState extends State<CallView> {
 
                                               in_a_call.value =
                                                   !in_a_call.value;
-                                              listen_call_participants(
+                                              listen_connections(
                                                 room_just_was_created: true,
                                                 room_id: widget.room_id.value,
                                                 user_id: widget.user_id,
@@ -368,7 +375,10 @@ class _CallViewState extends State<CallView> {
                                                     remote_renderers,
                                                 setState: setState,
                                                 signaling: signaling,
-                                                clean_the_call: clean_the_call,
+                                                clean_the_room: clean_the_room,
+                                                exit_from_room: exit_from_room,
+                                                connections_listener:
+                                                    connections_listener,
                                               );
                                               setState(() {});
                                             },

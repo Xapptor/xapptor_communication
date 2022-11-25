@@ -29,17 +29,17 @@ extension HangUp on Signaling {
           await connection_ref
               .collection('source_candidates')
               .get()
-              .then((value) {
+              .then((value) async {
             for (DocumentSnapshot ds in value.docs) {
-              ds.reference.delete();
+              await ds.reference.delete();
             }
           });
           await connection_ref
               .collection('destination_candidates')
               .get()
-              .then((value) {
+              .then((value) async {
             for (DocumentSnapshot ds in value.docs) {
-              ds.reference.delete();
+              await ds.reference.delete();
             }
           });
           await connection_ref.delete();
@@ -47,7 +47,12 @@ extension HangUp on Signaling {
       });
 
       if (room.host_id == user_id) {
-        room_ref.delete();
+        await room_ref.collection('connections').get().then((value) async {
+          for (DocumentSnapshot ds in value.docs) {
+            await ds.reference.delete();
+          }
+        });
+        await room_ref.delete();
       }
       remote_streams.forEach((remote_stream) {
         remote_stream.dispose();

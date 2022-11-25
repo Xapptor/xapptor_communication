@@ -1,19 +1,23 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc/add_remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_anwser.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
+import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 
-listen_call_participants({
+listen_connections({
   required bool room_just_was_created,
   required String room_id,
   required String user_id,
   required ValueNotifier<List<RemoteRenderer>> remote_renderers,
   required Function setState,
   required Signaling signaling,
-  required Function clean_the_call,
+  required Function clean_the_room,
+  required Function exit_from_room,
+  required ValueNotifier<StreamSubscription?> connections_listener,
 }) {
   if (room_id != "") {
     bool first_time = true;
@@ -22,12 +26,22 @@ listen_call_participants({
     CollectionReference connections_ref = room_ref.collection("connections");
 
     // At first call "snapshots().listen" retrieve all docs in the collection
-    connections_ref.snapshots().listen((event) async {
+    connections_listener.value =
+        connections_ref.snapshots().listen((event) async {
       if (!first_time) {
+        DocumentSnapshot room_snap = await room_ref.get();
+        Room room = Room.from_snapshot(
+            room_ref.id, room_snap.data() as Map<String, dynamic>);
+
         if (event.docs.isEmpty) {
-          clean_the_call();
+          if (user_id == room.host_id) {
+            clean_the_room();
+          } else {
+            exit_from_room();
+          }
         } else {
           event.docChanges.forEach((element) {
+            //
             // If a new document is added to the collection
             if (element.type == DocumentChangeType.added) {
               Connection connection = Connection.from_snapshot(
@@ -57,6 +71,7 @@ listen_call_participants({
                 room_just_was_created = false;
               }
             }
+            //
             // If a  document is removed to the collection
             else if (element.type == DocumentChangeType.removed) {
               remote_renderers.value.removeWhere((remote_renderer) =>

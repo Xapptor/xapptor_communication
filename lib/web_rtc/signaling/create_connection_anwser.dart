@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_peer_connection.dart';
@@ -52,23 +53,24 @@ extension CreateConnectionAnswer on Signaling {
         .collection('source_candidates')
         .snapshots()
         .listen((snapshot) {
-      snapshot.docChanges.forEach((document) {
-        var data = document.doc.data() as Map<String, dynamic>;
+      snapshot.docChanges.forEach((change) {
+        if (change.type == DocumentChangeType.added) {
+          Map<String, dynamic> data = change.doc.data() as Map<String, dynamic>;
 
-        var peer_connection = peer_connections
-            .firstWhere(
-                (peer_connection) => peer_connection.id == connection_ref.id)
-            .value;
+          var peer_connection = peer_connections
+              .firstWhere(
+                  (peer_connection) => peer_connection.id == connection_ref.id)
+              .value;
 
-        print(data);
-        print('Got new remote ICE candidate: $data');
-        peer_connection.addCandidate(
-          RTCIceCandidate(
-            data['candidate'],
-            data['sdpMid'],
-            data['sdpMLineIndex'],
-          ),
-        );
+          print('Got new remote ICE candidate: ${jsonEncode(data)}');
+          peer_connection.addCandidate(
+            RTCIceCandidate(
+              data['candidate'],
+              data['sdpMid'],
+              data['sdpMLineIndex'],
+            ),
+          );
+        }
       });
     });
 
