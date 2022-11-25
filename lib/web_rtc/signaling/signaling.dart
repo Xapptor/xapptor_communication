@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'model/peer_connection.dart';
 
@@ -17,11 +18,10 @@ class Signaling {
   };
   FirebaseFirestore db = FirebaseFirestore.instance;
   late CollectionReference rooms_ref;
-  late CollectionReference connections_ref;
 
   String? current_room_text;
   late String user_id;
-  String? room_id;
+  ValueNotifier<String?> room_id = ValueNotifier<String?>(null);
   MediaStream? local_stream;
   List<MediaStream> remote_streams = [];
   List<PeerConnection> peer_connections = [];
@@ -32,6 +32,5 @@ class Signaling {
   }) {
     this.user_id = user_id;
     rooms_ref = db.collection('rooms');
-    connections_ref = db.collection('connections');
   }
 }

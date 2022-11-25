@@ -1,6 +1,6 @@
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:xapptor_communication/web_rtc/signaling/copy_to_clipboard.dart';
 import 'package:xapptor_ui/values/ui.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 
@@ -73,15 +73,10 @@ class RoomInfo extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () async {
-                    ClipboardData data = ClipboardData(
-                      text: room_id,
-                    );
-                    await Clipboard.setData(data);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("ID copied to clipboard"),
-                        duration: Duration(milliseconds: 2000),
-                      ),
+                    copy_to_clipboard(
+                      data: room_id,
+                      message: "ID copied to clipboard",
+                      context: context,
                     );
                     callback();
                   },
@@ -106,15 +101,10 @@ class RoomInfo extends StatelessWidget {
                 ),
                 TextButton(
                   onPressed: () async {
-                    ClipboardData data = ClipboardData(
-                      text: call_base_url + room_id,
-                    );
-                    await Clipboard.setData(data);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("URL copied to clipboard"),
-                        duration: Duration(milliseconds: 2000),
-                      ),
+                    copy_to_clipboard(
+                      data: call_base_url + room_id,
+                      message: "URL copied to clipboard",
+                      context: context,
                     );
                     callback();
                   },

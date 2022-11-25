@@ -41,7 +41,7 @@ class CallView extends StatefulWidget {
   final bool enable_video;
   final List<String> text_list;
   final String call_base_url;
-  final String room_id;
+  final ValueNotifier<String> room_id;
   final String user_id;
 
   @override
@@ -74,60 +74,70 @@ class _CallViewState extends State<CallView> {
   ValueNotifier<int> call_participants = ValueNotifier<int>(1);
   ValueNotifier<bool> in_a_call = ValueNotifier<bool>(false);
 
-  String room_id = "";
   FirebaseFirestore db = FirebaseFirestore.instance;
 
   listen_call_participants({
     required bool room_just_was_created,
   }) {
-    if (room_id != "") {
-      db
-          .collection('connections')
-          .where('room_id', isEqualTo: room_id)
-          .snapshots()
-          .listen((event) {
-        event.docChanges.forEach((element) {
-          // Room room = Room.from_snapshot(
-          //     room_snap.id, room_snap.data() as Map<String, dynamic>);
+    if (widget.room_id.value != "") {
+      bool first_time = true;
 
-          // clean_the_call();
-          // setState(() {});
+      CollectionReference connections_ref = db
+          .collection("rooms")
+          .doc(widget.room_id.value)
+          .collection("connections");
 
-          Connection connection = Connection.from_snapshot(
-              element.doc.id, element.doc.data() as Map<String, dynamic>);
+      // At first call "snapshots().listen" retrieve all docs in the collection
+      connections_ref.snapshots().listen((event) async {
+        if (!first_time) {
+          if (event.docs.isEmpty) {
+            clean_the_call();
+          } else {
+            event.docChanges.forEach((element) {
+              if (element.type == DocumentChangeType.added) {
+                Connection connection = Connection.from_snapshot(
+                    element.doc.id, element.doc.data() as Map<String, dynamic>);
 
-          if (element.type == DocumentChangeType.added) {
-            if (!room_just_was_created) {
-              if (widget.user_id != connection.destination_user_id) {
-                if (remote_renderers.value.length == 0) {
-                  //add_remote_renderer(remote_renderers);
-                }
-                remote_renderers.value.last.connection_id = connection.id;
-                print("connection_id: ${connection.id}");
-              } else {
-                DocumentReference room_ref =
-                    db.collection('rooms').doc(room_id);
-
-                signaling.create_connection_anwser(
-                  connection: connection,
-                  room_ref: room_ref,
-                  callback: () {
+                if (!room_just_was_created) {
+                  if (widget.user_id != connection.destination_user_id) {
                     if (remote_renderers.value.length == 0) {
-                      //add_remote_renderer(remote_renderers);
+                      add_remote_renderer(remote_renderers);
                     }
                     remote_renderers.value.last.connection_id = connection.id;
                     print("connection_id: ${connection.id}");
-                  },
-                );
+                  } else {
+                    DocumentReference room_ref =
+                        db.collection('rooms').doc(widget.room_id.value);
+
+                    signaling.create_connection_anwser(
+                      connection: connection,
+                      room_ref: room_ref,
+                      callback: () {
+                        if (remote_renderers.value.length == 0) {
+                          add_remote_renderer(remote_renderers);
+                        }
+                        remote_renderers.value.last.connection_id =
+                            connection.id;
+                        print("connection_id: ${connection.id}");
+                      },
+                    );
+                  }
+                } else {
+                  room_just_was_created = false;
+                }
+              } else if (element.type == DocumentChangeType.removed) {
+                Connection connection = Connection.from_snapshot(
+                    element.doc.id, element.doc.data() as Map<String, dynamic>);
+
+                remote_renderers.value.removeWhere(
+                    (element) => element.connection_id == connection.id);
               }
-            } else {
-              room_just_was_created = false;
-            }
-          } else if (element.type == DocumentChangeType.removed) {
-            remote_renderers.value.removeWhere(
-                (element) => element.connection_id == connection.id);
+              setState(() {});
+            });
           }
-        });
+        } else {
+          first_time = false;
+        }
       });
     }
   }
@@ -135,7 +145,6 @@ class _CallViewState extends State<CallView> {
   @override
   void initState() {
     signaling.init(user_id: widget.user_id);
-    room_id = widget.room_id;
     init_video_renderers();
     super.initState();
     listen_call_participants(room_just_was_created: false);
@@ -239,20 +248,14 @@ class _CallViewState extends State<CallView> {
   }
 
   clean_the_call() async {
-    if (room_id != "") {
+    if (widget.room_id.value != "") {
       remote_renderers.value.clear();
-      String connection_id = await signaling.create_connection_offer();
+      DocumentReference room_ref =
+          db.collection('rooms').doc(widget.room_id.value);
 
-      DocumentReference room_ref = db.collection('rooms').doc(room_id);
-      Connection connection = Connection(
-        id: connection_id,
-        room_id: room_id,
-        source_user_id: widget.user_id,
-        destination_user_id: '',
+      await signaling.create_connection_offer(
+        room_ref: room_ref,
       );
-      room_ref.update({
-        'connections': [connection.to_json()],
-      });
       setState(() {});
     }
   }
@@ -261,7 +264,7 @@ class _CallViewState extends State<CallView> {
     remote_renderers.value.clear();
     in_a_call.value = false;
     room_id_controller.clear();
-    room_id = "";
+    widget.room_id.value = "";
     setState(() {});
   }
 
@@ -378,9 +381,10 @@ class _CallViewState extends State<CallView> {
                                         setState: setState,
                                         main_color: widget.main_color,
                                         join_room: () async {
-                                          room_id = room_id_controller.text;
+                                          widget.room_id.value =
+                                              room_id_controller.text;
                                           await signaling.join_room(
-                                            room_id: room_id,
+                                            room_id: widget.room_id.value,
                                           );
                                           in_a_call.value = !in_a_call.value;
                                           listen_call_participants(
@@ -402,9 +406,9 @@ class _CallViewState extends State<CallView> {
                                                   widget.main_color,
                                             ),
                                             onPressed: () async {
-                                              Room room =
-                                                  await signaling.create_room();
-                                              room_id = room.id;
+                                              Room room = await signaling
+                                                  .create_room(context);
+                                              widget.room_id.value = room.id;
 
                                               in_a_call.value =
                                                   !in_a_call.value;
@@ -453,7 +457,7 @@ class _CallViewState extends State<CallView> {
                 child: RoomInfo(
                   background_color: Colors.blueGrey.withOpacity(0.9),
                   main_color: widget.main_color,
-                  room_id: room_id,
+                  room_id: widget.room_id.value,
                   call_base_url: widget.call_base_url,
                   callback: () {
                     show_info.value = !show_info.value;

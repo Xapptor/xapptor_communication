@@ -1,14 +1,16 @@
 import 'package:xapptor_communication/web_rtc/signaling/create_peer_connection.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'dart:convert';
 import 'signaling.dart';
 
 extension CreateConnectionOffer on Signaling {
   Future<String> create_connection_offer({
     String destination_user_id = '',
+    required DocumentReference room_ref,
   }) async {
-    DocumentReference connection_ref = connections_ref.doc();
+    DocumentReference connection_ref = room_ref.collection('connections').doc();
 
     await create_peer_connection(
       collection_name: 'source_candidates',
@@ -19,18 +21,19 @@ extension CreateConnectionOffer on Signaling {
     RTCSessionDescription offer =
         await peer_connections.last.value.createOffer();
     await peer_connections.last.value.setLocalDescription(offer);
-    print('Created offer: $offer');
+    //print('Created offer: ${offer.toMap()}');
 
-    Map<String, dynamic> connection_with_offer = {
-      'offer': offer.toMap(),
-      'room_id': room_id,
-      'source_user_id': user_id,
-      'destination_user_id': destination_user_id,
-    };
+    Connection connection = Connection(
+      id: connection_ref.id,
+      created: DateTime.now(),
+      source_user_id: user_id,
+      destination_user_id: destination_user_id,
+      offer: ConnectionOfferAnswer.from_map(offer.toMap()),
+    );
 
-    await connection_ref.set(connection_with_offer);
-
+    await connection_ref.set(connection.to_json());
     String connection_id = connection_ref.id;
+
     print(
         'New connection created with SDK offer. Connection ID: $connection_id');
     current_room_text =

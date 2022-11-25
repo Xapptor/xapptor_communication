@@ -10,8 +10,9 @@ extension CreateConnectionAnswer on Signaling {
     required DocumentReference room_ref,
     Function? callback,
   }) async {
+    CollectionReference connections_ref = room_ref.collection('connections');
     DocumentReference connection_ref = connections_ref.doc(connection.id);
-    this.room_id = room_ref.id;
+    this.room_id.value = room_ref.id;
 
     await create_peer_connection(
       collection_name: 'destination_candidates',
@@ -38,6 +39,7 @@ extension CreateConnectionAnswer on Signaling {
     await peer_connections.last.value.setLocalDescription(answer);
 
     await connection_ref.update({
+      'destination_user_id': user_id,
       'answer': {
         'type': answer.type,
         'sdp': answer.sdp,
@@ -70,9 +72,6 @@ extension CreateConnectionAnswer on Signaling {
       });
     });
 
-    room_ref.update({
-      'connections': FieldValue.arrayUnion([connection.id]),
-    });
     if (callback != null) {
       callback();
     }

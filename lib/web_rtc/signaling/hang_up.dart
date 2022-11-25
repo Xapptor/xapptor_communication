@@ -13,17 +13,18 @@ extension HangUp on Signaling {
         peer_connection.value.close();
       });
 
-      DocumentReference room_ref = rooms_ref.doc(room_id);
+      DocumentReference room_ref = rooms_ref.doc(room_id.value);
       DocumentSnapshot room_snap = await room_ref.get();
       Room room = Room.from_snapshot(
-          room_id!, room_snap.data() as Map<String, dynamic>);
+          room_id.value!, room_snap.data() as Map<String, dynamic>);
 
       List<Connection> connections = await room.connections();
 
       connections.forEach((connection) async {
         if (connection.source_user_id == user_id ||
             connection.destination_user_id == user_id) {
-          DocumentReference connection_ref = connections_ref.doc(connection.id);
+          DocumentReference connection_ref =
+              room_ref.collection('connections').doc(connection.id);
 
           await connection_ref
               .collection('source_candidates')
@@ -45,22 +46,8 @@ extension HangUp on Signaling {
         }
       });
 
-      List<String> new_room_connections = room.connections_ids;
-
-      connections.forEach((connection) async {
-        if (connection.source_user_id == user_id ||
-            connection.destination_user_id == user_id) {
-          new_room_connections
-              .removeWhere((element) => element == connection.id);
-        }
-      });
-
       if (room.host_id == user_id) {
         room_ref.delete();
-      } else {
-        room_ref.update({
-          'connections': new_room_connections,
-        });
       }
       remote_streams.forEach((remote_stream) {
         remote_stream.dispose();

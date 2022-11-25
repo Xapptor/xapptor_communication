@@ -15,47 +15,50 @@ extension JoinRoom on Signaling {
         Room.from_snapshot(room_id, room_snap.data() as Map<String, dynamic>);
 
     List<Connection> connections = await room.connections();
-    List<String> pending_connections_id = connections
-        .where((element) => element.destination_user_id == '')
-        .map(
-          (e) => e.id,
-        )
-        .toList();
 
-    if (pending_connections_id.length > 0) {
-      pending_connections_id.forEach((pending_connection_id) async {
-        Connection current_connection = connections
-            .firstWhere((element) => element.id == pending_connection_id);
-
+    if (connections.length > 1) {
+      create_pending_connections(
+        connections: connections,
+        room_ref: room_ref,
+      );
+    } else if (connections.length == 1) {
+      if (connections.first.destination_user_id == '') {
         create_connection_anwser(
-          connection: current_connection,
+          connection: connections.first,
           room_ref: room_ref,
         );
-      });
-    } else {
-      List<String> user_ids = [];
-      connections.forEach((connection) {
-        user_ids.add(connection.source_user_id);
-        user_ids.add(connection.destination_user_id);
-      });
-      user_ids = user_ids.toSet().toList();
-      print('user_ids: $user_ids');
-
-      user_ids.forEach((user_id) async {
-        String connection_id = await create_connection_offer(
-          destination_user_id: user_id,
+      } else {
+        create_pending_connections(
+          connections: connections,
+          room_ref: room_ref,
         );
-
-        Connection connection = Connection(
-          id: connection_id,
-          room_id: room_id,
-          source_user_id: this.user_id,
-          destination_user_id: user_id,
-        );
-        room_ref.update({
-          'connections': FieldValue.arrayUnion([connection.id]),
-        });
-      });
+      }
     }
+  }
+
+  create_pending_connections({
+    required List<Connection> connections,
+    required DocumentReference room_ref,
+  }) {
+    List<String> original_user_ids = [];
+    List<String> final_user_ids = [];
+
+    connections.forEach((connection) {
+      original_user_ids.add(connection.source_user_id);
+      original_user_ids.add(connection.destination_user_id);
+    });
+    original_user_ids.forEach((user_id) {
+      if (!final_user_ids.contains(user_id)) {
+        final_user_ids.add(user_id);
+      }
+    });
+    print('user_ids: $final_user_ids');
+
+    final_user_ids.forEach((user_id) async {
+      await create_connection_offer(
+        destination_user_id: user_id,
+        room_ref: room_ref,
+      );
+    });
   }
 }
