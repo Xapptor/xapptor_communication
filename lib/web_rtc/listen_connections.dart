@@ -32,6 +32,10 @@ listen_connections({
   // At first call "snapshots().listen" retrieve all docs in the collection
   connections_listener.value =
       connections_ref.snapshots().listen((event) async {
+    if (room_just_was_created) {
+      first_time = false;
+    }
+    // ------------------------------dont allow to create a room when the toom id textfield has text
     if (!first_time) {
       if (event.docs.isEmpty) {
         if (user_id == room.host_id) {
@@ -51,8 +55,13 @@ listen_connections({
             Connection connection = Connection.from_snapshot(
                 element.doc.id, element.doc.data() as Map<String, dynamic>);
 
+            print('Connection_added_incoming: ${connection.id}');
+            print('destination_user_id: ${connection.destination_user_id}');
+
             if (!room_just_was_created) {
               print('room_just_was_created_false');
+              print('my id is: $user_id');
+
               //
               // Check if the new connection is for me
               if (user_id == connection.destination_user_id) {
