@@ -10,7 +10,7 @@ import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 
 listen_connections({
   required bool room_just_was_created,
-  required String room_id,
+  required Room room,
   required String user_id,
   required ValueNotifier<List<RemoteRenderer>> remote_renderers,
   required Function setState,
@@ -24,77 +24,68 @@ listen_connections({
   required ValueNotifier<StreamSubscription?> connections_listener,
   required BuildContext context,
 }) {
-  if (room_id != "") {
-    bool first_time = true;
-    FirebaseFirestore db = FirebaseFirestore.instance;
-    DocumentReference room_ref = db.collection('rooms').doc(room_id);
-    CollectionReference connections_ref = room_ref.collection("connections");
+  bool first_time = true;
+  FirebaseFirestore db = FirebaseFirestore.instance;
+  DocumentReference room_ref = db.collection('rooms').doc(room.id);
+  CollectionReference connections_ref = room_ref.collection("connections");
 
-    // At first call "snapshots().listen" retrieve all docs in the collection
-    connections_listener.value =
-        connections_ref.snapshots().listen((event) async {
-      if (!first_time) {
-        DocumentSnapshot room_snap = await room_ref.get();
-        Room room = Room.from_snapshot(
-            room_ref.id, room_snap.data() as Map<String, dynamic>);
-
-        if (event.docs.isEmpty) {
-          if (user_id == room.host_id) {
-            clean_the_room();
-          } else {
-            exit_from_room(
-              context: context,
-              message: "The host closed the room",
-            );
-          }
+  // At first call "snapshots().listen" retrieve all docs in the collection
+  connections_listener.value =
+      connections_ref.snapshots().listen((event) async {
+    if (!first_time) {
+      if (event.docs.isEmpty) {
+        if (user_id == room.host_id) {
+          clean_the_room();
         } else {
-          event.docChanges.forEach((element) {
-            //
-            // If a new document is added to the collection
-            if (element.type == DocumentChangeType.added) {
-              Connection connection = Connection.from_snapshot(
-                  element.doc.id, element.doc.data() as Map<String, dynamic>);
-
-              if (!room_just_was_created) {
-                //
-                // Check if the new connection is for me
-                if (user_id == connection.destination_user_id) {
-                  signaling.create_connection_anwser(
-                    connection: connection,
-                    room_ref: room_ref,
-                    callback: () {
-                      _add_remote_renderer(
-                        remote_renderers: remote_renderers,
-                        connection: connection,
-                      );
-                    },
-                  );
-                } else {
-                  // if (connection.destination_user_id != "") {
-                  //   _add_remote_renderer(
-                  //     remote_renderers: remote_renderers,
-                  //     connection: connection,
-                  //   );
-                  // }
-                }
-              } else {
-                room_just_was_created = false;
-              }
-            }
-            //
-            // If a  document is removed to the collection
-            else if (element.type == DocumentChangeType.removed) {
-              remote_renderers.value.removeWhere((remote_renderer) =>
-                  remote_renderer.connection_id == element.doc.id);
-            }
-            setState(() {});
-          });
+          exit_from_room(
+            context: context,
+            message: "The host closed the room",
+          );
         }
       } else {
-        first_time = false;
+        event.docChanges.forEach((element) {
+          //
+          // If a new document is added to the collection
+          if (element.type == DocumentChangeType.added) {
+            print('Connection_added');
+            Connection connection = Connection.from_snapshot(
+                element.doc.id, element.doc.data() as Map<String, dynamic>);
+
+            if (!room_just_was_created) {
+              print('room_just_was_created_false');
+              //
+              // Check if the new connection is for me
+              if (user_id == connection.destination_user_id) {
+                print('new_connection_is_for_me');
+
+                signaling.create_connection_anwser(
+                  connection: connection,
+                  room_ref: room_ref,
+                  callback: () {
+                    _add_remote_renderer(
+                      remote_renderers: remote_renderers,
+                      connection: connection,
+                    );
+                  },
+                );
+              }
+            } else {
+              room_just_was_created = false;
+            }
+          }
+          //
+          // If a  document is removed to the collection
+          else if (element.type == DocumentChangeType.removed) {
+            remote_renderers.value.removeWhere((remote_renderer) =>
+                remote_renderer.connection_id == element.doc.id);
+          }
+          setState(() {});
+        });
       }
-    });
-  }
+    } else {
+      first_time = false;
+    }
+  });
 }
 
 _add_remote_renderer({

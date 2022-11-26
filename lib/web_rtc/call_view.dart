@@ -24,7 +24,7 @@ import 'settings_icons.dart';
 import 'signaling/model/room.dart';
 
 class CallView extends StatefulWidget {
-  const CallView({
+  CallView({
     required this.main_color,
     required this.background_color,
     required this.enable_audio,
@@ -41,7 +41,7 @@ class CallView extends StatefulWidget {
   final bool enable_video;
   final List<String> text_list;
   final String call_base_url;
-  final ValueNotifier<String> room_id;
+  ValueNotifier<String> room_id;
   final String user_id;
 
   @override
@@ -80,18 +80,9 @@ class _CallViewState extends State<CallView> {
     signaling.init(user_id: widget.user_id);
     init_video_renderers();
     super.initState();
-    listen_connections(
-      room_just_was_created: false,
-      room_id: widget.room_id.value,
-      user_id: widget.user_id,
-      remote_renderers: remote_renderers,
-      setState: setState,
-      signaling: signaling,
-      clean_the_room: clean_the_room,
-      exit_from_room: exit_from_room,
-      connections_listener: connections_listener,
-      context: context,
-    );
+    if (widget.room_id.value != "") {
+      signaling.join_room(room_id: widget.room_id.value);
+    }
 
     call_open_user_media().then((_) {
       get_media_devices(
@@ -345,9 +336,19 @@ class _CallViewState extends State<CallView> {
                                             room_id: widget.room_id.value,
                                           );
                                           in_a_call.value = true;
+
+                                          DocumentSnapshot room_snap = await db
+                                              .collection('rooms')
+                                              .doc(widget.room_id.value)
+                                              .get();
+
+                                          Room room = Room.from_snapshot(
+                                              room_snap.id,
+                                              room_snap.data()
+                                                  as Map<String, dynamic>);
+
                                           listen_connections(
                                             room_just_was_created: false,
-                                            room_id: widget.room_id.value,
                                             user_id: widget.user_id,
                                             remote_renderers: remote_renderers,
                                             setState: setState,
@@ -357,6 +358,7 @@ class _CallViewState extends State<CallView> {
                                             connections_listener:
                                                 connections_listener,
                                             context: context,
+                                            room: room,
                                           );
                                           setState(() {});
                                         },
@@ -381,7 +383,6 @@ class _CallViewState extends State<CallView> {
                                               in_a_call.value = true;
                                               listen_connections(
                                                 room_just_was_created: true,
-                                                room_id: widget.room_id.value,
                                                 user_id: widget.user_id,
                                                 remote_renderers:
                                                     remote_renderers,
@@ -392,6 +393,7 @@ class _CallViewState extends State<CallView> {
                                                 connections_listener:
                                                     connections_listener,
                                                 context: context,
+                                                room: room,
                                               );
                                               setState(() {});
                                             },

@@ -2,7 +2,6 @@ import 'package:xapptor_communication/web_rtc/signaling/create_peer_connection.d
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
-import 'package:xapptor_communication/web_rtc/signaling/model/peer_connection.dart';
 import 'dart:convert';
 import 'signaling.dart';
 
