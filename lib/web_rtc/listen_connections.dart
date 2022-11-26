@@ -16,8 +16,13 @@ listen_connections({
   required Function setState,
   required Signaling signaling,
   required Function clean_the_room,
-  required Function exit_from_room,
+  required Function({
+    required BuildContext context,
+    required String message,
+  })
+      exit_from_room,
   required ValueNotifier<StreamSubscription?> connections_listener,
+  required BuildContext context,
 }) {
   if (room_id != "") {
     bool first_time = true;
@@ -37,7 +42,10 @@ listen_connections({
           if (user_id == room.host_id) {
             clean_the_room();
           } else {
-            exit_from_room();
+            exit_from_room(
+              context: context,
+              message: "The host closed the room",
+            );
           }
         } else {
           event.docChanges.forEach((element) {

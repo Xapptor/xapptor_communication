@@ -90,6 +90,7 @@ class _CallViewState extends State<CallView> {
       clean_the_room: clean_the_room,
       exit_from_room: exit_from_room,
       connections_listener: connections_listener,
+      context: context,
     );
 
     call_open_user_media().then((_) {
@@ -205,7 +206,10 @@ class _CallViewState extends State<CallView> {
     }
   }
 
-  exit_from_room(BuildContext context) {
+  exit_from_room({
+    required BuildContext context,
+    required String message,
+  }) {
     remote_renderers.value.clear();
     in_a_call.value = false;
     room_id_controller.clear();
@@ -213,7 +217,7 @@ class _CallViewState extends State<CallView> {
     setState(() {});
     show_exit_alert(
       context: context,
-      message: 'The meeting end',
+      message: message,
     );
   }
 
@@ -313,7 +317,10 @@ class _CallViewState extends State<CallView> {
                                             await connections_listener.value!
                                                 .cancel();
                                             await signaling.hang_up();
-                                            exit_from_room(context);
+                                            exit_from_room(
+                                              context: context,
+                                              message: 'You closed the room',
+                                            );
                                           },
                                         ),
                                       ),
@@ -337,7 +344,7 @@ class _CallViewState extends State<CallView> {
                                           await signaling.join_room(
                                             room_id: widget.room_id.value,
                                           );
-                                          in_a_call.value = !in_a_call.value;
+                                          in_a_call.value = true;
                                           listen_connections(
                                             room_just_was_created: false,
                                             room_id: widget.room_id.value,
@@ -349,6 +356,7 @@ class _CallViewState extends State<CallView> {
                                             exit_from_room: exit_from_room,
                                             connections_listener:
                                                 connections_listener,
+                                            context: context,
                                           );
                                           setState(() {});
                                         },
@@ -370,8 +378,7 @@ class _CallViewState extends State<CallView> {
                                                   .create_room(context);
                                               widget.room_id.value = room.id;
 
-                                              in_a_call.value =
-                                                  !in_a_call.value;
+                                              in_a_call.value = true;
                                               listen_connections(
                                                 room_just_was_created: true,
                                                 room_id: widget.room_id.value,
@@ -384,6 +391,7 @@ class _CallViewState extends State<CallView> {
                                                 exit_from_room: exit_from_room,
                                                 connections_listener:
                                                     connections_listener,
+                                                context: context,
                                               );
                                               setState(() {});
                                             },

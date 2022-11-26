@@ -13,7 +13,7 @@ show_exit_alert({
     ),
   );
 
-  Timer(Duration(seconds: 6), () {
+  Timer(Duration(seconds: 4), () {
     Navigator.pop(context);
   });
 }
