@@ -74,6 +74,7 @@ class _CallViewState extends State<CallView> {
   ValueNotifier<int> call_participants = ValueNotifier<int>(1);
   ValueNotifier<bool> in_a_call = ValueNotifier<bool>(false);
   ValueNotifier<StreamSubscription?> connections_listener = ValueNotifier(null);
+  Room? room;
 
   @override
   void initState() {
@@ -129,7 +130,8 @@ class _CallViewState extends State<CallView> {
     remote_renderers.value.forEach((element) {
       element.video_renderer.dispose();
     });
-    if (connections_listener != null) connections_listener.value!.cancel();
+    if (connections_listener.value != null)
+      connections_listener.value!.cancel();
     super.dispose();
   }
 
@@ -305,12 +307,20 @@ class _CallViewState extends State<CallView> {
                                           child: Icon(Icons.call_end),
                                           backgroundColor: Colors.red,
                                           onPressed: () async {
+                                            String message = '';
+                                            if (widget.user_id ==
+                                                room!.host_id) {
+                                              message = 'You closed the room';
+                                            } else {
+                                              message = 'You exit the room';
+                                            }
+
                                             await connections_listener.value!
                                                 .cancel();
                                             await signaling.hang_up();
                                             exit_from_room(
                                               context: context,
-                                              message: 'You closed the room',
+                                              message: message,
                                             );
                                           },
                                         ),
@@ -342,13 +352,12 @@ class _CallViewState extends State<CallView> {
                                               .doc(widget.room_id.value)
                                               .get();
 
-                                          Room room = Room.from_snapshot(
+                                          room = Room.from_snapshot(
                                               room_snap.id,
                                               room_snap.data()
                                                   as Map<String, dynamic>);
 
                                           listen_connections(
-                                            room_just_was_created: false,
                                             user_id: widget.user_id,
                                             remote_renderers: remote_renderers,
                                             setState: setState,
@@ -358,7 +367,7 @@ class _CallViewState extends State<CallView> {
                                             connections_listener:
                                                 connections_listener,
                                             context: context,
-                                            room: room,
+                                            room: room!,
                                           );
                                           setState(() {});
                                         },
@@ -376,26 +385,39 @@ class _CallViewState extends State<CallView> {
                                                   widget.main_color,
                                             ),
                                             onPressed: () async {
-                                              Room room = await signaling
-                                                  .create_room(context);
-                                              widget.room_id.value = room.id;
+                                              if (room_id_controller
+                                                  .text.isEmpty) {
+                                                room = await signaling
+                                                    .create_room(context);
+                                                widget.room_id.value = room!.id;
 
-                                              in_a_call.value = true;
-                                              listen_connections(
-                                                room_just_was_created: true,
-                                                user_id: widget.user_id,
-                                                remote_renderers:
-                                                    remote_renderers,
-                                                setState: setState,
-                                                signaling: signaling,
-                                                clean_the_room: clean_the_room,
-                                                exit_from_room: exit_from_room,
-                                                connections_listener:
-                                                    connections_listener,
-                                                context: context,
-                                                room: room,
-                                              );
-                                              setState(() {});
+                                                in_a_call.value = true;
+                                                listen_connections(
+                                                  user_id: widget.user_id,
+                                                  remote_renderers:
+                                                      remote_renderers,
+                                                  setState: setState,
+                                                  signaling: signaling,
+                                                  clean_the_room:
+                                                      clean_the_room,
+                                                  exit_from_room:
+                                                      exit_from_room,
+                                                  connections_listener:
+                                                      connections_listener,
+                                                  context: context,
+                                                  room: room!,
+                                                );
+                                                setState(() {});
+                                              } else {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(
+                                                      'Room ID musty be empty to create a room',
+                                                    ),
+                                                  ),
+                                                );
+                                              }
                                             },
                                             child: Text(
                                               widget.text_list.last,
