@@ -48,14 +48,9 @@ listen_connections({
                   element.doc.id, element.doc.data() as Map<String, dynamic>);
 
               if (!room_just_was_created) {
-                if (user_id != connection.destination_user_id) {
-                  if (connection.destination_user_id != "") {
-                    _add_remote_renderer(
-                      remote_renderers: remote_renderers,
-                      connection: connection,
-                    );
-                  }
-                } else {
+                //
+                // Check if the new connection is for me
+                if (user_id == connection.destination_user_id) {
                   signaling.create_connection_anwser(
                     connection: connection,
                     room_ref: room_ref,
@@ -66,6 +61,13 @@ listen_connections({
                       );
                     },
                   );
+                } else {
+                  // if (connection.destination_user_id != "") {
+                  //   _add_remote_renderer(
+                  //     remote_renderers: remote_renderers,
+                  //     connection: connection,
+                  //   );
+                  // }
                 }
               } else {
                 room_just_was_created = false;

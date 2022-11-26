@@ -6,6 +6,7 @@ import 'package:xapptor_communication/web_rtc/get_media_devices.dart';
 import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
 import 'package:xapptor_communication/web_rtc/listen_connections.dart';
 import 'package:xapptor_communication/web_rtc/settings_menu.dart';
+import 'package:xapptor_communication/web_rtc/show_exit_alert.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
 import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 import 'package:xapptor_communication/web_rtc/signaling/open_user_media.dart';
@@ -204,12 +205,16 @@ class _CallViewState extends State<CallView> {
     }
   }
 
-  exit_from_room() {
+  exit_from_room(BuildContext context) {
     remote_renderers.value.clear();
     in_a_call.value = false;
     room_id_controller.clear();
     widget.room_id.value = "";
     setState(() {});
+    show_exit_alert(
+      context: context,
+      message: 'The meeting end',
+    );
   }
 
   @override
@@ -308,7 +313,7 @@ class _CallViewState extends State<CallView> {
                                             await connections_listener.value!
                                                 .cancel();
                                             await signaling.hang_up();
-                                            exit_from_room();
+                                            exit_from_room(context);
                                           },
                                         ),
                                       ),

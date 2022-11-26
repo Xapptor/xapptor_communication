@@ -2,6 +2,7 @@ import 'package:xapptor_communication/web_rtc/signaling/create_peer_connection.d
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
+import 'package:xapptor_communication/web_rtc/signaling/model/peer_connection.dart';
 import 'dart:convert';
 import 'signaling.dart';
 
@@ -11,16 +12,20 @@ extension CreateConnectionOffer on Signaling {
     required DocumentReference room_ref,
   }) async {
     DocumentReference connection_ref = room_ref.collection('connections').doc();
+    print('New connection created: ${connection_ref.id}');
 
     await create_peer_connection(
       collection_name: 'source_candidates',
       connection_ref: connection_ref,
     );
 
+    RTCPeerConnection peer_connection = peer_connections
+        .firstWhere((element) => element.id == connection_ref.id)
+        .value;
+
     // Add code for creating a connection
-    RTCSessionDescription offer =
-        await peer_connections.last.value.createOffer();
-    await peer_connections.last.value.setLocalDescription(offer);
+    RTCSessionDescription offer = await peer_connection.createOffer();
+    await peer_connection.setLocalDescription(offer);
     //print('Created offer: ${offer.toMap()}');
 
     Connection connection = Connection(
@@ -40,7 +45,7 @@ extension CreateConnectionOffer on Signaling {
         'Current connection is $connection_id - You are the source!';
     // Created a connection
 
-    peer_connections.last.value.onTrack = (RTCTrackEvent event) {
+    peer_connection.onTrack = (RTCTrackEvent event) {
       print('Got remote track: ${event.streams[0]}');
 
       event.streams[0].getTracks().forEach((track) {
@@ -54,11 +59,6 @@ extension CreateConnectionOffer on Signaling {
       //print('Got updated connection: ${snapshot.data()}');
       if (snapshot.exists) {
         Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
-
-        var peer_connection = peer_connections
-            .firstWhere(
-                (peer_connection) => peer_connection.id == connection_ref.id)
-            .value;
 
         if (peer_connection.getRemoteDescription() != null &&
             data['answer'] != null) {
@@ -82,11 +82,6 @@ extension CreateConnectionOffer on Signaling {
       snapshot.docChanges.forEach((change) {
         if (change.type == DocumentChangeType.added) {
           Map<String, dynamic> data = change.doc.data() as Map<String, dynamic>;
-
-          var peer_connection = peer_connections
-              .firstWhere(
-                  (peer_connection) => peer_connection.id == connection_ref.id)
-              .value;
 
           print('Got new remote ICE candidate: ${jsonEncode(data)}');
           peer_connection.addCandidate(
