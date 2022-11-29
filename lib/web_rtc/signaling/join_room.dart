@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:xapptor_communication/web_rtc/model/user.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_anwser.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
@@ -40,21 +41,8 @@ extension JoinRoom on Signaling {
     required List<Connection> connections,
     required DocumentReference room_ref,
   }) {
-    List<String> original_user_ids = [];
-    List<String> final_user_ids = [];
-
-    connections.forEach((connection) {
-      original_user_ids.add(connection.source_user_id);
-      original_user_ids.add(connection.destination_user_id);
-    });
-    original_user_ids.forEach((user_id) {
-      if (!final_user_ids.contains(user_id)) {
-        final_user_ids.add(user_id);
-      }
-    });
-    print('user_ids: $final_user_ids');
-
-    final_user_ids.forEach((user_id) async {
+    List<String> user_ids = get_users_ids_from_connection_list(connections);
+    user_ids.forEach((user_id) async {
       await create_connection_offer(
         destination_user_id: user_id,
         room_ref: room_ref,

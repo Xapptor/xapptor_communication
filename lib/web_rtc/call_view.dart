@@ -24,6 +24,16 @@ import 'settings_icons.dart';
 import 'signaling/model/room.dart';
 
 class CallView extends StatefulWidget {
+  final Color main_color;
+  final Color background_color;
+  final bool enable_audio;
+  final bool enable_video;
+  final List<String> text_list;
+  final String call_base_url;
+  ValueNotifier<String> room_id;
+  final String user_id;
+  final String user_name;
+
   CallView({
     required this.main_color,
     required this.background_color,
@@ -33,16 +43,8 @@ class CallView extends StatefulWidget {
     required this.call_base_url,
     required this.room_id,
     required this.user_id,
+    required this.user_name,
   });
-
-  final Color main_color;
-  final Color background_color;
-  final bool enable_audio;
-  final bool enable_video;
-  final List<String> text_list;
-  final String call_base_url;
-  ValueNotifier<String> room_id;
-  final String user_id;
 
   @override
   _CallViewState createState() => _CallViewState();
@@ -63,6 +65,8 @@ class _CallViewState extends State<CallView> {
   ValueNotifier<List<RemoteRenderer>> remote_renderers =
       ValueNotifier<List<RemoteRenderer>>([]);
 
+  ValueNotifier<bool> mirror_local_renderer = ValueNotifier<bool>(true);
+
   TextEditingController room_id_controller = TextEditingController();
   ValueNotifier<String> current_audio_device = ValueNotifier<String>("");
   ValueNotifier<String> current_video_device = ValueNotifier<String>("");
@@ -71,6 +75,7 @@ class _CallViewState extends State<CallView> {
   ValueNotifier<bool> show_qr_scanner = ValueNotifier<bool>(false);
   ValueNotifier<bool> show_settings = ValueNotifier<bool>(false);
   ValueNotifier<bool> show_info = ValueNotifier<bool>(false);
+  ValueNotifier<bool> share_screen = ValueNotifier<bool>(false);
   ValueNotifier<int> call_participants = ValueNotifier<int>(1);
   ValueNotifier<bool> in_a_call = ValueNotifier<bool>(false);
   ValueNotifier<StreamSubscription?> connections_listener = ValueNotifier(null);
@@ -169,21 +174,25 @@ class _CallViewState extends State<CallView> {
     return CustomDropdownButton(
       value: current_video_device.value,
       on_changed: (new_value) {
-        current_video_device.value = new_value!;
-        current_video_device_id.value = video_devices.value
-            .firstWhere((element) => element.label == new_value)
-            .deviceId;
-
-        local_renderer.srcObject?.getVideoTracks().forEach((element) {
-          element.stop();
-        });
-
-        call_open_user_media();
-        setState(() {});
+        set_local_renderer(new_value!);
       },
       items: video_devices.value.map((e) => e.label).toList(),
       title: widget.text_list[1],
     );
+  }
+
+  set_local_renderer(String new_value) {
+    current_video_device.value = new_value;
+    current_video_device_id.value = video_devices.value
+        .firstWhere((element) => element.label == new_value)
+        .deviceId;
+
+    local_renderer.srcObject?.getVideoTracks().forEach((element) {
+      element.stop();
+    });
+
+    call_open_user_media();
+    setState(() {});
   }
 
   clean_the_room() async {
@@ -283,6 +292,8 @@ class _CallViewState extends State<CallView> {
                             GridVideoView(
                               local_renderer: local_renderer,
                               remote_renderers: remote_renderers.value,
+                              mirror_local_renderer:
+                                  mirror_local_renderer.value,
                             ),
                             Align(
                               alignment: Alignment.centerLeft,
@@ -293,9 +304,15 @@ class _CallViewState extends State<CallView> {
                                 local_renderer: local_renderer,
                                 show_settings: show_settings,
                                 show_info: show_info,
+                                share_screen: share_screen,
                                 call_open_user_media: call_open_user_media,
                                 setState: setState,
                                 in_a_call: in_a_call,
+                                stop_screen_share_function: () {
+                                  set_local_renderer(
+                                      current_video_device.value);
+                                },
+                                mirror_local_renderer: mirror_local_renderer,
                               ),
                             ),
                             in_a_call.value
