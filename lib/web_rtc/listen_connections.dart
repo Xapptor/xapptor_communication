@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc/add_remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
+import 'package:xapptor_communication/web_rtc/model/user.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_anwser.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
@@ -62,6 +63,7 @@ listen_connections({
                   _add_remote_renderer(
                     remote_renderers: remote_renderers,
                     connection: connection,
+                    user_id: user_id,
                   );
                 },
               );
@@ -85,10 +87,25 @@ listen_connections({
 _add_remote_renderer({
   required ValueNotifier<List<RemoteRenderer>> remote_renderers,
   required Connection connection,
-}) {
+  required String user_id,
+}) async {
   if (remote_renderers.value.length == 0) {
     add_remote_renderer(remote_renderers);
   }
   remote_renderers.value.last.connection_id = connection.id;
+
+  if (connection.source_user_id != user_id) {
+    remote_renderers.value.last.user_id = connection.source_user_id;
+    User user = await get_user_from_id(
+      connection.source_user_id,
+    );
+    remote_renderers.value.last.user_name = user.name;
+  } else if (connection.destination_user_id != user_id) {
+    remote_renderers.value.last.user_id = connection.destination_user_id;
+    User user = await get_user_from_id(
+      connection.destination_user_id,
+    );
+    remote_renderers.value.last.user_name = user.name;
+  }
   print("connection_id: ${connection.id}");
 }

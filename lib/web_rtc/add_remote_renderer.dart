@@ -9,6 +9,8 @@ add_remote_renderer(ValueNotifier<List<RemoteRenderer>> remote_renderers) {
     RemoteRenderer(
       video_renderer: video_renderer,
       connection_id: "",
+      user_id: "",
+      user_name: "",
     ),
   );
   print("remote_renderers_length ${remote_renderers.value.length}");

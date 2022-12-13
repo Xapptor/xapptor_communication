@@ -294,6 +294,7 @@ class _CallViewState extends State<CallView> {
                               remote_renderers: remote_renderers.value,
                               mirror_local_renderer:
                                   mirror_local_renderer.value,
+                              user_name: widget.user_name,
                             ),
                             Align(
                               alignment: Alignment.centerLeft,

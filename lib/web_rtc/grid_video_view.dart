@@ -7,11 +7,13 @@ class GridVideoView extends StatefulWidget {
   final RTCVideoRenderer local_renderer;
   final List<RemoteRenderer> remote_renderers;
   final bool mirror_local_renderer;
+  final String user_name;
 
   const GridVideoView({
     required this.local_renderer,
     required this.remote_renderers,
     required this.mirror_local_renderer,
+    required this.user_name,
   });
 
   @override
@@ -36,7 +38,6 @@ class _GridVideoViewState extends State<GridVideoView> {
   @override
   Widget build(BuildContext context) {
     int cross_axis_count = 1;
-
     if (widget.remote_renderers.length == 2) {
       cross_axis_count = 2;
     } else if (widget.remote_renderers.length <= 4) {
@@ -61,26 +62,29 @@ class _GridVideoViewState extends State<GridVideoView> {
               ),
               itemCount: widget.remote_renderers.length + 1,
               itemBuilder: (context, index) {
+                RemoteRenderer remote_renderer =
+                    widget.remote_renderers[index - 1];
+
                 late Widget video_view;
+                late String user_name;
 
                 if (index == 0) {
                   video_view = RTCVideoView(
                     widget.local_renderer,
                     mirror: widget.mirror_local_renderer,
                   );
+                  user_name = widget.user_name;
                 } else {
-                  RTCVideoRenderer remote_renderer =
-                      widget.remote_renderers[index - 1].video_renderer;
-
                   video_view = RTCVideoView(
-                    remote_renderer,
+                    remote_renderer.video_renderer,
                     mirror: widget.mirror_local_renderer,
                   );
+                  user_name = remote_renderer.user_name;
                 }
-
                 return VideoViewContainer(
                   child: video_view,
                   background_color: random_colors[index],
+                  user_name: user_name,
                 );
               },
             )
@@ -90,19 +94,22 @@ class _GridVideoViewState extends State<GridVideoView> {
                 mirror: widget.mirror_local_renderer,
               ),
               background_color: random_colors.first,
+              user_name: widget.user_name,
             ),
     );
   }
 }
 
 class VideoViewContainer extends StatelessWidget {
+  final Widget child;
+  final Color background_color;
+  final String user_name;
+
   const VideoViewContainer({
     required this.child,
     required this.background_color,
+    required this.user_name,
   });
-
-  final Widget child;
-  final Color background_color;
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +126,24 @@ class VideoViewContainer extends StatelessWidget {
           color: Colors.blueGrey,
         ),
       ),
-      child: child,
+      child: Column(
+        children: [
+          Expanded(
+            flex: 2,
+            child: child,
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              user_name,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
