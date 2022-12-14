@@ -12,21 +12,20 @@ dependencies:
     sdk: flutter
 
   flutter_webrtc: ^0.9.16
-  firebase_core: ^1.16.0
-  cloud_firestore: ^3.1.14
+  firebase_core: ^2.4.0
+  cloud_firestore: ^4.2.0
   barcode_widget: ^2.0.3
   universal_platform: ^1.0.0+1
 
-  # xapptor_logic: ^0.0.3
-  # xapptor_router: ^0.0.2
+  xapptor_logic: ^0.0.3
+  xapptor_router: ^0.0.2
   # xapptor_ui: ^0.0.3
 
+dependency_overrides:
+  xapptor_router:
+    path: ../xapptor_router
   xapptor_ui:
     path: ../xapptor_ui
-
-# dependency_overrides:
-#   xapptor_ui:
-#     path: ../xapptor_ui
 
 dev_dependencies:
   flutter_test:

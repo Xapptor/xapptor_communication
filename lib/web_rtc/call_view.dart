@@ -22,6 +22,7 @@ import 'model/remote_renderer.dart';
 import 'room_info.dart';
 import 'settings_icons.dart';
 import 'signaling/model/room.dart';
+import 'package:xapptor_router/get_current_last_path_segment.dart';
 
 class CallView extends StatefulWidget {
   final Color main_color;
@@ -86,6 +87,8 @@ class _CallViewState extends State<CallView> {
     signaling.init(user_id: widget.user_id);
     init_video_renderers();
     super.initState();
+
+    widget.room_id.value = get_current_last_path_segment();
     if (widget.room_id.value != "") {
       signaling.join_room(room_id: widget.room_id.value);
     }

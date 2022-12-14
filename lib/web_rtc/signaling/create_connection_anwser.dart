@@ -57,7 +57,7 @@ extension CreateConnectionAnswer on Signaling {
         if (change.type == DocumentChangeType.added) {
           Map<String, dynamic> data = change.doc.data() as Map<String, dynamic>;
 
-          var peer_connection = peer_connections
+          RTCPeerConnection peer_connection = peer_connections
               .firstWhere(
                   (peer_connection) => peer_connection.id == connection_ref.id)
               .value;
