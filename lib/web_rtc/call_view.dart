@@ -89,8 +89,10 @@ class _CallViewState extends State<CallView> {
     super.initState();
 
     widget.room_id.value = get_current_last_path_segment();
-    if (widget.room_id.value != "") {
-      signaling.join_room(room_id: widget.room_id.value);
+    if (widget.room_id.value != "" &&
+        widget.room_id.value != "room" &&
+        widget.room_id.value.length > 6) {
+      join_room(widget.room_id.value);
     }
 
     call_open_user_media().then((_) {
@@ -363,34 +365,7 @@ class _CallViewState extends State<CallView> {
                                         join_room: () async {
                                           widget.room_id.value =
                                               room_id_controller.text;
-                                          await signaling.join_room(
-                                            room_id: widget.room_id.value,
-                                          );
-                                          in_a_call.value = true;
-
-                                          DocumentSnapshot room_snap = await db
-                                              .collection('rooms')
-                                              .doc(widget.room_id.value)
-                                              .get();
-
-                                          room = Room.from_snapshot(
-                                              room_snap.id,
-                                              room_snap.data()
-                                                  as Map<String, dynamic>);
-
-                                          listen_connections(
-                                            user_id: widget.user_id,
-                                            remote_renderers: remote_renderers,
-                                            setState: setState,
-                                            signaling: signaling,
-                                            clean_the_room: clean_the_room,
-                                            exit_from_room: exit_from_room,
-                                            connections_listener:
-                                                connections_listener,
-                                            context: context,
-                                            room: room!,
-                                          );
-                                          setState(() {});
+                                          join_room(widget.room_id.value);
                                         },
                                         room_id_controller: room_id_controller,
                                       ),
@@ -491,5 +466,31 @@ class _CallViewState extends State<CallView> {
             : Container(),
       ],
     );
+  }
+
+  join_room(String room_id) async {
+    await signaling.join_room(
+      room_id: widget.room_id.value,
+    );
+    in_a_call.value = true;
+
+    DocumentSnapshot room_snap =
+        await db.collection('rooms').doc(widget.room_id.value).get();
+
+    room = Room.from_snapshot(
+        room_snap.id, room_snap.data() as Map<String, dynamic>);
+
+    listen_connections(
+      user_id: widget.user_id,
+      remote_renderers: remote_renderers,
+      setState: setState,
+      signaling: signaling,
+      clean_the_room: clean_the_room,
+      exit_from_room: exit_from_room,
+      connections_listener: connections_listener,
+      context: context,
+      room: room!,
+    );
+    setState(() {});
   }
 }

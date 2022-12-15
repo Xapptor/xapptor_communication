@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
-import 'dart:math' as math;
+import 'package:xapptor_logic/get_random_color.dart';
 
 class GridVideoView extends StatefulWidget {
   final RTCVideoRenderer local_renderer;
@@ -23,14 +23,12 @@ class GridVideoView extends StatefulWidget {
 class _GridVideoViewState extends State<GridVideoView> {
   List<Color> random_colors = [Colors.lightBlueAccent];
 
-  Color get_random_color() {
-    return Color((math.Random().nextDouble() * 0xFFFFFF).toInt());
-  }
-
   @override
   void initState() {
     for (int i = 0; i < 10; i++) {
-      random_colors.add(get_random_color());
+      random_colors.add(get_random_color(
+        seed_color: null,
+      ));
     }
     super.initState();
   }
@@ -62,9 +60,7 @@ class _GridVideoViewState extends State<GridVideoView> {
               ),
               itemCount: widget.remote_renderers.length + 1,
               itemBuilder: (context, index) {
-                RemoteRenderer remote_renderer =
-                    widget.remote_renderers[index - 1];
-
+                print("Color: ${random_colors[index]}");
                 late Widget video_view;
                 late String user_name;
 
@@ -75,6 +71,9 @@ class _GridVideoViewState extends State<GridVideoView> {
                   );
                   user_name = widget.user_name;
                 } else {
+                  RemoteRenderer remote_renderer =
+                      widget.remote_renderers[index - 1];
+
                   video_view = RTCVideoView(
                     remote_renderer.video_renderer,
                     mirror: widget.mirror_local_renderer,
@@ -123,7 +122,7 @@ class VideoViewContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           width: 3,
-          color: Colors.blueGrey,
+          color: background_color.withOpacity(0.5),
         ),
       ),
       child: Column(

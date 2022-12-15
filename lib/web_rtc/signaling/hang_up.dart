@@ -34,15 +34,23 @@ extension HangUp on Signaling {
       });
 
       if (room.host_id == user_id) {
-        await room_ref.collection('connections').get().then((value) async {
-          for (DocumentSnapshot connection_snap in value.docs) {
+        await room_ref
+            .collection('connections')
+            .get()
+            .then((connections_query_snap) async {
+          connections_query_snap.docs
+              .asMap()
+              .forEach((index, connection_snap) async {
             _delete_connection_candidates(
               connection_ref: connection_snap.reference,
             );
             await connection_snap.reference.delete();
-          }
+
+            if (index == connections_query_snap.docs.length - 1) {
+              await room_ref.delete();
+            }
+          });
         });
-        await room_ref.delete();
       }
       remote_streams.forEach((remote_stream) {
         remote_stream.dispose();
