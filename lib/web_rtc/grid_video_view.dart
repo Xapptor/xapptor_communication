@@ -26,9 +26,11 @@ class _GridVideoViewState extends State<GridVideoView> {
   @override
   void initState() {
     for (int i = 0; i < 10; i++) {
-      random_colors.add(get_random_color(
-        seed_color: null,
-      ));
+      random_colors.add(
+        get_random_color(
+          seed_color: null,
+        ).withOpacity(1),
+      );
     }
     super.initState();
   }
@@ -122,17 +124,19 @@ class VideoViewContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           width: 3,
-          color: background_color.withOpacity(0.5),
+          color: Colors.grey,
         ),
       ),
       child: Column(
         children: [
+          Spacer(flex: 1),
           Expanded(
-            flex: 2,
+            flex: 40,
             child: child,
           ),
+          Spacer(flex: 1),
           Expanded(
-            flex: 1,
+            flex: 4,
             child: Text(
               user_name,
               style: TextStyle(
@@ -141,6 +145,7 @@ class VideoViewContainer extends StatelessWidget {
               ),
             ),
           ),
+          Spacer(flex: 1),
         ],
       ),
     );

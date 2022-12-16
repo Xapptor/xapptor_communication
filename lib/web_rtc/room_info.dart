@@ -109,7 +109,7 @@ class RoomInfo extends StatelessWidget {
                     callback();
                   },
                   child: Text(
-                    call_base_url + room_id,
+                    call_base_url + '/$room_id',
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(

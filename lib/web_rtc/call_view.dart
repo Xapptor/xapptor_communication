@@ -13,6 +13,7 @@ import 'package:xapptor_communication/web_rtc/signaling/open_user_media.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/join_room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/hang_up.dart';
+import 'package:xapptor_router/update_path/update_path.dart';
 import 'package:xapptor_ui/screens/qr_scanner.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 import 'add_remote_renderer.dart';
@@ -22,7 +23,7 @@ import 'model/remote_renderer.dart';
 import 'room_info.dart';
 import 'settings_icons.dart';
 import 'signaling/model/room.dart';
-import 'package:xapptor_router/get_current_last_path_segment.dart';
+import 'package:xapptor_router/get_last_path_segment.dart';
 
 class CallView extends StatefulWidget {
   final Color main_color;
@@ -88,7 +89,7 @@ class _CallViewState extends State<CallView> {
     init_video_renderers();
     super.initState();
 
-    widget.room_id.value = get_current_last_path_segment();
+    widget.room_id.value = get_last_path_segment();
     if (widget.room_id.value != "" &&
         widget.room_id.value != "room" &&
         widget.room_id.value.length > 6) {
@@ -226,6 +227,7 @@ class _CallViewState extends State<CallView> {
       context: context,
       message: message,
     );
+    update_path('home/room');
   }
 
   @override
@@ -365,6 +367,8 @@ class _CallViewState extends State<CallView> {
                                         join_room: () async {
                                           widget.room_id.value =
                                               room_id_controller.text;
+                                          update_path(
+                                              'home/room/${widget.room_id.value}');
                                           join_room(widget.room_id.value);
                                         },
                                         room_id_controller: room_id_controller,
@@ -403,6 +407,8 @@ class _CallViewState extends State<CallView> {
                                                   context: context,
                                                   room: room!,
                                                 );
+                                                update_path(
+                                                    'home/room/${widget.room_id.value}');
                                                 setState(() {});
                                               } else {
                                                 ScaffoldMessenger.of(context)
