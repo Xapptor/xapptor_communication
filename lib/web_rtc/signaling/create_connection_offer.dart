@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
+import 'package:xapptor_communication/web_rtc/model/user.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_peer_connection.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,6 +13,8 @@ extension CreateConnectionOffer on Signaling {
   Future<String> create_connection_offer({
     String destination_user_id = '',
     required DocumentReference room_ref,
+    required ValueNotifier<List<RemoteRenderer>> remote_renderers,
+    required Function setState,
   }) async {
     DocumentReference connection_ref = room_ref.collection('connections').doc();
     print('New connection created: ${connection_ref.id}');
@@ -68,6 +74,19 @@ extension CreateConnectionOffer on Signaling {
 
           print("Someone tried to connect");
           await peer_connection.setRemoteDescription(answer);
+        }
+
+        // Updating last remote renderer
+        if (data['destination_user_id'] != '') {
+          User user = await get_user_from_id(data['destination_user_id']);
+          Timer(Duration(seconds: 1), () {
+            if (remote_renderers.value.last.user_id == '') {
+              remote_renderers.value.last
+                ..user_id = user.id
+                ..user_name = user.name;
+              setState(() {});
+            }
+          });
         }
       }
     });

@@ -1,6 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
+import 'package:xapptor_communication/web_rtc/model/user.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_peer_connection.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'signaling.dart';
@@ -9,6 +13,8 @@ extension CreateConnectionAnswer on Signaling {
   create_connection_anwser({
     required Connection connection,
     required DocumentReference room_ref,
+    required ValueNotifier<List<RemoteRenderer>> remote_renderers,
+    required Function setState,
     Function? callback,
   }) async {
     CollectionReference connections_ref = room_ref.collection('connections');
@@ -73,6 +79,19 @@ extension CreateConnectionAnswer on Signaling {
         }
       });
     });
+
+    // Updating last remote renderer
+    if (connection.source_user_id != '') {
+      User user = await get_user_from_id(connection.source_user_id);
+      Timer(Duration(seconds: 1), () {
+        if (remote_renderers.value.last.user_id == '') {
+          remote_renderers.value.last
+            ..user_id = user.id
+            ..user_name = user.name;
+          setState(() {});
+        }
+      });
+    }
 
     if (callback != null) {
       callback();

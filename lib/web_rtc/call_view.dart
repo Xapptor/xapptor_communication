@@ -209,6 +209,8 @@ class _CallViewState extends State<CallView> {
 
       await signaling.create_connection_offer(
         room_ref: room_ref,
+        remote_renderers: remote_renderers,
+        setState: setState,
       );
       setState(() {});
     }
@@ -298,7 +300,7 @@ class _CallViewState extends State<CallView> {
                           children: [
                             GridVideoView(
                               local_renderer: local_renderer,
-                              remote_renderers: remote_renderers.value,
+                              remote_renderers: remote_renderers,
                               mirror_local_renderer:
                                   mirror_local_renderer.value,
                               user_name: widget.user_name,
@@ -365,8 +367,16 @@ class _CallViewState extends State<CallView> {
                                         setState: setState,
                                         main_color: widget.main_color,
                                         join_room: () async {
-                                          widget.room_id.value =
-                                              room_id_controller.text;
+                                          if (room_id_controller.text.contains(
+                                              'https://xapptor.com/home/room/')) {
+                                            widget.room_id.value =
+                                                room_id_controller.text.split(
+                                                    'https://xapptor.com/home/room/')[1];
+                                          } else {
+                                            widget.room_id.value =
+                                                room_id_controller.text;
+                                          }
+
                                           update_path(
                                               'home/room/${widget.room_id.value}');
                                           join_room(widget.room_id.value);
@@ -385,41 +395,7 @@ class _CallViewState extends State<CallView> {
                                                   widget.main_color,
                                             ),
                                             onPressed: () async {
-                                              if (room_id_controller
-                                                  .text.isEmpty) {
-                                                room = await signaling
-                                                    .create_room(context);
-                                                widget.room_id.value = room!.id;
-
-                                                in_a_call.value = true;
-                                                listen_connections(
-                                                  user_id: widget.user_id,
-                                                  remote_renderers:
-                                                      remote_renderers,
-                                                  setState: setState,
-                                                  signaling: signaling,
-                                                  clean_the_room:
-                                                      clean_the_room,
-                                                  exit_from_room:
-                                                      exit_from_room,
-                                                  connections_listener:
-                                                      connections_listener,
-                                                  context: context,
-                                                  room: room!,
-                                                );
-                                                update_path(
-                                                    'home/room/${widget.room_id.value}');
-                                                setState(() {});
-                                              } else {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      'Room ID musty be empty to create a room',
-                                                    ),
-                                                  ),
-                                                );
-                                              }
+                                              create_room();
                                             },
                                             child: Text(
                                               widget.text_list.last,
@@ -474,9 +450,45 @@ class _CallViewState extends State<CallView> {
     );
   }
 
+  create_room() async {
+    if (room_id_controller.text.isEmpty) {
+      room = await signaling.create_room(
+        context: context,
+        remote_renderers: remote_renderers,
+        setState: setState,
+      );
+      widget.room_id.value = room!.id;
+
+      in_a_call.value = true;
+      listen_connections(
+        user_id: widget.user_id,
+        remote_renderers: remote_renderers,
+        setState: setState,
+        signaling: signaling,
+        clean_the_room: clean_the_room,
+        exit_from_room: exit_from_room,
+        connections_listener: connections_listener,
+        context: context,
+        room: room!,
+      );
+      update_path('home/room/${widget.room_id.value}');
+      setState(() {});
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Room ID musty be empty to create a room',
+          ),
+        ),
+      );
+    }
+  }
+
   join_room(String room_id) async {
     await signaling.join_room(
       room_id: widget.room_id.value,
+      remote_renderers: remote_renderers,
+      setState: setState,
     );
     in_a_call.value = true;
 

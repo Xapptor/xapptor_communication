@@ -5,7 +5,7 @@ import 'package:xapptor_logic/get_random_color.dart';
 
 class GridVideoView extends StatefulWidget {
   final RTCVideoRenderer local_renderer;
-  final List<RemoteRenderer> remote_renderers;
+  final ValueNotifier<List<RemoteRenderer>> remote_renderers;
   final bool mirror_local_renderer;
   final String user_name;
 
@@ -37,20 +37,22 @@ class _GridVideoViewState extends State<GridVideoView> {
 
   @override
   Widget build(BuildContext context) {
+    List<RemoteRenderer> remote_renderers = widget.remote_renderers.value;
+
     int cross_axis_count = 1;
-    if (widget.remote_renderers.length == 2) {
+    if (remote_renderers.length == 2) {
       cross_axis_count = 2;
-    } else if (widget.remote_renderers.length <= 4) {
+    } else if (remote_renderers.length <= 4) {
       cross_axis_count = 2;
-    } else if (widget.remote_renderers.length <= 6) {
+    } else if (remote_renderers.length <= 6) {
       cross_axis_count = 3;
-    } else if (widget.remote_renderers.length > 6) {
+    } else if (remote_renderers.length > 6) {
       cross_axis_count = 4;
     }
 
     return Container(
       padding: const EdgeInsets.all(10.0),
-      child: widget.remote_renderers.length > 0
+      child: remote_renderers.length > 0
           ? GridView.builder(
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
@@ -60,9 +62,8 @@ class _GridVideoViewState extends State<GridVideoView> {
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
               ),
-              itemCount: widget.remote_renderers.length + 1,
+              itemCount: remote_renderers.length + 1,
               itemBuilder: (context, index) {
-                print("Color: ${random_colors[index]}");
                 late Widget video_view;
                 late String user_name;
 
@@ -73,8 +74,7 @@ class _GridVideoViewState extends State<GridVideoView> {
                   );
                   user_name = widget.user_name;
                 } else {
-                  RemoteRenderer remote_renderer =
-                      widget.remote_renderers[index - 1];
+                  RemoteRenderer remote_renderer = remote_renderers[index - 1];
 
                   video_view = RTCVideoView(
                     remote_renderer.video_renderer,

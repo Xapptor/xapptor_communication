@@ -102,7 +102,7 @@ class RoomInfo extends StatelessWidget {
                 TextButton(
                   onPressed: () async {
                     copy_to_clipboard(
-                      data: call_base_url + room_id,
+                      data: call_base_url + '/' + room_id,
                       message: "Room URL copied to clipboard",
                       context: context,
                     );
