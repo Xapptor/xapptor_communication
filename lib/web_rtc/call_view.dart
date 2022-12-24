@@ -5,6 +5,8 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/get_media_devices.dart';
 import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
 import 'package:xapptor_communication/web_rtc/listen_connections.dart';
+import 'package:xapptor_communication/web_rtc/model/user.dart'
+    as CommunicationUser;
 import 'package:xapptor_communication/web_rtc/settings_menu.dart';
 import 'package:xapptor_communication/web_rtc/show_exit_alert.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
@@ -16,6 +18,7 @@ import 'package:xapptor_communication/web_rtc/signaling/hang_up.dart';
 import 'package:xapptor_router/update_path/update_path.dart';
 import 'package:xapptor_ui/screens/qr_scanner.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
+import 'package:xapptor_ui/widgets/topbar.dart';
 import 'add_remote_renderer.dart';
 import 'custom_dropdown_button.dart';
 import 'join_another_room_container.dart';
@@ -24,6 +27,7 @@ import 'room_info.dart';
 import 'settings_icons.dart';
 import 'signaling/model/room.dart';
 import 'package:xapptor_router/get_last_path_segment.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CallView extends StatefulWidget {
   final Color main_color;
@@ -33,8 +37,9 @@ class CallView extends StatefulWidget {
   final List<String> text_list;
   final String call_base_url;
   ValueNotifier<String> room_id;
-  final String user_id;
-  final String user_name;
+  String user_id;
+  String user_name;
+  final String logo_path;
 
   CallView({
     required this.main_color,
@@ -46,6 +51,7 @@ class CallView extends StatefulWidget {
     required this.room_id,
     required this.user_id,
     required this.user_name,
+    required this.logo_path,
   });
 
   @override
@@ -85,32 +91,49 @@ class _CallViewState extends State<CallView> {
 
   @override
   void initState() {
-    signaling.init(user_id: widget.user_id);
-    init_video_renderers();
     super.initState();
+    check_if_user_is_logged_in();
+  }
 
-    widget.room_id.value = get_last_path_segment();
-    if (widget.room_id.value != "" &&
-        widget.room_id.value != "room" &&
-        widget.room_id.value.length > 6) {
-      join_room(widget.room_id.value);
-    }
+  check_if_user_is_logged_in() async {
+    User? user = await FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      widget.user_id = user.uid;
+      CommunicationUser.User communication_user =
+          await CommunicationUser.get_user_from_id(user.uid);
+      widget.user_name = communication_user.name;
 
-    call_open_user_media().then((_) {
-      get_media_devices(
-        audio_devices: audio_devices,
-        video_devices: video_devices,
-        current_audio_device: current_audio_device,
-        current_audio_device_id: current_audio_device_id,
-        current_video_device: current_video_device,
-        current_video_device_id: current_video_device_id,
-        callback: () {
-          setState(() {});
-        },
-      ).then((_) async {
-        set_media_devices_enabled();
+      signaling.init(user_id: widget.user_id);
+      init_video_renderers();
+
+      if (widget.room_id.value == '') {
+        widget.room_id.value = get_last_path_segment();
+      }
+
+      if (widget.room_id.value != "" &&
+          widget.room_id.value != "room" &&
+          widget.room_id.value.length > 6) {
+        join_room(widget.room_id.value);
+      }
+
+      call_open_user_media().then((_) {
+        get_media_devices(
+          audio_devices: audio_devices,
+          video_devices: video_devices,
+          current_audio_device: current_audio_device,
+          current_audio_device_id: current_audio_device_id,
+          current_video_device: current_video_device,
+          current_video_device_id: current_video_device_id,
+          callback: () {
+            setState(() {});
+          },
+        ).then((_) async {
+          set_media_devices_enabled();
+        });
       });
-    });
+    } else {
+      Navigator.pop(context);
+    }
   }
 
   set_media_devices_enabled() {
@@ -238,215 +261,232 @@ class _CallViewState extends State<CallView> {
     double screen_width = MediaQuery.of(context).size.width;
     bool portrait = is_portrait(context);
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        show_qr_scanner.value
-            ? QRScanner(
-                descriptive_text: "Frame the QR code",
-                update_qr_value: (new_value) {
-                  room_id_controller.text = new_value;
-                  show_qr_scanner.value = false;
+    return SafeArea(
+      child: Scaffold(
+        appBar: TopBar(
+          context: context,
+          background_color: widget.main_color,
+          actions: [],
+          has_back_button: true,
+          custom_leading: null,
+          logo_path: widget.logo_path,
+        ),
+        body: Stack(
+          alignment: Alignment.center,
+          children: [
+            show_qr_scanner.value
+                ? QRScanner(
+                    descriptive_text: "Frame the QR code",
+                    update_qr_value: (new_value) {
+                      room_id_controller.text = new_value;
+                      show_qr_scanner.value = false;
 
-                  if (enable_video.value) {
-                    call_open_user_media();
-                  }
-                  setState(() {});
-                },
-                border_color: widget.main_color,
-                border_radius: 4,
-                border_length: 40,
-                border_width: 8,
-                cut_out_size: 300,
-                button_linear_gradient: LinearGradient(
-                  colors: [
-                    Colors.blue.withOpacity(0.4),
-                    Colors.green.withOpacity(0.4),
-                  ],
-                ),
-                permission_message:
-                    "You must give the camera permission to capture QR codes",
-                permission_message_no: "Cancel",
-                permission_message_yes: "Accept",
-                enter_code_text: "Enter your code",
-                validate_button_text: "Validate",
-                fail_message: "You have to enter a code",
-                textfield_color: Colors.green,
-                show_main_button: false,
-                main_button_text: "Button",
-                main_button_function: () => null,
-              )
-            : GestureDetector(
-                onTap: () {
-                  if (show_settings.value) {
-                    show_settings.value = false;
-                    show_info.value = false;
-                    setState(() {});
-                  }
-                },
-                child: Container(
-                  height: screen_height,
-                  width: screen_width,
-                  //color: Colors.red,
-                  child: SingleChildScrollView(
-                    child: Center(
-                      child: FractionallySizedBox(
-                        widthFactor: portrait
-                            ? 0.9
-                            : in_a_call.value
-                                ? 0.65
-                                : 0.5,
-                        child: Column(
-                          children: [
-                            GridVideoView(
-                              local_renderer: local_renderer,
-                              remote_renderers: remote_renderers,
-                              mirror_local_renderer:
-                                  mirror_local_renderer.value,
-                              user_name: widget.user_name,
-                            ),
-                            Align(
-                              alignment: Alignment.centerLeft,
-                              child: SettingsIcons(
-                                main_color: widget.main_color,
-                                enable_audio: enable_audio,
-                                enable_video: enable_video,
-                                local_renderer: local_renderer,
-                                show_settings: show_settings,
-                                show_info: show_info,
-                                share_screen: share_screen,
-                                call_open_user_media: call_open_user_media,
-                                setState: setState,
-                                in_a_call: in_a_call,
-                                stop_screen_share_function: () {
-                                  set_local_renderer(
-                                      current_video_device.value);
-                                },
-                                mirror_local_renderer: mirror_local_renderer,
-                              ),
-                            ),
-                            in_a_call.value
-                                ? Column(
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.bottomRight,
-                                        child: FloatingActionButton(
-                                          child: Icon(Icons.call_end),
-                                          backgroundColor: Colors.red,
-                                          onPressed: () async {
-                                            String message = '';
-                                            if (widget.user_id ==
-                                                room!.host_id) {
-                                              message = 'You closed the room';
-                                            } else {
-                                              message = 'You exit the room';
-                                            }
+                      if (enable_video.value) {
+                        call_open_user_media();
+                      }
+                      setState(() {});
+                    },
+                    border_color: widget.main_color,
+                    border_radius: 4,
+                    border_length: 40,
+                    border_width: 8,
+                    cut_out_size: 300,
+                    button_linear_gradient: LinearGradient(
+                      colors: [
+                        Colors.blue.withOpacity(0.4),
+                        Colors.green.withOpacity(0.4),
+                      ],
+                    ),
+                    permission_message:
+                        "You must give the camera permission to capture QR codes",
+                    permission_message_no: "Cancel",
+                    permission_message_yes: "Accept",
+                    enter_code_text: "Enter your code",
+                    validate_button_text: "Validate",
+                    fail_message: "You have to enter a code",
+                    textfield_color: Colors.green,
+                    show_main_button: false,
+                    main_button_text: "Button",
+                    main_button_function: () => null,
+                  )
+                : GestureDetector(
+                    onTap: () {
+                      if (show_settings.value) {
+                        show_settings.value = false;
+                        show_info.value = false;
+                        setState(() {});
+                      }
+                    },
+                    child: Container(
+                      height: screen_height,
+                      width: screen_width,
+                      //color: Colors.red,
+                      child: SingleChildScrollView(
+                        child: Center(
+                          child: FractionallySizedBox(
+                            widthFactor: portrait
+                                ? 0.9
+                                : in_a_call.value
+                                    ? 0.65
+                                    : 0.5,
+                            child: Column(
+                              children: [
+                                GridVideoView(
+                                  local_renderer: local_renderer,
+                                  remote_renderers: remote_renderers,
+                                  mirror_local_renderer:
+                                      mirror_local_renderer.value,
+                                  user_name: widget.user_name,
+                                ),
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: SettingsIcons(
+                                    main_color: widget.main_color,
+                                    enable_audio: enable_audio,
+                                    enable_video: enable_video,
+                                    local_renderer: local_renderer,
+                                    show_settings: show_settings,
+                                    show_info: show_info,
+                                    share_screen: share_screen,
+                                    call_open_user_media: call_open_user_media,
+                                    setState: setState,
+                                    in_a_call: in_a_call,
+                                    stop_screen_share_function: () {
+                                      set_local_renderer(
+                                          current_video_device.value);
+                                    },
+                                    mirror_local_renderer:
+                                        mirror_local_renderer,
+                                  ),
+                                ),
+                                in_a_call.value
+                                    ? Column(
+                                        children: [
+                                          Align(
+                                            alignment: Alignment.bottomRight,
+                                            child: FloatingActionButton(
+                                              child: Icon(Icons.call_end),
+                                              backgroundColor: Colors.red,
+                                              onPressed: () async {
+                                                String message = '';
+                                                if (widget.user_id ==
+                                                    room!.host_id) {
+                                                  message =
+                                                      'You closed the room';
+                                                } else {
+                                                  message = 'You exit the room';
+                                                }
 
-                                            await connections_listener.value!
-                                                .cancel();
-                                            await signaling.hang_up();
-                                            exit_from_room(
-                                              context: context,
-                                              message: message,
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                : Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      audio_dropdown_button(),
-                                      video_dropdown_button(),
-                                      JoinAnotherRoomContainer(
-                                        text_list: widget.text_list,
-                                        local_renderer: local_renderer,
-                                        show_qr_scanner: show_qr_scanner,
-                                        setState: setState,
-                                        main_color: widget.main_color,
-                                        join_room: () async {
-                                          if (room_id_controller.text.contains(
-                                              'https://xapptor.com/home/room/')) {
-                                            widget.room_id.value =
-                                                room_id_controller.text.split(
-                                                    'https://xapptor.com/home/room/')[1];
-                                          } else {
-                                            widget.room_id.value =
-                                                room_id_controller.text;
-                                          }
-
-                                          update_path(
-                                              'home/room/${widget.room_id.value}');
-                                          join_room(widget.room_id.value);
-                                        },
-                                        room_id_controller: room_id_controller,
-                                      ),
-                                      Align(
-                                        alignment: Alignment.center,
-                                        child: Container(
-                                          height: 40,
-                                          margin:
-                                              const EdgeInsets.only(top: 20),
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  widget.main_color,
+                                                await connections_listener
+                                                    .value!
+                                                    .cancel();
+                                                await signaling.hang_up();
+                                                exit_from_room(
+                                                  context: context,
+                                                  message: message,
+                                                );
+                                              },
                                             ),
-                                            onPressed: () async {
-                                              create_room();
+                                          ),
+                                        ],
+                                      )
+                                    : Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          audio_dropdown_button(),
+                                          video_dropdown_button(),
+                                          JoinAnotherRoomContainer(
+                                            text_list: widget.text_list,
+                                            local_renderer: local_renderer,
+                                            show_qr_scanner: show_qr_scanner,
+                                            setState: setState,
+                                            main_color: widget.main_color,
+                                            join_room: () async {
+                                              if (room_id_controller.text.contains(
+                                                  'https://xapptor.com/home/room/')) {
+                                                widget.room_id
+                                                    .value = room_id_controller
+                                                        .text
+                                                        .split(
+                                                            'https://xapptor.com/home/room/')[
+                                                    1];
+                                              } else {
+                                                widget.room_id.value =
+                                                    room_id_controller.text;
+                                              }
+
+                                              join_room(widget.room_id.value);
                                             },
-                                            child: Text(
-                                              widget.text_list.last,
-                                              style: TextStyle(
-                                                color: Colors.black,
+                                            room_id_controller:
+                                                room_id_controller,
+                                          ),
+                                          Align(
+                                            alignment: Alignment.center,
+                                            child: Container(
+                                              height: 40,
+                                              margin: const EdgeInsets.only(
+                                                  top: 20),
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor:
+                                                      widget.main_color,
+                                                ),
+                                                onPressed: () async {
+                                                  create_room();
+                                                },
+                                                child: Text(
+                                                  widget.text_list.last,
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                          ],
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ),
-        show_settings.value
-            ? FractionallySizedBox(
-                heightFactor: portrait ? 0.9 : 0.7,
-                widthFactor: portrait ? 0.9 : 0.5,
-                child: SettingsMenu(
-                  background_color: Colors.blueGrey.withOpacity(0.9),
-                  audio_dropdown_button: audio_dropdown_button(),
-                  video_dropdown_button: video_dropdown_button(),
-                  callback: () {
-                    show_settings.value = !show_settings.value;
-                    setState(() {});
-                  },
-                ),
-              )
-            : Container(),
-        show_info.value
-            ? FractionallySizedBox(
-                heightFactor: portrait ? 0.7 : 0.5,
-                widthFactor: portrait ? 0.9 : 0.5,
-                child: RoomInfo(
-                  background_color: Colors.blueGrey.withOpacity(0.9),
-                  main_color: widget.main_color,
-                  room_id: widget.room_id.value,
-                  call_base_url: widget.call_base_url,
-                  callback: () {
-                    show_info.value = !show_info.value;
-                    setState(() {});
-                  },
-                ),
-              )
-            : Container(),
-      ],
+            show_settings.value
+                ? FractionallySizedBox(
+                    heightFactor: portrait ? 0.9 : 0.7,
+                    widthFactor: portrait ? 0.9 : 0.5,
+                    child: SettingsMenu(
+                      background_color: Colors.blueGrey.withOpacity(0.9),
+                      audio_dropdown_button: audio_dropdown_button(),
+                      video_dropdown_button: video_dropdown_button(),
+                      callback: () {
+                        show_settings.value = !show_settings.value;
+                        setState(() {});
+                      },
+                    ),
+                  )
+                : Container(),
+            show_info.value
+                ? FractionallySizedBox(
+                    heightFactor: portrait ? 0.7 : 0.5,
+                    widthFactor: portrait ? 0.9 : 0.5,
+                    child: RoomInfo(
+                      background_color: Colors.blueGrey.withOpacity(0.9),
+                      main_color: widget.main_color,
+                      room_id: widget.room_id.value,
+                      call_base_url: widget.call_base_url,
+                      callback: () {
+                        show_info.value = !show_info.value;
+                        setState(() {});
+                      },
+                    ),
+                  )
+                : Container(),
+          ],
+        ),
+      ),
     );
   }
 
@@ -509,6 +549,7 @@ class _CallViewState extends State<CallView> {
       context: context,
       room: room!,
     );
+    update_path('home/room/${widget.room_id.value}');
     setState(() {});
   }
 }
