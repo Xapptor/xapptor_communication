@@ -1,6 +1,6 @@
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:xapptor_communication/web_rtc/signaling/copy_to_clipboard.dart';
+import 'package:xapptor_logic/copy_to_clipboard.dart';
 import 'package:xapptor_ui/values/ui.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 
