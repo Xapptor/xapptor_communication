@@ -11,9 +11,9 @@ dependencies:
     sdk: flutter
 
   flutter_webrtc: ^0.9.16
-  firebase_core: ^2.5.0
-  firebase_auth: ^4.2.0
-  cloud_firestore: ^4.3.2
+  firebase_core: ^2.16.0
+  firebase_auth: ^4.10.0
+  cloud_firestore: ^4.9.2
   barcode_widget: ^2.0.3
   universal_platform: ^1.0.0+1
 
