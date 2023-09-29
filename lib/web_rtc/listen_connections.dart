@@ -19,8 +19,7 @@ listen_connections({
   required Function({
     required BuildContext context,
     required String message,
-  })
-      exit_from_room,
+  }) exit_from_room,
   required ValueNotifier<StreamSubscription?> connections_listener,
   required BuildContext context,
 }) {
@@ -30,8 +29,7 @@ listen_connections({
   CollectionReference connections_ref = room_ref.collection("connections");
 
   // At first call "snapshots().listen" retrieve all docs in the collection
-  connections_listener.value =
-      connections_ref.snapshots().listen((event) async {
+  connections_listener.value = connections_ref.snapshots().listen((event) async {
     if (!first_time) {
       if (event.docs.isEmpty) {
         if (user_id == room.host_id) {
@@ -47,14 +45,14 @@ listen_connections({
           //
           // If a new document is added to the collection
           if (element.type == DocumentChangeType.added) {
-            print('Connection_added');
-            Connection connection = Connection.from_snapshot(
-                element.doc.id, element.doc.data() as Map<String, dynamic>);
+            debugPrint('Connection_added');
+            Connection connection =
+                Connection.from_snapshot(element.doc.id, element.doc.data() as Map<String, dynamic>);
 
             //
             // Check if the new connection is for me
             if (user_id == connection.destination_user_id) {
-              print('new_connection_is_for_me');
+              debugPrint('new_connection_is_for_me');
 
               signaling.create_connection_anwser(
                 connection: connection,
@@ -75,8 +73,7 @@ listen_connections({
           //
           // If a  document is removed to the collection
           else if (element.type == DocumentChangeType.removed) {
-            remote_renderers.value.removeWhere((remote_renderer) =>
-                remote_renderer.connection_id == element.doc.id);
+            remote_renderers.value.removeWhere((remote_renderer) => remote_renderer.connection_id == element.doc.id);
             setState(() {});
           }
         });
@@ -115,5 +112,5 @@ _add_remote_renderer({
 
     setState(() {});
   }
-  print("connection_id: ${connection.id}");
+  debugPrint("connection_id: ${connection.id}");
 }

@@ -13,5 +13,5 @@ add_remote_renderer(ValueNotifier<List<RemoteRenderer>> remote_renderers) {
       user_name: "",
     ),
   );
-  print("remote_renderers_length ${remote_renderers.value.length}");
+  debugPrint("remote_renderers_length ${remote_renderers.value.length}");
 }

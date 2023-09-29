@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -5,8 +7,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/get_media_devices.dart';
 import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
 import 'package:xapptor_communication/web_rtc/listen_connections.dart';
-import 'package:xapptor_communication/web_rtc/model/user.dart'
-    as CommunicationUser;
+import 'package:xapptor_communication/web_rtc/model/user.dart' as CommunicationUser;
 import 'package:xapptor_communication/web_rtc/settings_menu.dart';
 import 'package:xapptor_communication/web_rtc/show_exit_alert.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
@@ -41,7 +42,8 @@ class CallView extends StatefulWidget {
   String user_name;
   final String logo_path;
 
-  CallView({super.key, 
+  CallView({
+    super.key,
     required this.main_color,
     required this.background_color,
     required this.enable_audio,
@@ -55,7 +57,7 @@ class CallView extends StatefulWidget {
   });
 
   @override
-  _CallViewState createState() => _CallViewState();
+  State<CallView> createState() => _CallViewState();
 }
 
 class _CallViewState extends State<CallView> {
@@ -63,15 +65,12 @@ class _CallViewState extends State<CallView> {
 
   ValueNotifier<bool> enable_audio = ValueNotifier<bool>(true);
   ValueNotifier<bool> enable_video = ValueNotifier<bool>(true);
-  ValueNotifier<List<MediaDeviceInfo>> audio_devices =
-      ValueNotifier<List<MediaDeviceInfo>>([]);
-  ValueNotifier<List<MediaDeviceInfo>> video_devices =
-      ValueNotifier<List<MediaDeviceInfo>>([]);
+  ValueNotifier<List<MediaDeviceInfo>> audio_devices = ValueNotifier<List<MediaDeviceInfo>>([]);
+  ValueNotifier<List<MediaDeviceInfo>> video_devices = ValueNotifier<List<MediaDeviceInfo>>([]);
 
   Signaling signaling = Signaling();
   RTCVideoRenderer local_renderer = RTCVideoRenderer();
-  ValueNotifier<List<RemoteRenderer>> remote_renderers =
-      ValueNotifier<List<RemoteRenderer>>([]);
+  ValueNotifier<List<RemoteRenderer>> remote_renderers = ValueNotifier<List<RemoteRenderer>>([]);
 
   ValueNotifier<bool> mirror_local_renderer = ValueNotifier<bool>(true);
 
@@ -99,8 +98,7 @@ class _CallViewState extends State<CallView> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       widget.user_id = user.uid;
-      CommunicationUser.User communication_user =
-          await CommunicationUser.get_user_from_id(user.uid);
+      CommunicationUser.User communication_user = await CommunicationUser.get_user_from_id(user.uid);
       widget.user_name = communication_user.name;
 
       signaling.init(user_id: widget.user_id);
@@ -110,9 +108,7 @@ class _CallViewState extends State<CallView> {
         widget.room_id.value = get_last_path_segment();
       }
 
-      if (widget.room_id.value != "" &&
-          widget.room_id.value != "room" &&
-          widget.room_id.value.length > 6) {
+      if (widget.room_id.value != "" && widget.room_id.value != "room" && widget.room_id.value.length > 6) {
         join_room(widget.room_id.value);
       }
 
@@ -184,9 +180,8 @@ class _CallViewState extends State<CallView> {
       value: current_audio_device.value,
       on_changed: (new_value) {
         current_audio_device.value = new_value!;
-        current_audio_device_id.value = audio_devices.value
-            .firstWhere((element) => element.label == new_value)
-            .deviceId;
+        current_audio_device_id.value =
+            audio_devices.value.firstWhere((element) => element.label == new_value).deviceId;
 
         local_renderer.srcObject?.getAudioTracks().forEach((element) {
           element.stop();
@@ -213,9 +208,7 @@ class _CallViewState extends State<CallView> {
 
   set_local_renderer(String new_value) {
     current_video_device.value = new_value;
-    current_video_device_id.value = video_devices.value
-        .firstWhere((element) => element.label == new_value)
-        .deviceId;
+    current_video_device_id.value = video_devices.value.firstWhere((element) => element.label == new_value).deviceId;
 
     local_renderer.srcObject?.getVideoTracks().forEach((element) {
       element.stop();
@@ -228,8 +221,7 @@ class _CallViewState extends State<CallView> {
   clean_the_room() async {
     if (widget.room_id.value != "") {
       remote_renderers.value.clear();
-      DocumentReference room_ref =
-          db.collection('rooms').doc(widget.room_id.value);
+      DocumentReference room_ref = db.collection('rooms').doc(widget.room_id.value);
 
       await signaling.create_connection_offer(
         room_ref: room_ref,
@@ -298,8 +290,7 @@ class _CallViewState extends State<CallView> {
                         Colors.green.withOpacity(0.4),
                       ],
                     ),
-                    permission_message:
-                        "You must give the camera permission to capture QR codes",
+                    permission_message: "You must give the camera permission to capture QR codes",
                     permission_message_no: "Cancel",
                     permission_message_yes: "Accept",
                     enter_code_text: "Enter your code",
@@ -335,8 +326,7 @@ class _CallViewState extends State<CallView> {
                                 GridVideoView(
                                   local_renderer: local_renderer,
                                   remote_renderers: remote_renderers,
-                                  mirror_local_renderer:
-                                      mirror_local_renderer.value,
+                                  mirror_local_renderer: mirror_local_renderer.value,
                                   user_name: widget.user_name,
                                 ),
                                 Align(
@@ -353,11 +343,9 @@ class _CallViewState extends State<CallView> {
                                     setState: setState,
                                     in_a_call: in_a_call,
                                     stop_screen_share_function: () {
-                                      set_local_renderer(
-                                          current_video_device.value);
+                                      set_local_renderer(current_video_device.value);
                                     },
-                                    mirror_local_renderer:
-                                        mirror_local_renderer,
+                                    mirror_local_renderer: mirror_local_renderer,
                                   ),
                                 ),
                                 in_a_call.value
@@ -369,17 +357,13 @@ class _CallViewState extends State<CallView> {
                                               backgroundColor: Colors.red,
                                               onPressed: () async {
                                                 String message = '';
-                                                if (widget.user_id ==
-                                                    room!.host_id) {
-                                                  message =
-                                                      'You closed the room';
+                                                if (widget.user_id == room!.host_id) {
+                                                  message = 'You closed the room';
                                                 } else {
                                                   message = 'You exit the room';
                                                 }
 
-                                                await connections_listener
-                                                    .value!
-                                                    .cancel();
+                                                await connections_listener.value!.cancel();
                                                 await signaling.hang_up();
                                                 exit_from_room(
                                                   context: context,
@@ -392,8 +376,7 @@ class _CallViewState extends State<CallView> {
                                         ],
                                       )
                                     : Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           audio_dropdown_button(),
                                           video_dropdown_button(),
@@ -404,34 +387,25 @@ class _CallViewState extends State<CallView> {
                                             setState: setState,
                                             main_color: widget.main_color,
                                             join_room: () async {
-                                              if (room_id_controller.text.contains(
-                                                  'https://xapptor.com/home/room/')) {
-                                                widget.room_id
-                                                    .value = room_id_controller
-                                                        .text
-                                                        .split(
-                                                            'https://xapptor.com/home/room/')[
-                                                    1];
-                                              } else {
+                                              if (room_id_controller.text.contains('https://xapptor.com/home/room/')) {
                                                 widget.room_id.value =
-                                                    room_id_controller.text;
+                                                    room_id_controller.text.split('https://xapptor.com/home/room/')[1];
+                                              } else {
+                                                widget.room_id.value = room_id_controller.text;
                                               }
 
                                               join_room(widget.room_id.value);
                                             },
-                                            room_id_controller:
-                                                room_id_controller,
+                                            room_id_controller: room_id_controller,
                                           ),
                                           Align(
                                             alignment: Alignment.center,
                                             child: Container(
                                               height: 40,
-                                              margin: const EdgeInsets.only(
-                                                  top: 20),
+                                              margin: const EdgeInsets.only(top: 20),
                                               child: ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      widget.main_color,
+                                                  backgroundColor: widget.main_color,
                                                 ),
                                                 onPressed: () async {
                                                   create_room();
@@ -533,11 +507,9 @@ class _CallViewState extends State<CallView> {
     );
     in_a_call.value = true;
 
-    DocumentSnapshot room_snap =
-        await db.collection('rooms').doc(widget.room_id.value).get();
+    DocumentSnapshot room_snap = await db.collection('rooms').doc(widget.room_id.value).get();
 
-    room = Room.from_snapshot(
-        room_snap.id, room_snap.data() as Map<String, dynamic>);
+    room = Room.from_snapshot(room_snap.id, room_snap.data() as Map<String, dynamic>);
 
     listen_connections(
       user_id: widget.user_id,

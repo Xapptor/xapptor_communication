@@ -9,7 +9,7 @@ extension CreatePeerConnection on Signaling {
     required String collection_name,
     required DocumentReference connection_ref,
   }) async {
-    //print('Create PeerConnection with configuration: $configuration');
+    //debugPrint('Create PeerConnection with configuration: $configuration');
     peer_connections.add(
       PeerConnection(
         id: connection_ref.id,
@@ -25,7 +25,7 @@ extension CreatePeerConnection on Signaling {
     var candidates_collection = connection_ref.collection(collection_name);
 
     peer_connections.last.value.onIceCandidate = (RTCIceCandidate candidate) {
-      //print('onIceCandidate: ${candidate.toMap()}');
+      //debugPrint('onIceCandidate: ${candidate.toMap()}');
       candidates_collection.add(candidate.toMap());
     };
   }

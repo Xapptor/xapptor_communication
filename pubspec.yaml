@@ -1,6 +1,7 @@
 name: xapptor_communication
 description: Module for communication.
-repository: https://github.com/Xapptor/xapptor_communication
+# repository: https://github.com/Xapptor/xapptor_communication
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 0.0.1
 
 environment:

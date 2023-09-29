@@ -27,21 +27,21 @@ extension CreateConnectionAnswer on Signaling {
     );
 
     peer_connections.last.value.onTrack = (RTCTrackEvent event) {
-      print('Got remote track: ${event.streams[0]}');
+      debugPrint('Got remote track: ${event.streams[0]}');
       event.streams[0].getTracks().forEach((track) {
-        print('Add a track to the remoteStream: $track');
+        debugPrint('Add a track to the remoteStream: $track');
         remote_streams.last.addTrack(track);
       });
     };
 
     // Code for creating SDP answer below
-    //print('Got offer ${connection.to_json()}');
+    //debugPrint('Got offer ${connection.to_json()}');
     var offer = connection.offer;
     await peer_connections.last.value.setRemoteDescription(
       RTCSessionDescription(offer!.sdp, offer.type),
     );
     var answer = await peer_connections.last.value.createAnswer();
-    print('Created Answer $answer');
+    debugPrint('Created Answer $answer');
 
     await peer_connections.last.value.setLocalDescription(answer);
 
@@ -55,20 +55,15 @@ extension CreateConnectionAnswer on Signaling {
     // Finished creating SDP answer
 
     // Listening for remote ICE candidates below
-    connection_ref
-        .collection('source_candidates')
-        .snapshots()
-        .listen((snapshot) {
+    connection_ref.collection('source_candidates').snapshots().listen((snapshot) {
       for (var change in snapshot.docChanges) {
         if (change.type == DocumentChangeType.added) {
           Map<String, dynamic> data = change.doc.data() as Map<String, dynamic>;
 
-          RTCPeerConnection peer_connection = peer_connections
-              .firstWhere(
-                  (peer_connection) => peer_connection.id == connection_ref.id)
-              .value;
+          RTCPeerConnection peer_connection =
+              peer_connections.firstWhere((peer_connection) => peer_connection.id == connection_ref.id).value;
 
-          print('Got new remote ICE candidate: ${jsonEncode(data)}');
+          debugPrint('Got new remote ICE candidate: ${jsonEncode(data)}');
           peer_connection.addCandidate(
             RTCIceCandidate(
               data['candidate'],

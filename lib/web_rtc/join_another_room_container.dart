@@ -1,10 +1,13 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 
 class JoinAnotherRoomContainer extends StatelessWidget {
-  JoinAnotherRoomContainer({super.key, 
+  JoinAnotherRoomContainer({
+    super.key,
     required this.text_list,
     required this.local_renderer,
     required this.show_qr_scanner,
@@ -41,9 +44,7 @@ class JoinAnotherRoomContainer extends StatelessWidget {
                   ? Container()
                   : IconButton(
                       onPressed: () {
-                        local_renderer.srcObject
-                            ?.getVideoTracks()
-                            .forEach((element) {
+                        local_renderer.srcObject?.getVideoTracks().forEach((element) {
                           element.stop();
                         });
 
