@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'model/peer_connection.dart';
 
-typedef void StreamStateCallback(MediaStream stream);
+typedef StreamStateCallback = Function(MediaStream stream);
 
 class Signaling {
   Map<String, dynamic> configuration = {
@@ -11,7 +11,7 @@ class Signaling {
       {
         'urls': [
           'stun:stun1.l.google.com:19302',
-          'stun:stun2.l.google.com:19302'
+          'stun:stun2.l.google.com:19302',
         ]
       }
     ]
