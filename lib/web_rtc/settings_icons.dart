@@ -15,7 +15,7 @@ class SettingsIcons extends StatelessWidget {
   final Function stop_screen_share_function;
   final ValueNotifier<bool> mirror_local_renderer;
 
-  SettingsIcons({
+  SettingsIcons({super.key, 
     required this.main_color,
     required this.enable_audio,
     required this.enable_video,
@@ -57,7 +57,7 @@ class SettingsIcons extends StatelessWidget {
               enable_video.value = !enable_video.value;
 
               if (local_renderer.srcObject != null) {
-                if (local_renderer.srcObject!.getVideoTracks().length > 0) {
+                if (local_renderer.srcObject!.getVideoTracks().isNotEmpty) {
                   local_renderer.srcObject?.getVideoTracks()[0].enabled =
                       enable_video.value;
                 } else {

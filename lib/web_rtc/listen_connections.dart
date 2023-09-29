@@ -93,7 +93,7 @@ _add_remote_renderer({
   required String user_id,
   required Function setState,
 }) async {
-  if (remote_renderers.value.length == 0) {
+  if (remote_renderers.value.isEmpty) {
     add_remote_renderer(remote_renderers);
   }
   remote_renderers.value.last.connection_id = connection.id;

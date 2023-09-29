@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomDropdownButton extends StatefulWidget {
-  CustomDropdownButton({
+  const CustomDropdownButton({super.key, 
     required this.on_changed,
     required this.value,
     required this.items,
@@ -32,7 +32,7 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
           margin: const EdgeInsets.only(top: 20),
           child: Text(
             widget.title,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.black,
               fontSize: 18,
             ),
@@ -54,7 +54,7 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
               value: value,
               child: Text(
                 value,
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.black,
                 ),
               ),

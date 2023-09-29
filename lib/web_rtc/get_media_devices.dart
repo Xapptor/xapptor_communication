@@ -27,11 +27,11 @@ Future get_media_devices({
   audio_devices.value = await get_audio_devices();
   video_devices.value = await get_video_devices();
 
-  if (audio_devices.value.length > 0) {
+  if (audio_devices.value.isNotEmpty) {
     current_audio_device.value = audio_devices.value[0].label;
     current_audio_device_id.value = audio_devices.value[0].deviceId;
   }
-  if (video_devices.value.length > 0) {
+  if (video_devices.value.isNotEmpty) {
     current_video_device.value = video_devices.value[0].label;
     current_video_device_id.value = video_devices.value[0].deviceId;
   }

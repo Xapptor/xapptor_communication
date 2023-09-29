@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'custom_dropdown_button.dart';
 
 class SettingsMenu extends StatelessWidget {
-  SettingsMenu({
+  const SettingsMenu({super.key, 
     required this.background_color,
     required this.audio_dropdown_button,
     required this.video_dropdown_button,
@@ -30,7 +30,7 @@ class SettingsMenu extends StatelessWidget {
             Container(
               alignment: Alignment.centerRight,
               child: IconButton(
-                icon: Icon(
+                icon: const Icon(
                   Icons.close,
                   color: Colors.white,
                 ),

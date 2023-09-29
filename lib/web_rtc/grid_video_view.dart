@@ -9,7 +9,7 @@ class GridVideoView extends StatefulWidget {
   final bool mirror_local_renderer;
   final String user_name;
 
-  const GridVideoView({
+  const GridVideoView({super.key, 
     required this.local_renderer,
     required this.remote_renderers,
     required this.mirror_local_renderer,
@@ -52,9 +52,9 @@ class _GridVideoViewState extends State<GridVideoView> {
 
     return Container(
       padding: const EdgeInsets.all(10.0),
-      child: remote_renderers.length > 0
+      child: remote_renderers.isNotEmpty
           ? GridView.builder(
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               shrinkWrap: true,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: cross_axis_count,
@@ -83,19 +83,19 @@ class _GridVideoViewState extends State<GridVideoView> {
                   user_name = remote_renderer.user_name;
                 }
                 return VideoViewContainer(
-                  child: video_view,
                   background_color: random_colors[index],
                   user_name: user_name,
+                  child: video_view,
                 );
               },
             )
           : VideoViewContainer(
+              background_color: random_colors.first,
+              user_name: widget.user_name,
               child: RTCVideoView(
                 widget.local_renderer,
                 mirror: widget.mirror_local_renderer,
               ),
-              background_color: random_colors.first,
-              user_name: widget.user_name,
             ),
     );
   }
@@ -106,7 +106,7 @@ class VideoViewContainer extends StatelessWidget {
   final Color background_color;
   final String user_name;
 
-  const VideoViewContainer({
+  const VideoViewContainer({super.key, 
     required this.child,
     required this.background_color,
     required this.user_name,
@@ -129,23 +129,23 @@ class VideoViewContainer extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Spacer(flex: 1),
+          const Spacer(flex: 1),
           Expanded(
             flex: 40,
             child: child,
           ),
-          Spacer(flex: 1),
+          const Spacer(flex: 1),
           Expanded(
             flex: 4,
             child: Text(
               user_name,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,
               ),
             ),
           ),
-          Spacer(flex: 1),
+          const Spacer(flex: 1),
         ],
       ),
     );

@@ -19,7 +19,7 @@ extension CreateConnectionAnswer on Signaling {
   }) async {
     CollectionReference connections_ref = room_ref.collection('connections');
     DocumentReference connection_ref = connections_ref.doc(connection.id);
-    this.room_id.value = room_ref.id;
+    room_id.value = room_ref.id;
 
     await create_peer_connection(
       collection_name: 'destination_candidates',
@@ -59,7 +59,7 @@ extension CreateConnectionAnswer on Signaling {
         .collection('source_candidates')
         .snapshots()
         .listen((snapshot) {
-      snapshot.docChanges.forEach((change) {
+      for (var change in snapshot.docChanges) {
         if (change.type == DocumentChangeType.added) {
           Map<String, dynamic> data = change.doc.data() as Map<String, dynamic>;
 
@@ -77,13 +77,13 @@ extension CreateConnectionAnswer on Signaling {
             ),
           );
         }
-      });
+      }
     });
 
     // Updating last remote renderer
     if (connection.source_user_id != '') {
       User user = await get_user_from_id(connection.source_user_id);
-      Timer(Duration(seconds: 1), () {
+      Timer(const Duration(seconds: 1), () {
         if (remote_renderers.value.last.user_id == '') {
           remote_renderers.value.last
             ..user_id = user.id

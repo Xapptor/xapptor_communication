@@ -4,7 +4,7 @@ import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 
 class JoinAnotherRoomContainer extends StatelessWidget {
-  JoinAnotherRoomContainer({
+  JoinAnotherRoomContainer({super.key, 
     required this.text_list,
     required this.local_renderer,
     required this.show_qr_scanner,
@@ -80,7 +80,7 @@ class JoinAnotherRoomContainer extends StatelessWidget {
                   join_room();
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text(
                         'You need to enter the room ID',
                       ),
@@ -90,7 +90,7 @@ class JoinAnotherRoomContainer extends StatelessWidget {
               },
               child: Text(
                 text_list[text_list.length - 2],
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.black,
                 ),
               ),

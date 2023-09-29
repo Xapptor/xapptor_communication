@@ -6,12 +6,12 @@ import 'signaling.dart';
 extension HangUp on Signaling {
   Future hang_up() async {
     if (room_id.value != null) {
-      remote_streams.forEach((remote_stream) {
+      for (var remote_stream in remote_streams) {
         remote_stream.getTracks().forEach((track) => track.stop());
-      });
-      peer_connections.forEach((peer_connection) {
+      }
+      for (var peer_connection in peer_connections) {
         peer_connection.value.close();
-      });
+      }
 
       DocumentReference room_ref = rooms_ref.doc(room_id.value);
       DocumentSnapshot room_snap = await room_ref.get();
@@ -37,9 +37,9 @@ extension HangUp on Signaling {
         }
       });
 
-      remote_streams.forEach((remote_stream) {
+      for (var remote_stream in remote_streams) {
         remote_stream.dispose();
-      });
+      }
     }
   }
 

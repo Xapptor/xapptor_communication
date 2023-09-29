@@ -41,7 +41,7 @@ class CallView extends StatefulWidget {
   String user_name;
   final String logo_path;
 
-  CallView({
+  CallView({super.key, 
     required this.main_color,
     required this.background_color,
     required this.enable_audio,
@@ -96,7 +96,7 @@ class _CallViewState extends State<CallView> {
   }
 
   check_if_user_is_logged_in() async {
-    User? user = await FirebaseAuth.instance.currentUser;
+    User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       widget.user_id = user.uid;
       CommunicationUser.User communication_user =
@@ -145,7 +145,7 @@ class _CallViewState extends State<CallView> {
 
   Future call_open_user_media() async {
     RTCVideoRenderer? remote_renderer;
-    if (remote_renderers.value.length > 0) {
+    if (remote_renderers.value.isNotEmpty) {
       remote_renderer = remote_renderers.value.first.video_renderer;
     }
     await signaling.open_user_media(
@@ -161,11 +161,12 @@ class _CallViewState extends State<CallView> {
   @override
   void dispose() {
     local_renderer.dispose();
-    remote_renderers.value.forEach((element) {
+    for (var element in remote_renderers.value) {
       element.video_renderer.dispose();
-    });
-    if (connections_listener.value != null)
+    }
+    if (connections_listener.value != null) {
       connections_listener.value!.cancel();
+    }
     super.dispose();
   }
 
@@ -317,7 +318,7 @@ class _CallViewState extends State<CallView> {
                         setState(() {});
                       }
                     },
-                    child: Container(
+                    child: SizedBox(
                       height: screen_height,
                       width: screen_width,
                       //color: Colors.red,
@@ -365,7 +366,6 @@ class _CallViewState extends State<CallView> {
                                           Align(
                                             alignment: Alignment.bottomRight,
                                             child: FloatingActionButton(
-                                              child: Icon(Icons.call_end),
                                               backgroundColor: Colors.red,
                                               onPressed: () async {
                                                 String message = '';
@@ -386,6 +386,7 @@ class _CallViewState extends State<CallView> {
                                                   message: message,
                                                 );
                                               },
+                                              child: const Icon(Icons.call_end),
                                             ),
                                           ),
                                         ],
@@ -437,7 +438,7 @@ class _CallViewState extends State<CallView> {
                                                 },
                                                 child: Text(
                                                   widget.text_list.last,
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                     color: Colors.black,
                                                   ),
                                                 ),
@@ -515,7 +516,7 @@ class _CallViewState extends State<CallView> {
       setState(() {});
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text(
             'Room ID musty be empty to create a room',
           ),

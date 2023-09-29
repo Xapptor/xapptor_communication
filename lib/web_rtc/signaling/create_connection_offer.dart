@@ -65,8 +65,7 @@ extension CreateConnectionOffer on Signaling {
       if (snapshot.exists) {
         Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
 
-        if (peer_connection.getRemoteDescription() != null &&
-            data['answer'] != null) {
+        if (data['answer'] != null) {
           var answer = RTCSessionDescription(
             data['answer']['sdp'],
             data['answer']['type'],
@@ -79,7 +78,7 @@ extension CreateConnectionOffer on Signaling {
         // Updating last remote renderer
         if (data['destination_user_id'] != '') {
           User user = await get_user_from_id(data['destination_user_id']);
-          Timer(Duration(seconds: 1), () {
+          Timer(const Duration(seconds: 1), () {
             if (remote_renderers.value.last.user_id == '') {
               remote_renderers.value.last
                 ..user_id = user.id
@@ -97,7 +96,7 @@ extension CreateConnectionOffer on Signaling {
         .collection('destination_candidates')
         .snapshots()
         .listen((snapshot) {
-      snapshot.docChanges.forEach((change) {
+      for (var change in snapshot.docChanges) {
         if (change.type == DocumentChangeType.added) {
           Map<String, dynamic> data = change.doc.data() as Map<String, dynamic>;
 
@@ -110,7 +109,7 @@ extension CreateConnectionOffer on Signaling {
             ),
           );
         }
-      });
+      }
     });
     // Listen for remote ICE candidates above
     return connection_id;

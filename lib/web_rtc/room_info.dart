@@ -11,7 +11,7 @@ class RoomInfo extends StatelessWidget {
   final Color main_color;
   final Function callback;
 
-  const RoomInfo({
+  const RoomInfo({super.key, 
     required this.background_color,
     required this.room_id,
     required this.call_base_url,
@@ -39,7 +39,7 @@ class RoomInfo extends StatelessWidget {
             child: Container(
               alignment: Alignment.centerRight,
               child: IconButton(
-                icon: Icon(
+                icon: const Icon(
                   Icons.close,
                   color: Colors.white,
                 ),
@@ -102,14 +102,14 @@ class RoomInfo extends StatelessWidget {
                 TextButton(
                   onPressed: () async {
                     copy_to_clipboard(
-                      data: call_base_url + '/' + room_id,
+                      data: '$call_base_url/$room_id',
                       message: "Room URL copied to clipboard",
                       context: context,
                     );
                     callback();
                   },
                   child: Text(
-                    call_base_url + '/$room_id',
+                    '$call_base_url/$room_id',
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
