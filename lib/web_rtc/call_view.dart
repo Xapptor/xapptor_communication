@@ -7,7 +7,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/get_media_devices.dart';
 import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
 import 'package:xapptor_communication/web_rtc/listen_connections.dart';
-import 'package:xapptor_communication/web_rtc/model/user.dart' as CommunicationUser;
+import 'package:xapptor_communication/web_rtc/model/user.dart' as communication_user_model;
 import 'package:xapptor_communication/web_rtc/settings_menu.dart';
 import 'package:xapptor_communication/web_rtc/show_exit_alert.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
@@ -98,7 +98,7 @@ class _CallViewState extends State<CallView> {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       widget.user_id = user.uid;
-      CommunicationUser.User communication_user = await CommunicationUser.get_user_from_id(user.uid);
+      communication_user_model.User communication_user = await communication_user_model.get_user_from_id(user.uid);
       widget.user_name = communication_user.name;
 
       signaling.init(user_id: widget.user_id);
