@@ -41,7 +41,7 @@ listen_connections({
           );
         }
       } else {
-        event.docChanges.forEach((element) async {
+        for (var element in event.docChanges) {
           //
           // If a new document is added to the collection
           if (element.type == DocumentChangeType.added) {
@@ -76,7 +76,7 @@ listen_connections({
             remote_renderers.value.removeWhere((remote_renderer) => remote_renderer.connection_id == element.doc.id);
             setState(() {});
           }
-        });
+        }
       }
     } else {
       first_time = false;

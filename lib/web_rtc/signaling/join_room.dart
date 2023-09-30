@@ -16,8 +16,7 @@ extension JoinRoom on Signaling {
   }) async {
     DocumentReference room_ref = rooms_ref.doc(room_id);
     DocumentSnapshot room_snap = await room_ref.get();
-    Room room =
-        Room.from_snapshot(room_id, room_snap.data() as Map<String, dynamic>);
+    Room room = Room.from_snapshot(room_id, room_snap.data() as Map<String, dynamic>);
 
     List<Connection> connections = await room.connections();
 
@@ -52,15 +51,15 @@ extension JoinRoom on Signaling {
     required DocumentReference room_ref,
     required ValueNotifier<List<RemoteRenderer>> remote_renderers,
     required Function setState,
-  }) {
+  }) async {
     List<String> user_ids = get_users_ids_from_connection_list(connections);
-    user_ids.forEach((user_id) async {
+    for (String user_id in user_ids) {
       await create_connection_offer(
         destination_user_id: user_id,
         room_ref: room_ref,
         remote_renderers: remote_renderers,
         setState: setState,
       );
-    });
+    }
   }
 }
