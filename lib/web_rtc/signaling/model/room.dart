@@ -13,10 +13,9 @@ class Room {
   });
 
   Room.from_snapshot(
-    String id,
+    this.id,
     Map<String, dynamic> snapshot,
-  )   : id = id,
-        created = (snapshot['created'] as Timestamp).toDate(),
+  )   : created = (snapshot['created'] as Timestamp).toDate(),
         host_id = snapshot['host_id'];
 
   Map<String, dynamic> to_json() {
@@ -27,11 +26,8 @@ class Room {
   }
 
   Future<List<Connection>> connections() async {
-    QuerySnapshot connections_snap = await FirebaseFirestore.instance
-        .collection('rooms')
-        .doc(id)
-        .collection('connections')
-        .get();
+    QuerySnapshot connections_snap =
+        await FirebaseFirestore.instance.collection('rooms').doc(id).collection('connections').get();
 
     List<Connection> connections = connections_snap.docs.map((connection_snap) {
       return Connection.from_snapshot(

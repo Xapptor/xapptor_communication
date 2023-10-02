@@ -12,18 +12,15 @@ class User {
   });
 
   User.from_snapshot({
-    required String id,
+    required this.id,
     required Map<String, dynamic> snapshot,
-  })  : id = id,
-        name = snapshot['firstname'] != null && snapshot['lastname'] != null
+  }) : name = snapshot['firstname'] != null && snapshot['lastname'] != null
             ? (snapshot['firstname'] + ' ' + snapshot['lastname'])
             : id;
 
   Future<List<User>> get_room_users_from_room_ids(String room_id) async {
-    DocumentSnapshot room_snap =
-        await FirebaseFirestore.instance.collection('rooms').doc(room_id).get();
-    Room room =
-        Room.from_snapshot(room_id, room_snap.data() as Map<String, dynamic>);
+    DocumentSnapshot room_snap = await FirebaseFirestore.instance.collection('rooms').doc(room_id).get();
+    Room room = Room.from_snapshot(room_id, room_snap.data() as Map<String, dynamic>);
 
     List<Connection> connections = await room.connections();
     List<String> users_ids = get_users_ids_from_connection_list(connections);
@@ -31,8 +28,7 @@ class User {
     return users;
   }
 
-  Future<List<User>> get_room_users_from_connections(
-      List<Connection> connections) async {
+  Future<List<User>> get_room_users_from_connections(List<Connection> connections) async {
     List<String> users_ids = get_users_ids_from_connection_list(connections);
     List<User> users = await _convert_users_ids_to_users(users_ids);
     return users;
@@ -41,10 +37,7 @@ class User {
   Future<List<User>> _convert_users_ids_to_users(List<String> users_ids) async {
     List<User> users = [];
     await Future.forEach(users_ids, (String user_id) async {
-      DocumentSnapshot user_snap = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user_id)
-          .get();
+      DocumentSnapshot user_snap = await FirebaseFirestore.instance.collection('users').doc(user_id).get();
 
       User user = User.from_snapshot(
         id: user_id,
@@ -57,8 +50,7 @@ class User {
 }
 
 Future<User> get_user_from_id(String user_id) async {
-  DocumentSnapshot user_snap =
-      await FirebaseFirestore.instance.collection('users').doc(user_id).get();
+  DocumentSnapshot user_snap = await FirebaseFirestore.instance.collection('users').doc(user_id).get();
   return User.from_snapshot(
     id: user_id,
     snapshot: user_snap.data() as Map<String, dynamic>,

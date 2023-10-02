@@ -18,10 +18,9 @@ class Connection {
   });
 
   Connection.from_snapshot(
-    String id,
+    this.id,
     Map<String, dynamic> snapshot,
-  )   : id = id,
-        created = (snapshot['created'] as Timestamp).toDate(),
+  )   : created = (snapshot['created'] as Timestamp).toDate(),
         source_user_id = snapshot['source_user_id'],
         destination_user_id = snapshot['destination_user_id'],
         offer = snapshot['offer'] == null
