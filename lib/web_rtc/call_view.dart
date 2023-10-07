@@ -365,10 +365,13 @@ class _CallViewState extends State<CallView> {
 
                                                 await connections_listener.value!.cancel();
                                                 await signaling.hang_up();
-                                                exit_from_room(
-                                                  context: context,
-                                                  message: message,
-                                                );
+
+                                                if (context.mounted) {
+                                                  exit_from_room(
+                                                    context: context,
+                                                    message: message,
+                                                  );
+                                                }
                                               },
                                               child: const Icon(Icons.call_end),
                                             ),
@@ -475,17 +478,20 @@ class _CallViewState extends State<CallView> {
       widget.room_id.value = room!.id;
 
       in_a_call.value = true;
-      listen_connections(
-        user_id: widget.user_id,
-        remote_renderers: remote_renderers,
-        setState: setState,
-        signaling: signaling,
-        clean_the_room: clean_the_room,
-        exit_from_room: exit_from_room,
-        connections_listener: connections_listener,
-        context: context,
-        room: room!,
-      );
+
+      if (context.mounted) {
+        listen_connections(
+          user_id: widget.user_id,
+          remote_renderers: remote_renderers,
+          setState: setState,
+          signaling: signaling,
+          clean_the_room: clean_the_room,
+          exit_from_room: exit_from_room,
+          connections_listener: connections_listener,
+          context: context,
+          room: room!,
+        );
+      }
       update_path('home/room/${widget.room_id.value}');
       setState(() {});
     } else {
@@ -511,17 +517,19 @@ class _CallViewState extends State<CallView> {
 
     room = Room.from_snapshot(room_snap.id, room_snap.data() as Map<String, dynamic>);
 
-    listen_connections(
-      user_id: widget.user_id,
-      remote_renderers: remote_renderers,
-      setState: setState,
-      signaling: signaling,
-      clean_the_room: clean_the_room,
-      exit_from_room: exit_from_room,
-      connections_listener: connections_listener,
-      context: context,
-      room: room!,
-    );
+    if (context.mounted) {
+      listen_connections(
+        user_id: widget.user_id,
+        remote_renderers: remote_renderers,
+        setState: setState,
+        signaling: signaling,
+        clean_the_room: clean_the_room,
+        exit_from_room: exit_from_room,
+        connections_listener: connections_listener,
+        context: context,
+        room: room!,
+      );
+    }
     update_path('home/room/${widget.room_id.value}');
     setState(() {});
   }

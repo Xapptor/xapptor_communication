@@ -30,11 +30,13 @@ extension CreateRoom on Signaling {
     room_json['created'] = FieldValue.serverTimestamp();
     await room_ref.set(room_json);
 
-    copy_to_clipboard(
-      data: room_ref.id,
-      message: "Room ID copied to clipboard",
-      context: context,
-    );
+    if (context.mounted) {
+      copy_to_clipboard(
+        data: room_ref.id,
+        message: "Room ID copied to clipboard",
+        context: context,
+      );
+    }
     return room;
   }
 }
