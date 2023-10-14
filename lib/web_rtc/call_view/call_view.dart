@@ -4,31 +4,26 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:xapptor_communication/web_rtc/get_media_devices.dart';
+import 'package:xapptor_communication/web_rtc/call_view/audio_dropdown_button.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_open_user_media.dart';
+import 'package:xapptor_communication/web_rtc/call_view/check_if_user_is_logged_in.dart';
+import 'package:xapptor_communication/web_rtc/call_view/create_room.dart';
+import 'package:xapptor_communication/web_rtc/call_view/exit_from_room.dart';
+import 'package:xapptor_communication/web_rtc/call_view/join_room.dart';
+import 'package:xapptor_communication/web_rtc/call_view/qr_scanner.dart';
+import 'package:xapptor_communication/web_rtc/call_view/set_local_renderer.dart';
+import 'package:xapptor_communication/web_rtc/call_view/video_dropdown_button.dart';
 import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
-import 'package:xapptor_communication/web_rtc/listen_connections.dart';
-import 'package:xapptor_communication/web_rtc/model/user.dart' as communication_user_model;
+import 'package:xapptor_communication/web_rtc/join_another_room_container.dart';
+import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
+import 'package:xapptor_communication/web_rtc/room_info.dart';
+import 'package:xapptor_communication/web_rtc/settings_icons.dart';
 import 'package:xapptor_communication/web_rtc/settings_menu.dart';
-import 'package:xapptor_communication/web_rtc/show_exit_alert.dart';
-import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
+import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
-import 'package:xapptor_communication/web_rtc/signaling/open_user_media.dart';
-import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
-import 'package:xapptor_communication/web_rtc/signaling/join_room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/hang_up.dart';
-import 'package:xapptor_router/update_path/update_path.dart';
-import 'package:xapptor_ui/screens/qr_scanner.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 import 'package:xapptor_ui/widgets/topbar.dart';
-import 'add_remote_renderer.dart';
-import 'custom_dropdown_button.dart';
-import 'join_another_room_container.dart';
-import 'model/remote_renderer.dart';
-import 'room_info.dart';
-import 'settings_icons.dart';
-import 'signaling/model/room.dart';
-import 'package:xapptor_router/get_last_path_segment.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class CallView extends StatefulWidget {
   final Color main_color;
@@ -57,10 +52,10 @@ class CallView extends StatefulWidget {
   });
 
   @override
-  State<CallView> createState() => _CallViewState();
+  State<CallView> createState() => CallViewState();
 }
 
-class _CallViewState extends State<CallView> {
+class CallViewState extends State<CallView> {
   FirebaseFirestore db = FirebaseFirestore.instance;
 
   ValueNotifier<bool> enable_audio = ValueNotifier<bool>(true);
@@ -94,64 +89,11 @@ class _CallViewState extends State<CallView> {
     check_if_user_is_logged_in();
   }
 
-  check_if_user_is_logged_in() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      widget.user_id = user.uid;
-      communication_user_model.User communication_user = await communication_user_model.get_user_from_id(user.uid);
-      widget.user_name = communication_user.name;
-
-      signaling.init(user_id: widget.user_id);
-      init_video_renderers();
-
-      if (widget.room_id.value == '') {
-        widget.room_id.value = get_last_path_segment();
-      }
-
-      if (widget.room_id.value != "" && widget.room_id.value != "room" && widget.room_id.value.length > 6) {
-        join_room(widget.room_id.value);
-      }
-
-      call_open_user_media().then((_) {
-        get_media_devices(
-          audio_devices: audio_devices,
-          video_devices: video_devices,
-          current_audio_device: current_audio_device,
-          current_audio_device_id: current_audio_device_id,
-          current_video_device: current_video_device,
-          current_video_device_id: current_video_device_id,
-          callback: () {
-            setState(() {});
-          },
-        ).then((_) async {
-          set_media_devices_enabled();
-        });
-      });
-    } else {
-      Navigator.pop(context);
-    }
-  }
-
   set_media_devices_enabled() {
     enable_audio.value = widget.enable_audio;
     enable_video.value = widget.enable_video;
     call_open_user_media();
     setState(() {});
-  }
-
-  Future call_open_user_media() async {
-    RTCVideoRenderer? remote_renderer;
-    if (remote_renderers.value.isNotEmpty) {
-      remote_renderer = remote_renderers.value.first.video_renderer;
-    }
-    await signaling.open_user_media(
-      local_renderer: local_renderer,
-      remote_renderer: remote_renderer,
-      audio_device_id: current_audio_device_id.value,
-      video_device_id: current_video_device_id.value,
-      enable_audio: enable_audio.value,
-      enable_video: enable_video.value,
-    );
   }
 
   @override
@@ -164,88 +106,6 @@ class _CallViewState extends State<CallView> {
       connections_listener.value!.cancel();
     }
     super.dispose();
-  }
-
-  init_video_renderers() {
-    local_renderer.initialize();
-    signaling.on_add_remote_stream = ((stream) {
-      add_remote_renderer(remote_renderers);
-      remote_renderers.value.last.video_renderer.srcObject = stream;
-      setState(() {});
-    });
-  }
-
-  CustomDropdownButton audio_dropdown_button() {
-    return CustomDropdownButton(
-      value: current_audio_device.value,
-      on_changed: (new_value) {
-        current_audio_device.value = new_value!;
-        current_audio_device_id.value =
-            audio_devices.value.firstWhere((element) => element.label == new_value).deviceId;
-
-        local_renderer.srcObject?.getAudioTracks().forEach((element) {
-          element.stop();
-        });
-
-        call_open_user_media();
-        setState(() {});
-      },
-      items: audio_devices.value.map((e) => e.label).toList(),
-      title: widget.text_list[0],
-    );
-  }
-
-  CustomDropdownButton video_dropdown_button() {
-    return CustomDropdownButton(
-      value: current_video_device.value,
-      on_changed: (new_value) {
-        set_local_renderer(new_value!);
-      },
-      items: video_devices.value.map((e) => e.label).toList(),
-      title: widget.text_list[1],
-    );
-  }
-
-  set_local_renderer(String new_value) {
-    current_video_device.value = new_value;
-    current_video_device_id.value = video_devices.value.firstWhere((element) => element.label == new_value).deviceId;
-
-    local_renderer.srcObject?.getVideoTracks().forEach((element) {
-      element.stop();
-    });
-
-    call_open_user_media();
-    setState(() {});
-  }
-
-  clean_the_room() async {
-    if (widget.room_id.value != "") {
-      remote_renderers.value.clear();
-      DocumentReference room_ref = db.collection('rooms').doc(widget.room_id.value);
-
-      await signaling.create_connection_offer(
-        room_ref: room_ref,
-        remote_renderers: remote_renderers,
-        setState: setState,
-      );
-      setState(() {});
-    }
-  }
-
-  exit_from_room({
-    required BuildContext context,
-    required String message,
-  }) {
-    remote_renderers.value.clear();
-    in_a_call.value = false;
-    room_id_controller.clear();
-    widget.room_id.value = "";
-    setState(() {});
-    show_exit_alert(
-      context: context,
-      message: message,
-    );
-    update_path('home/room');
   }
 
   @override
@@ -268,39 +128,7 @@ class _CallViewState extends State<CallView> {
           alignment: Alignment.center,
           children: [
             show_qr_scanner.value
-                ? QRScanner(
-                    descriptive_text: "Frame the QR code",
-                    update_qr_value: (new_value) {
-                      room_id_controller.text = new_value;
-                      show_qr_scanner.value = false;
-
-                      if (enable_video.value) {
-                        call_open_user_media();
-                      }
-                      setState(() {});
-                    },
-                    border_color: widget.main_color,
-                    border_radius: 4,
-                    border_length: 40,
-                    border_width: 8,
-                    cut_out_size: 300,
-                    button_linear_gradient: LinearGradient(
-                      colors: [
-                        Colors.blue.withOpacity(0.4),
-                        Colors.green.withOpacity(0.4),
-                      ],
-                    ),
-                    permission_message: "You must give the camera permission to capture QR codes",
-                    permission_message_no: "Cancel",
-                    permission_message_yes: "Accept",
-                    enter_code_text: "Enter your code",
-                    validate_button_text: "Validate",
-                    fail_message: "You have to enter a code",
-                    textfield_color: Colors.green,
-                    show_main_button: false,
-                    main_button_text: "Button",
-                    main_button_function: () => null,
-                  )
+                ? qr_scanner()
                 : GestureDetector(
                     onTap: () {
                       if (show_settings.value) {
@@ -368,7 +196,6 @@ class _CallViewState extends State<CallView> {
 
                                                 if (context.mounted) {
                                                   exit_from_room(
-                                                    context: context,
                                                     message: message,
                                                   );
                                                 }
@@ -466,71 +293,5 @@ class _CallViewState extends State<CallView> {
         ),
       ),
     );
-  }
-
-  create_room() async {
-    if (room_id_controller.text.isEmpty) {
-      room = await signaling.create_room(
-        context: context,
-        remote_renderers: remote_renderers,
-        setState: setState,
-      );
-      widget.room_id.value = room!.id;
-
-      in_a_call.value = true;
-
-      if (context.mounted) {
-        listen_connections(
-          user_id: widget.user_id,
-          remote_renderers: remote_renderers,
-          setState: setState,
-          signaling: signaling,
-          clean_the_room: clean_the_room,
-          exit_from_room: exit_from_room,
-          connections_listener: connections_listener,
-          context: context,
-          room: room!,
-        );
-      }
-      update_path('home/room/${widget.room_id.value}');
-      setState(() {});
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Room ID musty be empty to create a room',
-          ),
-        ),
-      );
-    }
-  }
-
-  join_room(String room_id) async {
-    await signaling.join_room(
-      room_id: widget.room_id.value,
-      remote_renderers: remote_renderers,
-      setState: setState,
-    );
-    in_a_call.value = true;
-
-    DocumentSnapshot room_snap = await db.collection('rooms').doc(widget.room_id.value).get();
-
-    room = Room.from_snapshot(room_snap.id, room_snap.data() as Map<String, dynamic>);
-
-    if (context.mounted) {
-      listen_connections(
-        user_id: widget.user_id,
-        remote_renderers: remote_renderers,
-        setState: setState,
-        signaling: signaling,
-        clean_the_room: clean_the_room,
-        exit_from_room: exit_from_room,
-        connections_listener: connections_listener,
-        context: context,
-        room: room!,
-      );
-    }
-    update_path('home/room/${widget.room_id.value}');
-    setState(() {});
   }
 }

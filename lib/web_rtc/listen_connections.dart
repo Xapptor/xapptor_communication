@@ -17,7 +17,6 @@ listen_connections({
   required Signaling signaling,
   required Function clean_the_room,
   required Function({
-    required BuildContext context,
     required String message,
   }) exit_from_room,
   required ValueNotifier<StreamSubscription?> connections_listener,
@@ -36,7 +35,6 @@ listen_connections({
           clean_the_room();
         } else {
           exit_from_room(
-            context: context,
             message: "The host closed the room",
           );
         }
