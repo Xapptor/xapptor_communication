@@ -1,6 +1,6 @@
 import 'package:barcode_widget/barcode_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:xapptor_logic/copy_to_clipboard.dart';
+import 'package:xapptor_ui/utils/copy_to_clipboard.dart';
 import 'package:xapptor_ui/values/ui.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 
@@ -11,7 +11,8 @@ class RoomInfo extends StatelessWidget {
   final Color main_color;
   final Function callback;
 
-  const RoomInfo({super.key, 
+  const RoomInfo({
+    super.key,
     required this.background_color,
     required this.room_id,
     required this.call_base_url,
