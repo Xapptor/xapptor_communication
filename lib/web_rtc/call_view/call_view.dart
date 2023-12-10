@@ -1,9 +1,10 @@
-// ignore_for_file: must_be_immutable
+// ignore_for_file: must_be_immutable, use_build_context_synchronously
 
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_communication/web_rtc/call_view/audio_dropdown_button.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_open_user_media.dart';
 import 'package:xapptor_communication/web_rtc/call_view/check_if_user_is_logged_in.dart';
@@ -22,8 +23,11 @@ import 'package:xapptor_communication/web_rtc/settings_menu.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 import 'package:xapptor_communication/web_rtc/signaling/hang_up.dart';
+import 'package:xapptor_ui/widgets/check_permission.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 import 'package:xapptor_ui/widgets/topbar.dart';
+import 'package:xapptor_ui/utils/keyboard_hider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CallView extends StatefulWidget {
   final Color main_color;
@@ -85,8 +89,27 @@ class CallViewState extends State<CallView> {
 
   @override
   void initState() {
+    if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) mirror_local_renderer.value = false;
     super.initState();
+    check_permissions();
     check_if_user_is_logged_in();
+  }
+
+  check_permissions() async {
+    await check_permission(
+      context: context,
+      message: "You must give the camera permission",
+      message_no: "Cancel",
+      message_yes: "Accept",
+      permission_type: Permission.camera,
+    );
+    await check_permission(
+      context: context,
+      message: "You must give the microphone permission",
+      message_no: "Cancel",
+      message_yes: "Accept",
+      permission_type: Permission.microphone,
+    );
   }
 
   set_media_devices_enabled() {
@@ -114,30 +137,30 @@ class CallViewState extends State<CallView> {
     double screen_width = MediaQuery.of(context).size.width;
     bool portrait = is_portrait(context);
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: TopBar(
-          context: context,
-          background_color: widget.main_color,
-          actions: [],
-          has_back_button: true,
-          custom_leading: null,
-          logo_path: widget.logo_path,
-        ),
-        body: Stack(
-          alignment: Alignment.center,
-          children: [
-            show_qr_scanner.value
-                ? qr_scanner()
-                : GestureDetector(
-                    onTap: () {
-                      if (show_settings.value) {
-                        show_settings.value = false;
-                        show_info.value = false;
-                        setState(() {});
-                      }
-                    },
-                    child: SizedBox(
+    return KeyboardHider(
+      callback: () {
+        if (show_settings.value) {
+          show_settings.value = false;
+          show_info.value = false;
+          setState(() {});
+        }
+      },
+      child: SafeArea(
+        child: Scaffold(
+          appBar: TopBar(
+            context: context,
+            background_color: widget.main_color,
+            actions: [],
+            has_back_button: true,
+            custom_leading: null,
+            logo_path: widget.logo_path,
+          ),
+          body: Stack(
+            alignment: Alignment.center,
+            children: [
+              show_qr_scanner.value
+                  ? qr_scanner()
+                  : SizedBox(
                       height: screen_height,
                       width: screen_width,
                       //color: Colors.red,
@@ -209,7 +232,9 @@ class CallViewState extends State<CallView> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           audio_dropdown_button(),
-                                          video_dropdown_button(),
+                                          video_dropdown_button(
+                                            callback: (new_value) => video_dropdown_button_callback(new_value),
+                                          ),
                                           JoinAnotherRoomContainer(
                                             text_list: widget.text_list,
                                             local_renderer: local_renderer,
@@ -232,7 +257,10 @@ class CallViewState extends State<CallView> {
                                             alignment: Alignment.center,
                                             child: Container(
                                               height: 40,
-                                              margin: const EdgeInsets.only(top: 20),
+                                              margin: const EdgeInsets.only(
+                                                top: 20,
+                                                bottom: 20,
+                                              ),
                                               child: ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor: widget.main_color,
@@ -257,41 +285,55 @@ class CallViewState extends State<CallView> {
                         ),
                       ),
                     ),
-                  ),
-            show_settings.value
-                ? FractionallySizedBox(
-                    heightFactor: portrait ? 0.9 : 0.7,
-                    widthFactor: portrait ? 0.9 : 0.5,
-                    child: SettingsMenu(
-                      background_color: Colors.blueGrey.withOpacity(0.9),
-                      audio_dropdown_button: audio_dropdown_button(),
-                      video_dropdown_button: video_dropdown_button(),
-                      callback: () {
-                        show_settings.value = !show_settings.value;
-                        setState(() {});
-                      },
-                    ),
-                  )
-                : Container(),
-            show_info.value
-                ? FractionallySizedBox(
-                    heightFactor: portrait ? 0.7 : 0.5,
-                    widthFactor: portrait ? 0.9 : 0.5,
-                    child: RoomInfo(
-                      background_color: Colors.blueGrey.withOpacity(0.9),
-                      main_color: widget.main_color,
-                      room_id: widget.room_id.value,
-                      call_base_url: widget.call_base_url,
-                      callback: () {
-                        show_info.value = !show_info.value;
-                        setState(() {});
-                      },
-                    ),
-                  )
-                : Container(),
-          ],
+              show_settings.value
+                  ? FractionallySizedBox(
+                      heightFactor: portrait ? 0.8 : 0.7,
+                      widthFactor: portrait ? 0.9 : 0.5,
+                      child: SettingsMenu(
+                        background_color: Colors.blueGrey.withOpacity(0.9),
+                        audio_dropdown_button: audio_dropdown_button(),
+                        video_dropdown_button: video_dropdown_button(
+                          callback: (new_value) => video_dropdown_button_callback(new_value),
+                        ),
+                        callback: () {
+                          show_settings.value = !show_settings.value;
+                          setState(() {});
+                        },
+                      ),
+                    )
+                  : Container(),
+              show_info.value
+                  ? FractionallySizedBox(
+                      heightFactor: portrait ? 0.7 : 0.5,
+                      widthFactor: portrait ? 0.9 : 0.5,
+                      child: RoomInfo(
+                        background_color: Colors.blueGrey.withOpacity(0.9),
+                        main_color: widget.main_color,
+                        room_id: widget.room_id.value,
+                        call_base_url: widget.call_base_url,
+                        callback: () {
+                          show_info.value = !show_info.value;
+                          setState(() {});
+                        },
+                      ),
+                    )
+                  : Container(),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  video_dropdown_button_callback(String new_value) {
+    if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+      if (new_value.toLowerCase().contains("back")) {
+        mirror_local_renderer.value = false;
+        setState(() {});
+      } else if (new_value.toLowerCase().contains("front")) {
+        mirror_local_renderer.value = true;
+        setState(() {});
+      }
+    }
   }
 }
