@@ -2,10 +2,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 
 class JoinAnotherRoomContainer extends StatelessWidget {
+  final List<String> text_list;
+  RTCVideoRenderer local_renderer;
+  final ValueNotifier<bool> show_qr_scanner;
+  final Function setState;
+  final Color main_color;
+  final Function join_room;
+  final TextEditingController room_id_controller;
+
   JoinAnotherRoomContainer({
     super.key,
     required this.text_list,
@@ -16,14 +23,6 @@ class JoinAnotherRoomContainer extends StatelessWidget {
     required this.join_room,
     required this.room_id_controller,
   });
-
-  final List<String> text_list;
-  RTCVideoRenderer local_renderer;
-  final ValueNotifier<bool> show_qr_scanner;
-  final Function setState;
-  final Color main_color;
-  final Function join_room;
-  final TextEditingController room_id_controller;
 
   @override
   Widget build(BuildContext context) {
@@ -40,22 +39,20 @@ class JoinAnotherRoomContainer extends StatelessWidget {
                 text_list[text_list.length - 4],
                 textAlign: TextAlign.left,
               ),
-              UniversalPlatform.isWeb
-                  ? Container()
-                  : IconButton(
-                      onPressed: () {
-                        local_renderer.srcObject?.getVideoTracks().forEach((element) {
-                          element.stop();
-                        });
+              IconButton(
+                onPressed: () {
+                  local_renderer.srcObject?.getVideoTracks().forEach((element) {
+                    element.stop();
+                  });
 
-                        show_qr_scanner.value = true;
-                        setState(() {});
-                      },
-                      icon: Icon(
-                        Icons.camera_alt_outlined,
-                        color: main_color,
-                      ),
-                    ),
+                  show_qr_scanner.value = true;
+                  setState(() {});
+                },
+                icon: Icon(
+                  Icons.camera_alt_outlined,
+                  color: main_color,
+                ),
+              ),
             ],
           ),
         ),
@@ -64,7 +61,7 @@ class JoinAnotherRoomContainer extends StatelessWidget {
           children: [
             Container(
               margin: const EdgeInsets.only(right: 20),
-              width: screen_width * (portrait ? 0.5 : 0.15),
+              width: screen_width * (portrait ? 0.45 : 0.15),
               child: TextFormField(
                 controller: room_id_controller,
                 decoration: InputDecoration(
