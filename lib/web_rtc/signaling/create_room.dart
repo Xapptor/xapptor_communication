@@ -6,7 +6,7 @@ import 'model/room.dart';
 import 'signaling.dart';
 import 'package:xapptor_ui/utils/copy_to_clipboard.dart';
 
-extension CreateRoom on Signaling {
+extension StateExtension on Signaling {
   Future<Room> create_room({
     required BuildContext context,
     required ValueNotifier<List<RemoteRenderer>> remote_renderers,

@@ -4,7 +4,7 @@ import 'package:xapptor_communication/web_rtc/signaling/model/peer_connection.da
 import 'package:xapptor_communication/web_rtc/signaling/register_peer_connection_listeners.dart';
 import 'signaling.dart';
 
-extension CreatePeerConnection on Signaling {
+extension StateExtension on Signaling {
   Future create_peer_connection({
     required String collection_name,
     required DocumentReference connection_ref,

@@ -9,7 +9,7 @@ import 'package:xapptor_communication/web_rtc/signaling/create_peer_connection.d
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'signaling.dart';
 
-extension CreateConnectionAnswer on Signaling {
+extension StateExtension on Signaling {
   create_connection_anwser({
     required Connection connection,
     required DocumentReference room_ref,

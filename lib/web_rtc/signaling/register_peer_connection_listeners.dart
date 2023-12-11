@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'signaling.dart';
 
-extension RegisterPeerConnectionListeners on Signaling {
+extension StateExtension on Signaling {
   register_peer_connection_listeners() {
     peer_connections.last.value.onIceGatheringState = (RTCIceGatheringState state) {
       debugPrint('ICE gathering state changed: $state');

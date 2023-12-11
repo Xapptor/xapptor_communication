@@ -9,7 +9,7 @@ import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'dart:convert';
 import 'signaling.dart';
 
-extension CreateConnectionOffer on Signaling {
+extension StateExtension on Signaling {
   Future<String> create_connection_offer({
     String destination_user_id = '',
     required DocumentReference room_ref,

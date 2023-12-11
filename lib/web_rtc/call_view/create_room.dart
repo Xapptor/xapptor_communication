@@ -39,7 +39,7 @@ extension StateExtension on CallViewState {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Room ID musty be empty to create a room',
+            'Room ID must be empty to create a room',
           ),
         ),
       );

@@ -8,7 +8,7 @@ import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'model/room.dart';
 import 'signaling.dart';
 
-extension JoinRoom on Signaling {
+extension StateExtension on Signaling {
   Future join_room({
     required String room_id,
     required ValueNotifier<List<RemoteRenderer>> remote_renderers,
