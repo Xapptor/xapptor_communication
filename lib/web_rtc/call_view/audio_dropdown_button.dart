@@ -9,16 +9,13 @@ extension StateExtension on CallViewState {
     return CustomDropdownButton(
       value: current_audio_device.value,
       on_changed: (new_value) {
-        current_audio_device.value = new_value!;
-        current_audio_device_id.value =
-            audio_devices.value.firstWhere((element) => element.label == new_value).deviceId;
+        current_audio_device.value = new_value;
+        current_audio_device_id.value = audio_devices.value.firstWhere((device) => device.label == new_value).deviceId;
 
-        local_renderer.srcObject?.getAudioTracks().forEach((element) {
-          element.stop();
+        local_renderer.srcObject?.getAudioTracks().forEach((audio_track) {
+          audio_track.stop();
         });
-
         call_open_user_media();
-        setState(() {});
       },
       items: audio_devices.value.map((e) => e.label).toList(),
       title: widget.text_list[0],

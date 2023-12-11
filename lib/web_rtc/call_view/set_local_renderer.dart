@@ -11,8 +11,6 @@ extension StateExtension on CallViewState {
     local_renderer.srcObject?.getVideoTracks().forEach((element) {
       element.stop();
     });
-
     call_open_user_media();
-    setState(() {});
   }
 }

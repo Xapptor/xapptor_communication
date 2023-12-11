@@ -28,15 +28,8 @@ extension StateExtension on CallViewState {
       if (widget.room_id.value != "" && widget.room_id.value != "room" && widget.room_id.value.length > 6) {
         join_room(widget.room_id.value);
       }
-
+      await get_media_devices();
       await call_open_user_media();
-
-      await get_media_devices(
-        callback: () {
-          setState(() {});
-        },
-      );
-      set_media_devices_enabled();
     } else {
       Navigator.pop(context);
     }

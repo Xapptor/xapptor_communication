@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
 class CustomDropdownButton extends StatefulWidget {
+  final Function(String) on_changed;
+  final String value;
+  final List<String> items;
+  final String title;
+
   const CustomDropdownButton({
     super.key,
     required this.on_changed,
@@ -8,11 +13,6 @@ class CustomDropdownButton extends StatefulWidget {
     required this.items,
     required this.title,
   });
-
-  final Function(String?) on_changed;
-  final String value;
-  final List<String> items;
-  final String title;
 
   @override
   State<CustomDropdownButton> createState() => _CustomDropdownButtonState();
@@ -49,7 +49,7 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
             height: 2,
             color: Colors.deepPurpleAccent,
           ),
-          onChanged: widget.on_changed,
+          onChanged: (new_value) => widget.on_changed(new_value!),
           items: widget.items.map<DropdownMenuItem<String>>((String value) {
             return DropdownMenuItem<String>(
               value: value,

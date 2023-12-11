@@ -10,37 +10,44 @@ extension StateExtension on Signaling {
     required String video_device_id,
     required bool enable_audio,
     required bool enable_video,
+    required Function setState,
   }) async {
-    if (enable_audio || enable_video) {
-      String facing_mode = '';
-      if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
-        facing_mode = video_device_id == "0" ? 'environment' : 'user';
-      }
+    String facing_mode = '';
+    if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+      facing_mode = video_device_id == "0" ? 'environment' : 'user';
+    }
 
-      Map video_json = {
-        'deviceId': video_device_id,
-      };
+    Map video_json = {
+      'deviceId': video_device_id,
+    };
 
-      if (facing_mode != '') {
-        video_json['facingMode'] = facing_mode;
-      }
+    if (facing_mode != '') {
+      video_json['facingMode'] = facing_mode;
+    }
 
-      var stream = await navigator.mediaDevices.getUserMedia(
-        {
-          'audio': enable_audio
-              ? {
-                  'deviceId': audio_device_id,
-                }
-              : false,
-          'video': enable_video ? video_json : false,
+    MediaStream stream = await navigator.mediaDevices.getUserMedia(
+      {
+        'audio': {
+          'deviceId': audio_device_id,
         },
-      );
+        'video': video_json,
+      },
+    );
 
-      local_renderer.srcObject = stream;
-      local_stream = stream;
+    local_renderer.srcObject = stream;
+    local_stream = stream;
 
-      remote_renderer?.srcObject = await createLocalMediaStream('key');
+    if (local_renderer.srcObject!.getVideoTracks().isNotEmpty) {
+      local_renderer.srcObject?.getVideoTracks()[0].enabled = enable_video;
+    }
+
+    List<MediaStreamTrack>? audio_tracks = local_stream?.getAudioTracks();
+
+    if (audio_tracks != null && audio_tracks.isNotEmpty) {
       local_renderer.muted = !enable_audio;
     }
+
+    remote_renderer?.srcObject = await createLocalMediaStream('key');
+    setState(() {});
   }
 }

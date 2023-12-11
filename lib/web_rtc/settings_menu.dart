@@ -1,21 +1,14 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'package:flutter/material.dart';
-import 'custom_dropdown_button.dart';
+import 'package:xapptor_communication/web_rtc/call_view/audio_dropdown_button.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
+import 'package:xapptor_communication/web_rtc/call_view/video_dropdown_button.dart';
 
-class SettingsMenu extends StatelessWidget {
-  const SettingsMenu({super.key, 
-    required this.background_color,
-    required this.audio_dropdown_button,
-    required this.video_dropdown_button,
-    required this.callback,
-  });
-
-  final Color background_color;
-  final CustomDropdownButton audio_dropdown_button;
-  final CustomDropdownButton video_dropdown_button;
-  final Function callback;
-
-  @override
-  Widget build(BuildContext context) {
+extension StateExtension on CallViewState {
+  settings_menu({
+    required Color background_color,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: background_color,
@@ -35,12 +28,13 @@ class SettingsMenu extends StatelessWidget {
                   color: Colors.white,
                 ),
                 onPressed: () {
-                  callback();
+                  show_settings.value = !show_settings.value;
+                  setState(() {});
                 },
               ),
             ),
-            audio_dropdown_button,
-            video_dropdown_button,
+            audio_dropdown_button(),
+            video_dropdown_button(),
           ],
         ),
       ),

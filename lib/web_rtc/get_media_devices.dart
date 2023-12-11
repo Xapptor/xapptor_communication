@@ -1,25 +1,14 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
 extension StateExtension on CallViewState {
-  Future<List<MediaDeviceInfo>> get_audio_devices() async {
-    return (await _get_devices()).where((device) => device.kind == "audioinput").toList();
-  }
-
-  Future<List<MediaDeviceInfo>> get_video_devices() async {
-    return (await _get_devices()).where((device) => device.kind == "videoinput").toList();
-  }
-
-  Future<List<MediaDeviceInfo>> _get_devices() async {
-    return await navigator.mediaDevices.enumerateDevices();
-  }
-
-  Future get_media_devices({
-    required Function callback,
-  }) async {
-    audio_devices.value = await get_audio_devices();
-    video_devices.value = await get_video_devices();
+  Future get_media_devices() async {
+    List<MediaDeviceInfo> devices = await navigator.mediaDevices.enumerateDevices();
+    audio_devices.value = devices.where((device) => device.kind == "audioinput").toList();
+    video_devices.value = devices.where((device) => device.kind == "videoinput").toList();
 
     if (audio_devices.value.isNotEmpty) {
       current_audio_device.value = audio_devices.value[0].label;
@@ -36,6 +25,6 @@ extension StateExtension on CallViewState {
       current_video_device.value = video_devices.value[array_index].label;
       current_video_device_id.value = video_devices.value[array_index].deviceId;
     }
-    callback();
+    setState(() {});
   }
 }

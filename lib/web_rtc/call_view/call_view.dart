@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_communication/web_rtc/call_view/audio_dropdown_button.dart';
-import 'package:xapptor_communication/web_rtc/call_view/call_open_user_media.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view_wrapper.dart';
 import 'package:xapptor_communication/web_rtc/call_view/check_if_user_is_logged_in.dart';
 import 'package:xapptor_communication/web_rtc/call_view/check_permissions.dart';
@@ -17,7 +16,6 @@ import 'package:xapptor_communication/web_rtc/call_view/join_room.dart';
 import 'package:xapptor_communication/web_rtc/call_view/qr_scanner.dart';
 import 'package:xapptor_communication/web_rtc/call_view/set_local_renderer.dart';
 import 'package:xapptor_communication/web_rtc/call_view/video_dropdown_button.dart';
-import 'package:xapptor_communication/web_rtc/call_view/video_dropdown_button_callback.dart';
 import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
 import 'package:xapptor_communication/web_rtc/join_another_room_container.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
@@ -88,21 +86,18 @@ class CallViewState extends State<CallView> {
   @override
   void initState() {
     if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) mirror_local_renderer.value = false;
+    enable_audio.value = widget.enable_audio;
+    enable_video.value = widget.enable_video;
     super.initState();
     check_permissions();
     check_if_user_is_logged_in();
   }
 
-  set_media_devices_enabled() {
-    enable_audio.value = widget.enable_audio;
-    enable_video.value = widget.enable_video;
-    call_open_user_media();
-    setState(() {});
-  }
-
   @override
   void dispose() {
+    local_renderer.srcObject?.getVideoTracks().forEach((track) => track.stop());
     local_renderer.dispose();
+
     for (var remote_renderer in remote_renderers.value) {
       remote_renderer.video_renderer.dispose();
     }
@@ -146,21 +141,10 @@ class CallViewState extends State<CallView> {
                                 ),
                                 Align(
                                   alignment: Alignment.centerLeft,
-                                  child: SettingsIcons(
-                                    main_color: widget.main_color,
-                                    enable_audio: enable_audio,
-                                    enable_video: enable_video,
-                                    local_renderer: local_renderer,
-                                    show_settings: show_settings,
-                                    show_info: show_info,
-                                    share_screen: share_screen,
-                                    call_open_user_media: call_open_user_media,
-                                    setState: setState,
-                                    in_a_call: in_a_call,
+                                  child: settings_icons(
                                     stop_screen_share_function: () {
                                       set_local_renderer(current_video_device.value);
                                     },
-                                    mirror_local_renderer: mirror_local_renderer,
                                   ),
                                 ),
                                 in_a_call.value
@@ -196,9 +180,7 @@ class CallViewState extends State<CallView> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           audio_dropdown_button(),
-                                          video_dropdown_button(
-                                            callback: (new_value) => video_dropdown_button_callback(new_value),
-                                          ),
+                                          video_dropdown_button(),
                                           JoinAnotherRoomContainer(
                                             text_list: widget.text_list,
                                             local_renderer: local_renderer,
