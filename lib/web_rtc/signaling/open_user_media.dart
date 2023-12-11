@@ -1,8 +1,8 @@
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'signaling.dart';
+import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 
-extension OpenUserMedia on Signaling {
+extension StateExtension on Signaling {
   Future open_user_media({
     required RTCVideoRenderer local_renderer,
     required RTCVideoRenderer? remote_renderer,

@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable, use_build_context_synchronously
+// ignore_for_file: must_be_immutable
 
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,27 +7,25 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_communication/web_rtc/call_view/audio_dropdown_button.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_open_user_media.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_view_wrapper.dart';
 import 'package:xapptor_communication/web_rtc/call_view/check_if_user_is_logged_in.dart';
-import 'package:xapptor_communication/web_rtc/call_view/create_room.dart';
+import 'package:xapptor_communication/web_rtc/call_view/check_permissions.dart';
+import 'package:xapptor_communication/web_rtc/call_view/create_room_button.dart';
 import 'package:xapptor_communication/web_rtc/call_view/exit_from_room.dart';
+import 'package:xapptor_communication/web_rtc/call_view/floating_menus.dart';
 import 'package:xapptor_communication/web_rtc/call_view/join_room.dart';
 import 'package:xapptor_communication/web_rtc/call_view/qr_scanner.dart';
 import 'package:xapptor_communication/web_rtc/call_view/set_local_renderer.dart';
 import 'package:xapptor_communication/web_rtc/call_view/video_dropdown_button.dart';
+import 'package:xapptor_communication/web_rtc/call_view/video_dropdown_button_callback.dart';
 import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
 import 'package:xapptor_communication/web_rtc/join_another_room_container.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
-import 'package:xapptor_communication/web_rtc/room_info.dart';
 import 'package:xapptor_communication/web_rtc/settings_icons.dart';
-import 'package:xapptor_communication/web_rtc/settings_menu.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 import 'package:xapptor_communication/web_rtc/signaling/hang_up.dart';
-import 'package:xapptor_ui/widgets/check_permission.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
-import 'package:xapptor_ui/widgets/topbar.dart';
-import 'package:xapptor_ui/utils/keyboard_hider.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class CallView extends StatefulWidget {
   final Color main_color;
@@ -95,23 +93,6 @@ class CallViewState extends State<CallView> {
     check_if_user_is_logged_in();
   }
 
-  check_permissions() async {
-    await check_permission(
-      context: context,
-      message: "You must give the camera permission",
-      message_no: "Cancel",
-      message_yes: "Accept",
-      permission_type: Permission.camera,
-    );
-    await check_permission(
-      context: context,
-      message: "You must give the microphone permission",
-      message_no: "Cancel",
-      message_yes: "Accept",
-      permission_type: Permission.microphone,
-    );
-  }
-
   set_media_devices_enabled() {
     enable_audio.value = widget.enable_audio;
     enable_video.value = widget.enable_video;
@@ -137,27 +118,10 @@ class CallViewState extends State<CallView> {
     double screen_width = MediaQuery.of(context).size.width;
     bool portrait = is_portrait(context);
 
-    return KeyboardHider(
-      callback: () {
-        if (show_settings.value) {
-          show_settings.value = false;
-          show_info.value = false;
-          setState(() {});
-        }
-      },
-      child: SafeArea(
-        child: Scaffold(
-          appBar: TopBar(
-            context: context,
-            background_color: widget.main_color,
-            actions: [],
-            has_back_button: true,
-            custom_leading: null,
-            logo_path: widget.logo_path,
-          ),
-          body: Stack(
-            alignment: Alignment.center,
-            children: [
+    return call_view_wrapper(
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
               show_qr_scanner.value
                   ? qr_scanner()
                   : SizedBox(
@@ -253,30 +217,7 @@ class CallViewState extends State<CallView> {
                                             },
                                             room_id_controller: room_id_controller,
                                           ),
-                                          Align(
-                                            alignment: Alignment.center,
-                                            child: Container(
-                                              height: 40,
-                                              margin: const EdgeInsets.only(
-                                                top: 20,
-                                                bottom: 20,
-                                              ),
-                                              child: ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor: widget.main_color,
-                                                ),
-                                                onPressed: () async {
-                                                  create_room();
-                                                },
-                                                child: Text(
-                                                  widget.text_list.last,
-                                                  style: const TextStyle(
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
+                                          create_room_button(),
                                         ],
                                       ),
                               ],
@@ -285,55 +226,9 @@ class CallViewState extends State<CallView> {
                         ),
                       ),
                     ),
-              show_settings.value
-                  ? FractionallySizedBox(
-                      heightFactor: portrait ? 0.8 : 0.7,
-                      widthFactor: portrait ? 0.9 : 0.5,
-                      child: SettingsMenu(
-                        background_color: Colors.blueGrey.withOpacity(0.9),
-                        audio_dropdown_button: audio_dropdown_button(),
-                        video_dropdown_button: video_dropdown_button(
-                          callback: (new_value) => video_dropdown_button_callback(new_value),
-                        ),
-                        callback: () {
-                          show_settings.value = !show_settings.value;
-                          setState(() {});
-                        },
-                      ),
-                    )
-                  : Container(),
-              show_info.value
-                  ? FractionallySizedBox(
-                      heightFactor: portrait ? 0.7 : 0.5,
-                      widthFactor: portrait ? 0.9 : 0.5,
-                      child: RoomInfo(
-                        background_color: Colors.blueGrey.withOpacity(0.9),
-                        main_color: widget.main_color,
-                        room_id: widget.room_id.value,
-                        call_base_url: widget.call_base_url,
-                        callback: () {
-                          show_info.value = !show_info.value;
-                          setState(() {});
-                        },
-                      ),
-                    )
-                  : Container(),
-            ],
-          ),
-        ),
+            ] +
+            floating_menus(portrait: portrait),
       ),
     );
-  }
-
-  video_dropdown_button_callback(String new_value) {
-    if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
-      if (new_value.toLowerCase().contains("back")) {
-        mirror_local_renderer.value = false;
-        setState(() {});
-      } else if (new_value.toLowerCase().contains("front")) {
-        mirror_local_renderer.value = true;
-        setState(() {});
-      }
-    }
   }
 }
