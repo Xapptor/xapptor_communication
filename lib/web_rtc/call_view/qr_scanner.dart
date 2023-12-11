@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'package:flutter/material.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_open_user_media.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 import 'package:xapptor_ui/screens/qr_scanner.dart';
 
@@ -10,6 +11,8 @@ extension StateExtension on CallViewState {
         update_qr_value: (new_value) {
           room_id_controller.text = new_value;
           show_qr_scanner.value = false;
+
+          if (enable_video.value) call_open_user_media();
           setState(() {});
         },
         border_color: widget.main_color,

@@ -45,6 +45,7 @@ extension StateExtension on Signaling {
 
     if (audio_tracks != null && audio_tracks.isNotEmpty) {
       local_renderer.muted = !enable_audio;
+      audio_tracks.first.enabled = enable_audio;
     }
 
     remote_renderer?.srcObject = await createLocalMediaStream('key');
