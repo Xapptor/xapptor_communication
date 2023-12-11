@@ -6,7 +6,7 @@ import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 extension StateExtension on CallViewState {
   set_local_renderer(String new_value) {
     current_video_device.value = new_value;
-    current_video_device_id.value = video_devices.value.firstWhere((element) => element.label == new_value).deviceId;
+    current_video_device_id.value = video_devices.value.firstWhere((device) => device.label == new_value).deviceId;
 
     local_renderer.srcObject?.getVideoTracks().forEach((element) {
       element.stop();

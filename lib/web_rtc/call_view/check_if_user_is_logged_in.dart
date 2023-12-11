@@ -29,21 +29,14 @@ extension StateExtension on CallViewState {
         join_room(widget.room_id.value);
       }
 
-      call_open_user_media().then((_) {
-        get_media_devices(
-          audio_devices: audio_devices,
-          video_devices: video_devices,
-          current_audio_device: current_audio_device,
-          current_audio_device_id: current_audio_device_id,
-          current_video_device: current_video_device,
-          current_video_device_id: current_video_device_id,
-          callback: () {
-            setState(() {});
-          },
-        ).then((_) async {
-          set_media_devices_enabled();
-        });
-      });
+      await call_open_user_media();
+
+      await get_media_devices(
+        callback: () {
+          setState(() {});
+        },
+      );
+      set_media_devices_enabled();
     } else {
       Navigator.pop(context);
     }

@@ -103,8 +103,8 @@ class CallViewState extends State<CallView> {
   @override
   void dispose() {
     local_renderer.dispose();
-    for (var element in remote_renderers.value) {
-      element.video_renderer.dispose();
+    for (var remote_renderer in remote_renderers.value) {
+      remote_renderer.video_renderer.dispose();
     }
     if (connections_listener.value != null) {
       connections_listener.value!.cancel();
