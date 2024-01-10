@@ -188,9 +188,9 @@ class CallViewState extends State<CallView> {
                                             setState: setState,
                                             main_color: widget.main_color,
                                             join_room: () async {
-                                              if (room_id_controller.text.contains('https://xapptor.com/home/room/')) {
+                                              if (room_id_controller.text.contains(widget.call_base_url)) {
                                                 widget.room_id.value =
-                                                    room_id_controller.text.split('https://xapptor.com/home/room/')[1];
+                                                    room_id_controller.text.split(widget.call_base_url)[1];
                                               } else {
                                                 widget.room_id.value = room_id_controller.text;
                                               }

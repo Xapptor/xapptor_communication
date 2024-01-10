@@ -57,11 +57,12 @@ class JoinAnotherRoomContainer extends StatelessWidget {
           ),
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Container(
               margin: const EdgeInsets.only(right: 20),
-              width: screen_width * (portrait ? 0.45 : 0.15),
+              width: screen_width * (portrait ? 0.4 : 0.15),
               child: TextFormField(
                 controller: room_id_controller,
                 decoration: InputDecoration(

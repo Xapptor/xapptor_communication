@@ -46,14 +46,16 @@ extension StateExtension on Signaling {
     current_room_text = 'Current connection is $connection_id - You are the source!';
     // Created a connection
 
-    peer_connection.onTrack = (RTCTrackEvent event) {
-      debugPrint('Got remote track: ${event.streams[0]}');
+    Timer(const Duration(seconds: 2), () {
+      peer_connection.onTrack = (RTCTrackEvent event) {
+        debugPrint('Got remote track: ${event.streams[0]}');
 
-      event.streams[0].getTracks().forEach((track) {
-        debugPrint('Add a track to the remoteStream $track');
-        remote_streams.last.addTrack(track);
-      });
-    };
+        event.streams[0].getTracks().forEach((track) {
+          debugPrint('Add a track to the remoteStream $track');
+          remote_streams.last.addTrack(track);
+        });
+      };
+    });
 
     // Listening for remote session description below
     connection_ref.snapshots().listen((snapshot) async {

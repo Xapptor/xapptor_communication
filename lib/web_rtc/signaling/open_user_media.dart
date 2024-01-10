@@ -18,7 +18,12 @@ extension StateExtension on Signaling {
     }
 
     Map video_json = {
-      'deviceId': video_device_id,
+      'mandatory': {
+        'deviceId': video_device_id,
+        'minWidth': '640',
+        'minHeight': '480',
+        'minFrameRate': '30',
+      },
     };
 
     if (facing_mode != '') {

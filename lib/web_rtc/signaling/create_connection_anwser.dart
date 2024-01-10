@@ -26,13 +26,15 @@ extension StateExtension on Signaling {
       connection_ref: connection_ref,
     );
 
-    peer_connections.last.value.onTrack = (RTCTrackEvent event) {
-      debugPrint('Got remote track: ${event.streams[0]}');
-      event.streams[0].getTracks().forEach((track) {
-        debugPrint('Add a track to the remoteStream: $track');
-        remote_streams.last.addTrack(track);
-      });
-    };
+    Timer(const Duration(seconds: 2), () {
+      peer_connections.last.value.onTrack = (RTCTrackEvent event) {
+        debugPrint('Got remote track: ${event.streams[0]}');
+        event.streams[0].getTracks().forEach((track) {
+          debugPrint('Add a track to the remoteStream: $track');
+          remote_streams.last.addTrack(track);
+        });
+      };
+    });
 
     // Code for creating SDP answer below
     //debugPrint('Got offer ${connection.to_json()}');
