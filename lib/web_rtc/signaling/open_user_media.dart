@@ -14,7 +14,7 @@ extension StateExtension on Signaling {
   }) async {
     String facing_mode = '';
     if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
-      facing_mode = video_device_id == "0" ? 'environment' : 'user';
+      facing_mode = video_device_id.contains("0") ? 'environment' : 'user';
     }
 
     Map video_json = {
@@ -43,7 +43,7 @@ extension StateExtension on Signaling {
     local_stream = stream;
 
     if (local_renderer.srcObject!.getVideoTracks().isNotEmpty) {
-      local_renderer.srcObject?.getVideoTracks()[0].enabled = enable_video;
+      local_renderer.srcObject!.getVideoTracks()[0].enabled = enable_video;
     }
 
     List<MediaStreamTrack>? audio_tracks = local_stream?.getAudioTracks();
