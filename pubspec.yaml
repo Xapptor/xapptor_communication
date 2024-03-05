@@ -15,7 +15,7 @@ dependencies:
   firebase_auth: ^4.16.0
   cloud_firestore: ^4.14.0
 
-  flutter_webrtc: ^0.9.47
+  flutter_webrtc: ^0.9.48+hotfix.1
   barcode_widget: ^2.0.4
   universal_platform: ^1.0.0+1
   permission_handler: ^11.1.0

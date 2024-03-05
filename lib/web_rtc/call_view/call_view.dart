@@ -62,6 +62,7 @@ class CallViewState extends State<CallView> {
   ValueNotifier<bool> enable_video = ValueNotifier<bool>(true);
   ValueNotifier<List<MediaDeviceInfo>> audio_devices = ValueNotifier<List<MediaDeviceInfo>>([]);
   ValueNotifier<List<MediaDeviceInfo>> video_devices = ValueNotifier<List<MediaDeviceInfo>>([]);
+  ValueNotifier<double> zoom = ValueNotifier<double>(0);
 
   Signaling signaling = Signaling();
   RTCVideoRenderer local_renderer = RTCVideoRenderer();

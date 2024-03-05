@@ -9,13 +9,19 @@ extension StateExtension on CallViewState {
   List<Widget> floating_menus({
     required bool portrait,
   }) {
+    double height = MediaQuery.of(context).size.height;
+    double width = MediaQuery.of(context).size.width;
     return [
       show_settings.value
-          ? FractionallySizedBox(
-              heightFactor: portrait ? 0.8 : 0.7,
-              widthFactor: portrait ? 0.9 : 0.5,
+          ? Container(
+              constraints: BoxConstraints(
+                minHeight: height * 0.2,
+                minWidth: width * 0.2,
+                maxHeight: height * 0.45,
+                maxWidth: width * 0.8,
+              ),
               child: settings_menu(
-                background_color: Colors.blueGrey.withOpacity(0.9),
+                background_color: Colors.blueGrey.withOpacity(0.95),
               ),
             )
           : Container(),

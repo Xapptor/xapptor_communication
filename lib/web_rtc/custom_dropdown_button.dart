@@ -5,6 +5,7 @@ class CustomDropdownButton extends StatefulWidget {
   final String value;
   final List<String> items;
   final String title;
+  final Color? text_color;
 
   const CustomDropdownButton({
     super.key,
@@ -12,6 +13,7 @@ class CustomDropdownButton extends StatefulWidget {
     required this.value,
     required this.items,
     required this.title,
+    this.text_color = Colors.black,
   });
 
   @override
@@ -33,8 +35,8 @@ class _CustomDropdownButtonState extends State<CustomDropdownButton> {
           margin: const EdgeInsets.only(top: 20),
           child: Text(
             widget.title,
-            style: const TextStyle(
-              color: Colors.black,
+            style: TextStyle(
+              color: widget.text_color,
               fontSize: 18,
             ),
           ),
