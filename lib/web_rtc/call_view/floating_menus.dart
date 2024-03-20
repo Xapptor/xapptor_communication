@@ -38,6 +38,7 @@ extension StateExtension on CallViewState {
                   show_info.value = !show_info.value;
                   setState(() {});
                 },
+                parent_context: context,
               ),
             )
           : Container(),

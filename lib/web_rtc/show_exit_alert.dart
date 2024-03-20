@@ -9,7 +9,10 @@ show_exit_alert({
   showDialog(
     context: context,
     builder: (context) => AlertDialog(
-      content: Text(message),
+      content: Text(
+        message,
+        textAlign: TextAlign.center,
+      ),
     ),
   );
 

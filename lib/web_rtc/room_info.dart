@@ -10,6 +10,7 @@ class RoomInfo extends StatelessWidget {
   final String call_base_url;
   final Color main_color;
   final Function callback;
+  final BuildContext parent_context;
 
   const RoomInfo({
     super.key,
@@ -18,6 +19,7 @@ class RoomInfo extends StatelessWidget {
     required this.call_base_url,
     required this.main_color,
     required this.callback,
+    required this.parent_context,
   });
 
   final double title_size = 14;
@@ -73,11 +75,11 @@ class RoomInfo extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () async {
+                  onPressed: () {
                     copy_to_clipboard(
                       data: room_id,
                       message: "Room ID copied to clipboard",
-                      context: context,
+                      context: parent_context,
                     );
                     callback();
                   },
@@ -105,7 +107,7 @@ class RoomInfo extends StatelessWidget {
                     copy_to_clipboard(
                       data: '$call_base_url/$room_id',
                       message: "Room URL copied to clipboard",
-                      context: context,
+                      context: parent_context,
                     );
                     callback();
                   },

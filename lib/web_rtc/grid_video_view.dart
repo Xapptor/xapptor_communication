@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
+import 'package:xapptor_communication/web_rtc/video_view_container.dart';
 import 'package:xapptor_logic/get_random_color.dart';
 
 class GridVideoView extends StatefulWidget {
@@ -9,7 +10,8 @@ class GridVideoView extends StatefulWidget {
   final bool mirror_local_renderer;
   final String user_name;
 
-  const GridVideoView({super.key, 
+  const GridVideoView({
+    super.key,
     required this.local_renderer,
     required this.remote_renderers,
     required this.mirror_local_renderer,
@@ -85,6 +87,7 @@ class _GridVideoViewState extends State<GridVideoView> {
                 return VideoViewContainer(
                   background_color: random_colors[index],
                   user_name: user_name,
+                  user_is_local: false,
                   child: video_view,
                 );
               },
@@ -92,62 +95,12 @@ class _GridVideoViewState extends State<GridVideoView> {
           : VideoViewContainer(
               background_color: random_colors.first,
               user_name: widget.user_name,
+              user_is_local: true,
               child: RTCVideoView(
                 widget.local_renderer,
                 mirror: widget.mirror_local_renderer,
               ),
             ),
-    );
-  }
-}
-
-class VideoViewContainer extends StatelessWidget {
-  final Widget child;
-  final Color background_color;
-  final String user_name;
-
-  const VideoViewContainer({super.key, 
-    required this.child,
-    required this.background_color,
-    required this.user_name,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    double screen_height = MediaQuery.of(context).size.height;
-
-    return Container(
-      height: screen_height / 2.5,
-      width: screen_height / 2.5,
-      decoration: BoxDecoration(
-        color: background_color,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          width: 3,
-          color: Colors.grey,
-        ),
-      ),
-      child: Column(
-        children: [
-          const Spacer(flex: 1),
-          Expanded(
-            flex: 40,
-            child: child,
-          ),
-          const Spacer(flex: 1),
-          Expanded(
-            flex: 4,
-            child: Text(
-              user_name,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-              ),
-            ),
-          ),
-          const Spacer(flex: 1),
-        ],
-      ),
     );
   }
 }
