@@ -3,6 +3,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/video_view_container.dart';
 import 'package:xapptor_logic/get_random_color.dart';
+import 'package:xapptor_ui/widgets/is_portrait.dart';
 
 class GridVideoView extends StatefulWidget {
   final RTCVideoRenderer local_renderer;
@@ -43,9 +44,11 @@ class _GridVideoViewState extends State<GridVideoView> {
   Widget build(BuildContext context) {
     List<RemoteRenderer> remote_renderers = widget.remote_renderers.value;
 
-    int cross_axis_count = 1;
+    bool portrait = is_portrait(context);
+    int cross_axis_count = portrait ? 1 : 2;
+
     if (remote_renderers.length == 2) {
-      cross_axis_count = 1;
+      cross_axis_count = 2;
     } else if (remote_renderers.length > 2 && remote_renderers.length <= 4) {
       cross_axis_count = 2;
     } else if (remote_renderers.length > 4 && remote_renderers.length <= 6) {
