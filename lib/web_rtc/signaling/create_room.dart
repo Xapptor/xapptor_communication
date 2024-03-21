@@ -5,6 +5,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'model/room.dart';
 import 'signaling.dart';
 import 'package:xapptor_ui/utils/copy_to_clipboard.dart';
+import 'package:xapptor_logic/generate_random_id.dart';
+
+String ROOM_CREATOR_RANDOM_ID = "";
 
 extension StateExtension on Signaling {
   Future<Room> create_room({
@@ -20,10 +23,13 @@ extension StateExtension on Signaling {
       setState: setState,
     );
 
+    ROOM_CREATOR_RANDOM_ID = generate_random_id();
+
     Room room = Room(
       id: room_ref.id,
       created: DateTime.now(),
       host_id: user_id,
+      temp_id: ROOM_CREATOR_RANDOM_ID,
     );
 
     Map room_json = room.to_json();

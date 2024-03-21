@@ -5,23 +5,27 @@ class Room {
   final String id;
   final DateTime created;
   final String host_id;
+  final String temp_id;
 
   Room({
     required this.id,
     required this.created,
     required this.host_id,
+    required this.temp_id,
   });
 
   Room.from_snapshot(
     this.id,
     Map<String, dynamic> snapshot,
   )   : created = (snapshot['created'] as Timestamp).toDate(),
-        host_id = snapshot['host_id'];
+        host_id = snapshot['host_id'],
+        temp_id = snapshot['temp_id'];
 
   Map<String, dynamic> to_json() {
     return {
       'created': created,
       'host_id': host_id,
+      'temp_id': temp_id,
     };
   }
 

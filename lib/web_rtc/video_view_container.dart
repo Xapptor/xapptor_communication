@@ -5,6 +5,7 @@ class VideoViewContainer extends StatelessWidget {
   final Color background_color;
   final String user_name;
   final bool user_is_local;
+  final bool is_the_same_account;
 
   const VideoViewContainer({
     super.key,
@@ -12,11 +13,20 @@ class VideoViewContainer extends StatelessWidget {
     required this.background_color,
     required this.user_name,
     required this.user_is_local,
+    required this.is_the_same_account,
   });
 
   @override
   Widget build(BuildContext context) {
     double screen_height = MediaQuery.of(context).size.height;
+
+    String user_name_string = user_name;
+
+    if (user_is_local) {
+      user_name_string = "$user_name (You)";
+    } else if (is_the_same_account) {
+      user_name_string = "$user_name (Same Account)";
+    }
 
     return Container(
       height: screen_height / 2.5,
@@ -40,7 +50,7 @@ class VideoViewContainer extends StatelessWidget {
           Expanded(
             flex: 4,
             child: Text(
-              user_name + (user_is_local ? " (You)" : ""),
+              user_name_string,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 20,

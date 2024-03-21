@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'model/room.dart';
 import 'signaling.dart';
@@ -28,7 +29,7 @@ extension StateExtension on Signaling {
           );
           await connection_ref.delete();
 
-          if (room.host_id == user_id && index == connections.length - 1) {
+          if (room.host_id == user_id && index == connections.length - 1 && ROOM_CREATOR_RANDOM_ID == room.temp_id) {
             await room_ref.delete();
           }
         }
