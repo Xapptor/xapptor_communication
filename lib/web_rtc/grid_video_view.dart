@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
+import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
 import 'package:xapptor_communication/web_rtc/video_view_container.dart';
 import 'package:xapptor_logic/get_random_color.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
@@ -11,6 +12,7 @@ class GridVideoView extends StatefulWidget {
   final bool mirror_local_renderer;
   final String user_name;
   final String user_id;
+  final Room? room;
 
   const GridVideoView({
     super.key,
@@ -19,6 +21,7 @@ class GridVideoView extends StatefulWidget {
     required this.mirror_local_renderer,
     required this.user_name,
     required this.user_id,
+    required this.room,
   });
 
   @override
@@ -104,6 +107,7 @@ class _GridVideoViewState extends State<GridVideoView> {
                   user_name: user_name,
                   user_is_local: user_is_local,
                   is_the_same_account: is_the_same_account,
+                  room: widget.room,
                   child: video_view,
                 );
               },
@@ -113,6 +117,7 @@ class _GridVideoViewState extends State<GridVideoView> {
               user_name: widget.user_name,
               user_is_local: true,
               is_the_same_account: false,
+              room: widget.room,
               child: RTCVideoView(
                 widget.local_renderer,
                 mirror: widget.mirror_local_renderer,

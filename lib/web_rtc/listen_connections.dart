@@ -5,6 +5,7 @@ import 'package:xapptor_communication/web_rtc/add_remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/model/user.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_anwser.dart';
+import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
@@ -28,10 +29,10 @@ listen_connections({
   CollectionReference connections_ref = room_ref.collection("connections");
 
   // At first call "snapshots().listen" retrieve all docs in the collection
-  connections_listener.value = connections_ref.snapshots().listen((event) async {
+  connections_listener.value = connections_ref.snapshots().listen((connections) async {
     if (!first_time) {
-      if (event.docs.isEmpty) {
-        if (user_id == room.host_id) {
+      if (connections.docs.isEmpty) {
+        if (user_id == room.host_id && ROOM_CREATOR_RANDOM_ID == room.temp_id) {
           clean_the_room();
         } else {
           exit_from_room(
@@ -39,7 +40,7 @@ listen_connections({
           );
         }
       } else {
-        for (var element in event.docChanges) {
+        for (var element in connections.docChanges) {
           //
           // If a new document is added to the collection
           if (element.type == DocumentChangeType.added) {

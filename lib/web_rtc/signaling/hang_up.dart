@@ -1,11 +1,70 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
-import 'model/room.dart';
-import 'signaling.dart';
+import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
+import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'dart:async';
 
 extension StateExtension on Signaling {
-  Future hang_up() async {
+  Future hang_up({
+    required BuildContext context,
+    required Room room,
+    required String user_id,
+    required ValueNotifier<StreamSubscription?> connections_listener,
+    required Function exit_from_room,
+  }) async {
+    String content = "Are you sure you want to hang up?";
+
+    if (room.temp_id == ROOM_CREATOR_RANDOM_ID) {
+      content += "\nYou are the room creator and this action will close the room for everyone.";
+    }
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Hang Up"),
+          content: Text(content),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("Cancel"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text("Hang Up"),
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await perform_hang_up(
+                  context: context,
+                  room: room,
+                  user_id: user_id,
+                  connections_listener: connections_listener,
+                  exit_from_room: exit_from_room,
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future perform_hang_up({
+    required BuildContext context,
+    required Room room,
+    required String user_id,
+    required ValueNotifier<StreamSubscription?> connections_listener,
+    required Function exit_from_room,
+  }) async {
+    await connections_listener.value!.cancel();
+
+    exit_from_room();
+
     if (room_id.value != null) {
       for (var remote_stream in remote_streams) {
         remote_stream.getTracks().forEach((track) => track.stop());

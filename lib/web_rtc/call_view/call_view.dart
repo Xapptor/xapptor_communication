@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable
+// ignore_for_file: must_be_immutable, use_build_context_synchronously
 
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -140,6 +140,7 @@ class CallViewState extends State<CallView> {
                                   mirror_local_renderer: mirror_local_renderer.value,
                                   user_name: widget.user_name,
                                   user_id: widget.user_id,
+                                  room: room,
                                 ),
                                 Align(
                                   alignment: Alignment.centerLeft,
@@ -157,21 +158,25 @@ class CallViewState extends State<CallView> {
                                             child: FloatingActionButton(
                                               backgroundColor: Colors.red,
                                               onPressed: () async {
-                                                String message = '';
-                                                if (widget.user_id == room!.host_id) {
-                                                  message = 'You closed the room';
-                                                } else {
-                                                  message = 'You exit the room';
-                                                }
+                                                await signaling.hang_up(
+                                                    context: context,
+                                                    room: room!,
+                                                    user_id: widget.user_id,
+                                                    connections_listener: connections_listener,
+                                                    exit_from_room: () {
+                                                      String message = '';
+                                                      if (widget.user_id == room!.host_id) {
+                                                        message = 'You closed the room';
+                                                      } else {
+                                                        message = 'You exit the room';
+                                                      }
 
-                                                await connections_listener.value!.cancel();
-                                                await signaling.hang_up();
-
-                                                if (context.mounted) {
-                                                  exit_from_room(
-                                                    message: message,
-                                                  );
-                                                }
+                                                      if (context.mounted) {
+                                                        exit_from_room(
+                                                          message: message,
+                                                        );
+                                                      }
+                                                    });
                                               },
                                               child: const Icon(Icons.call_end),
                                             ),
