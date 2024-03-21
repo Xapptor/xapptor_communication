@@ -9,6 +9,7 @@ class GridVideoView extends StatefulWidget {
   final ValueNotifier<List<RemoteRenderer>> remote_renderers;
   final bool mirror_local_renderer;
   final String user_name;
+  final String user_id;
 
   const GridVideoView({
     super.key,
@@ -16,6 +17,7 @@ class GridVideoView extends StatefulWidget {
     required this.remote_renderers,
     required this.mirror_local_renderer,
     required this.user_name,
+    required this.user_id,
   });
 
   @override
@@ -43,10 +45,10 @@ class _GridVideoViewState extends State<GridVideoView> {
 
     int cross_axis_count = 1;
     if (remote_renderers.length == 2) {
+      cross_axis_count = 1;
+    } else if (remote_renderers.length > 2 && remote_renderers.length <= 4) {
       cross_axis_count = 2;
-    } else if (remote_renderers.length <= 4) {
-      cross_axis_count = 2;
-    } else if (remote_renderers.length <= 6) {
+    } else if (remote_renderers.length > 4 && remote_renderers.length <= 6) {
       cross_axis_count = 3;
     } else if (remote_renderers.length > 6) {
       cross_axis_count = 4;
@@ -68,26 +70,37 @@ class _GridVideoViewState extends State<GridVideoView> {
               itemBuilder: (context, index) {
                 late Widget video_view;
                 late String user_name;
+                late String user_id;
+                bool user_is_local = true;
+                bool is_the_same_account = false;
 
                 if (index == 0) {
                   video_view = RTCVideoView(
                     widget.local_renderer,
                     mirror: widget.mirror_local_renderer,
                   );
+
                   user_name = widget.user_name;
+                  user_id = widget.user_id;
                 } else {
                   RemoteRenderer remote_renderer = remote_renderers[index - 1];
 
                   video_view = RTCVideoView(
                     remote_renderer.video_renderer,
-                    mirror: widget.mirror_local_renderer,
+                    mirror: false,
                   );
+
                   user_name = remote_renderer.user_name;
+                  user_id = remote_renderer.user_id;
+
+                  user_is_local = false;
+                  is_the_same_account = user_id == widget.user_id;
                 }
                 return VideoViewContainer(
                   background_color: random_colors[index],
                   user_name: user_name,
-                  user_is_local: false,
+                  user_is_local: user_is_local,
+                  is_the_same_account: is_the_same_account,
                   child: video_view,
                 );
               },
@@ -96,6 +109,7 @@ class _GridVideoViewState extends State<GridVideoView> {
               background_color: random_colors.first,
               user_name: widget.user_name,
               user_is_local: true,
+              is_the_same_account: false,
               child: RTCVideoView(
                 widget.local_renderer,
                 mirror: widget.mirror_local_renderer,
