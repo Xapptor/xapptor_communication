@@ -11,14 +11,14 @@ import 'dart:async';
 extension StateExtension on Signaling {
   Future hang_up({
     required BuildContext context,
-    required Room room,
+    required ValueNotifier<Room> room,
     required String user_id,
     required ValueNotifier<StreamSubscription?> connections_listener,
     required Function exit_from_room,
   }) async {
     String content = "Are you sure you want to hang up?";
 
-    if (room.temp_id == ROOM_CREATOR_RANDOM_ID) {
+    if (room.value.temp_id == ROOM_CREATOR_RANDOM_ID) {
       content += "\nYou are the room creator and this action will close the room for everyone.";
     }
 
@@ -56,7 +56,7 @@ extension StateExtension on Signaling {
 
   Future perform_hang_up({
     required BuildContext context,
-    required Room room,
+    required ValueNotifier<Room> room,
     required String user_id,
     required ValueNotifier<StreamSubscription?> connections_listener,
     required Function exit_from_room,

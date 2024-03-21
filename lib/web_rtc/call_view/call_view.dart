@@ -82,7 +82,7 @@ class CallViewState extends State<CallView> {
   ValueNotifier<int> call_participants = ValueNotifier<int>(1);
   ValueNotifier<bool> in_a_call = ValueNotifier<bool>(false);
   ValueNotifier<StreamSubscription?> connections_listener = ValueNotifier(null);
-  Room? room;
+  ValueNotifier<Room>? room;
 
   @override
   void initState() {
@@ -165,7 +165,7 @@ class CallViewState extends State<CallView> {
                                                     connections_listener: connections_listener,
                                                     exit_from_room: () {
                                                       String message = '';
-                                                      if (widget.user_id == room!.host_id) {
+                                                      if (widget.user_id == room!.value.host_id) {
                                                         message = 'You closed the room';
                                                       } else {
                                                         message = 'You exit the room';

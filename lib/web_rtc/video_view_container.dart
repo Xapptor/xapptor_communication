@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
+import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
 
 class VideoViewContainer extends StatelessWidget {
   final Widget child;
@@ -6,6 +8,7 @@ class VideoViewContainer extends StatelessWidget {
   final String user_name;
   final bool user_is_local;
   final bool is_the_same_account;
+  final ValueNotifier<Room>? room;
 
   const VideoViewContainer({
     super.key,
@@ -14,6 +17,7 @@ class VideoViewContainer extends StatelessWidget {
     required this.user_name,
     required this.user_is_local,
     required this.is_the_same_account,
+    required this.room,
   });
 
   @override
@@ -21,9 +25,16 @@ class VideoViewContainer extends StatelessWidget {
     double screen_height = MediaQuery.of(context).size.height;
 
     String user_name_string = user_name;
+    String room_creator_string = "";
 
     if (user_is_local) {
       user_name_string = "$user_name (You)";
+
+      if (room != null) {
+        if (ROOM_CREATOR_RANDOM_ID == room!.value.temp_id) {
+          room_creator_string += "(Room Creator)";
+        }
+      }
     } else if (is_the_same_account) {
       user_name_string = "$user_name (Same Account)";
     }
@@ -41,19 +52,27 @@ class VideoViewContainer extends StatelessWidget {
       ),
       child: Column(
         children: [
-          const Spacer(flex: 1),
           Expanded(
-            flex: 40,
+            flex: 34,
             child: child,
           ),
-          const Spacer(flex: 1),
           Expanded(
-            flex: 4,
+            flex: 3,
             child: Text(
               user_name_string,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 18,
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              room_creator_string,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
               ),
             ),
           ),

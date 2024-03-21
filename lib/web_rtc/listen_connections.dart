@@ -11,7 +11,7 @@ import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 
 listen_connections({
-  required Room room,
+  required ValueNotifier<Room> room,
   required String user_id,
   required ValueNotifier<List<RemoteRenderer>> remote_renderers,
   required Function setState,
@@ -25,14 +25,14 @@ listen_connections({
 }) {
   bool first_time = true;
   FirebaseFirestore db = FirebaseFirestore.instance;
-  DocumentReference room_ref = db.collection('rooms').doc(room.id);
+  DocumentReference room_ref = db.collection('rooms').doc(room.value.id);
   CollectionReference connections_ref = room_ref.collection("connections");
 
   // At first call "snapshots().listen" retrieve all docs in the collection
   connections_listener.value = connections_ref.snapshots().listen((connections) async {
     if (!first_time) {
       if (connections.docs.isEmpty) {
-        if (user_id == room.host_id && ROOM_CREATOR_RANDOM_ID == room.temp_id) {
+        if (user_id == room.value.host_id && ROOM_CREATOR_RANDOM_ID == room.value.temp_id) {
           clean_the_room();
         } else {
           exit_from_room(

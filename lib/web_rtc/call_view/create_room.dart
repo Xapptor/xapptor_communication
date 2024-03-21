@@ -6,17 +6,19 @@ import 'package:xapptor_communication/web_rtc/call_view/clean_the_room.dart';
 import 'package:xapptor_communication/web_rtc/call_view/exit_from_room.dart';
 import 'package:xapptor_communication/web_rtc/listen_connections.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
+import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
 import 'package:xapptor_router/update_path/update_path.dart';
 
 extension StateExtension on CallViewState {
   create_room() async {
     if (room_id_controller.text.isEmpty) {
-      room = await signaling.create_room(
+      room = ValueNotifier<Room>(await signaling.create_room(
         context: context,
         remote_renderers: remote_renderers,
         setState: setState,
-      );
-      widget.room_id.value = room!.id;
+      ));
+
+      widget.room_id.value = room!.value.id;
 
       in_a_call.value = true;
 

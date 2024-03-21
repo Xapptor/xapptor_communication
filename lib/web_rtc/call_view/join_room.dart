@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_protected_member, use_build_context_synchronously
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 import 'package:xapptor_communication/web_rtc/call_view/clean_the_room.dart';
 import 'package:xapptor_communication/web_rtc/call_view/exit_from_room.dart';
@@ -20,7 +21,7 @@ extension StateExtension on CallViewState {
 
     DocumentSnapshot room_snap = await db.collection('rooms').doc(widget.room_id.value).get();
 
-    room = Room.from_snapshot(room_snap.id, room_snap.data() as Map<String, dynamic>);
+    room = ValueNotifier<Room>(Room.from_snapshot(room_snap.id, room_snap.data() as Map<String, dynamic>));
 
     if (context.mounted) {
       listen_connections(

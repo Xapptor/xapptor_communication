@@ -12,7 +12,7 @@ class GridVideoView extends StatefulWidget {
   final bool mirror_local_renderer;
   final String user_name;
   final String user_id;
-  final Room? room;
+  final ValueNotifier<Room>? room;
 
   const GridVideoView({
     super.key,
