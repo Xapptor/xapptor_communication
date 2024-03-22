@@ -13,6 +13,7 @@ class GridVideoView extends StatefulWidget {
   final String user_name;
   final String user_id;
   final ValueNotifier<Room>? room;
+  final ValueNotifier<bool> enable_video;
 
   const GridVideoView({
     super.key,
@@ -22,6 +23,7 @@ class GridVideoView extends StatefulWidget {
     required this.user_name,
     required this.user_id,
     required this.room,
+    required this.enable_video,
   });
 
   @override
@@ -48,7 +50,11 @@ class _GridVideoViewState extends State<GridVideoView> {
     List<RemoteRenderer> remote_renderers = widget.remote_renderers.value;
 
     bool portrait = is_portrait(context);
-    int cross_axis_count = portrait ? 1 : 2;
+    int cross_axis_count = remote_renderers.isEmpty
+        ? 1
+        : portrait
+            ? 1
+            : 2;
 
     if (remote_renderers.length == 2) {
       cross_axis_count = 2;
@@ -62,67 +68,74 @@ class _GridVideoViewState extends State<GridVideoView> {
 
     return Container(
       padding: const EdgeInsets.all(10.0),
-      child: remote_renderers.isNotEmpty
-          ? GridView.builder(
-              physics: const NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: cross_axis_count,
-                childAspectRatio: 1.0,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-              ),
-              itemCount: remote_renderers.length + 1,
-              itemBuilder: (context, index) {
-                late Widget video_view;
-                late String user_name;
-                late String user_id;
-                bool user_is_local = true;
-                bool is_the_same_account = false;
+      child: GridView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: cross_axis_count,
+          childAspectRatio: 1.0,
+          mainAxisSpacing: 10,
+          crossAxisSpacing: 10,
+        ),
+        itemCount: remote_renderers.length + 1,
+        itemBuilder: (context, index) {
+          late Widget video_view;
+          late String user_name;
+          late String user_id;
+          bool user_is_local = true;
+          bool is_the_same_account = false;
 
-                if (index == 0) {
-                  video_view = RTCVideoView(
-                    widget.local_renderer,
-                    mirror: widget.mirror_local_renderer,
-                  );
+          if (index == 0) {
+            video_view = RTCVideoView(
+              widget.local_renderer,
+              mirror: widget.mirror_local_renderer,
+            );
 
-                  user_name = widget.user_name;
-                  user_id = widget.user_id;
-                } else {
-                  RemoteRenderer remote_renderer = remote_renderers[index - 1];
+            user_name = widget.user_name;
+            user_id = widget.user_id;
+          } else {
+            RemoteRenderer remote_renderer = remote_renderers[index - 1];
 
-                  video_view = RTCVideoView(
-                    remote_renderer.video_renderer,
-                    mirror: false,
-                  );
+            video_view = RTCVideoView(
+              remote_renderer.video_renderer,
+              mirror: false,
+            );
 
-                  user_name = remote_renderer.user_name;
-                  user_id = remote_renderer.user_id;
+            user_name = remote_renderer.user_name;
+            user_id = remote_renderer.user_id;
 
-                  user_is_local = false;
-                  is_the_same_account = user_id == widget.user_id;
-                }
-                return VideoViewContainer(
-                  background_color: random_colors[index],
-                  user_name: user_name,
-                  user_is_local: user_is_local,
-                  is_the_same_account: is_the_same_account,
-                  room: widget.room,
-                  child: video_view,
-                );
-              },
-            )
-          : VideoViewContainer(
-              background_color: random_colors.first,
-              user_name: widget.user_name,
-              user_is_local: true,
-              is_the_same_account: false,
-              room: widget.room,
-              child: RTCVideoView(
-                widget.local_renderer,
-                mirror: widget.mirror_local_renderer,
-              ),
-            ),
+            user_is_local = false;
+            is_the_same_account = user_id == widget.user_id;
+          }
+          return VideoViewContainer(
+            background_color: random_colors[index],
+            user_name: user_name,
+            user_is_local: user_is_local,
+            is_the_same_account: is_the_same_account,
+            room: widget.room,
+            child: widget.enable_video.value
+                ? video_view
+                : const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.videocam_off,
+                        size: 100,
+                        color: Colors.white,
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        'Video off',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+          );
+        },
+      ),
     );
   }
 }

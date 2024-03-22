@@ -17,6 +17,15 @@ extension StateExtension on Signaling {
   }) async {
     DocumentReference room_ref = rooms_ref.doc();
     room_id.value = room_ref.id;
+
+    if (context.mounted) {
+      copy_to_clipboard(
+        data: room_ref.id,
+        message: "Room ID copied to clipboard",
+        context: context,
+      );
+    }
+
     await create_connection_offer(
       room_ref: room_ref,
       remote_renderers: remote_renderers,
@@ -36,13 +45,6 @@ extension StateExtension on Signaling {
     room_json['created'] = FieldValue.serverTimestamp();
     await room_ref.set(room_json);
 
-    if (context.mounted) {
-      copy_to_clipboard(
-        data: room_ref.id,
-        message: "Room ID copied to clipboard",
-        context: context,
-      );
-    }
     return room;
   }
 }

@@ -141,6 +141,7 @@ class CallViewState extends State<CallView> {
                                   user_name: widget.user_name,
                                   user_id: widget.user_id,
                                   room: room,
+                                  enable_video: enable_video,
                                 ),
                                 Align(
                                   alignment: Alignment.centerLeft,
