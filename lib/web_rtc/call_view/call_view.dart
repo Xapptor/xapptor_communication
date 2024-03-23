@@ -20,6 +20,7 @@ import 'package:xapptor_communication/web_rtc/grid_video_view.dart';
 import 'package:xapptor_communication/web_rtc/join_another_room_container.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/settings_icons.dart';
+import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 import 'package:xapptor_communication/web_rtc/signaling/hang_up.dart';
@@ -177,6 +178,9 @@ class CallViewState extends State<CallView> {
                                                           message: message,
                                                         );
                                                       }
+                                                      ROOM_CREATOR_RANDOM_ID = "";
+                                                      room = null;
+                                                      setState(() {});
                                                     });
                                               },
                                               child: const Icon(Icons.call_end),

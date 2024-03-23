@@ -113,7 +113,7 @@ class _GridVideoViewState extends State<GridVideoView> {
             user_is_local: user_is_local,
             is_the_same_account: is_the_same_account,
             room: widget.room,
-            child: widget.enable_video.value
+            child: widget.enable_video.value || !user_is_local
                 ? video_view
                 : const Column(
                     mainAxisAlignment: MainAxisAlignment.center,

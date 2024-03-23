@@ -95,7 +95,7 @@ extension StateExtension on Signaling {
       });
 
       for (var remote_stream in remote_streams) {
-        remote_stream.dispose();
+        await remote_stream.dispose();
       }
     }
   }
