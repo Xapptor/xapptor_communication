@@ -90,7 +90,10 @@ _add_remote_renderer({
   required Function setState,
 }) async {
   if (remote_renderers.value.isEmpty) {
-    add_remote_renderer(remote_renderers);
+    add_remote_renderer(
+      remote_renderers: remote_renderers,
+      stream: null,
+    );
   }
   remote_renderers.value.last.connection_id = connection.id;
 

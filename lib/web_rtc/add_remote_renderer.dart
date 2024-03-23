@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'model/remote_renderer.dart';
 
-add_remote_renderer(ValueNotifier<List<RemoteRenderer>> remote_renderers) {
+Future add_remote_renderer({
+  required ValueNotifier<List<RemoteRenderer>> remote_renderers,
+  required MediaStream? stream,
+}) async {
   RTCVideoRenderer video_renderer = RTCVideoRenderer();
-  video_renderer.initialize();
+  await video_renderer.initialize();
+  video_renderer.srcObject = stream ?? await createLocalMediaStream('key');
+
   remote_renderers.value.add(
     RemoteRenderer(
       video_renderer: video_renderer,
