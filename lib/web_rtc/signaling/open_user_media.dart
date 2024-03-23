@@ -5,7 +5,6 @@ import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 extension StateExtension on Signaling {
   Future open_user_media({
     required RTCVideoRenderer local_renderer,
-    required RTCVideoRenderer? remote_renderer,
     required String audio_device_id,
     required String video_device_id,
     required bool enable_audio,
@@ -52,8 +51,6 @@ extension StateExtension on Signaling {
       local_renderer.muted = !enable_audio;
       audio_tracks.first.enabled = enable_audio;
     }
-
-    remote_renderer?.srcObject = await createLocalMediaStream('key');
     setState(() {});
   }
 }
