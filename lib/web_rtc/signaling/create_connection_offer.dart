@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/model/user.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_peer_connection.dart';
@@ -7,9 +8,8 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'dart:convert';
-import 'signaling.dart';
 
-extension StateExtension on Signaling {
+extension StateExtension on CallViewState {
   Future<String> create_connection_offer({
     String destination_user_id = '',
     required DocumentReference room_ref,
@@ -34,7 +34,7 @@ extension StateExtension on Signaling {
     Connection connection = Connection(
       id: connection_ref.id,
       created: DateTime.now(),
-      source_user_id: user_id,
+      source_user_id: widget.user_id,
       destination_user_id: destination_user_id,
       offer: ConnectionOfferAnswer.from_map(offer.toMap()),
     );

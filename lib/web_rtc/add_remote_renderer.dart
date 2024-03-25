@@ -5,6 +5,7 @@ import 'model/remote_renderer.dart';
 Future add_remote_renderer({
   required ValueNotifier<List<RemoteRenderer>> remote_renderers,
   required MediaStream? stream,
+  required Function setState,
 }) async {
   RTCVideoRenderer video_renderer = RTCVideoRenderer();
   await video_renderer.initialize();
@@ -18,5 +19,7 @@ Future add_remote_renderer({
       user_name: "",
     ),
   );
+
+  setState(() {});
   debugPrint("remote_renderers_length ${remote_renderers.value.length}");
 }
