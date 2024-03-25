@@ -90,29 +90,26 @@ _add_remote_renderer({
   required Function setState,
 }) async {
   if (remote_renderers.value.isEmpty) {
-    add_remote_renderer(
+    await add_remote_renderer(
       remote_renderers: remote_renderers,
       stream: null,
     );
   }
   remote_renderers.value.last.connection_id = connection.id;
+  String user_id = "";
 
   if (connection.source_user_id != user_id) {
-    remote_renderers.value.last.user_id = connection.source_user_id;
-    User user = await get_user_from_id(
-      connection.source_user_id,
-    );
-    remote_renderers.value.last.user_name = user.name;
-
-    setState(() {});
+    user_id = connection.source_user_id;
   } else if (connection.destination_user_id != user_id) {
-    remote_renderers.value.last.user_id = connection.destination_user_id;
-    User user = await get_user_from_id(
-      connection.destination_user_id,
-    );
-    remote_renderers.value.last.user_name = user.name;
-
-    setState(() {});
+    user_id = connection.destination_user_id;
   }
+
+  remote_renderers.value.last.user_id = user_id;
+  User user = await get_user_from_id(
+    user_id,
+  );
+  remote_renderers.value.last.user_name = user.name;
+
+  setState(() {});
   debugPrint("connection_id: ${connection.id}");
 }
