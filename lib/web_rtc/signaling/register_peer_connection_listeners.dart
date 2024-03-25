@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'signaling.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
-extension StateExtension on Signaling {
+extension StateExtension on CallViewState {
   register_peer_connection_listeners() {
     peer_connections.last.value.onIceGatheringState = (RTCIceGatheringState state) {
       debugPrint('ICE gathering state changed: $state');

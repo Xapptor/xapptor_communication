@@ -3,13 +3,13 @@ import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'model/room.dart';
-import 'signaling.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 import 'package:xapptor_ui/utils/copy_to_clipboard.dart';
 import 'package:xapptor_logic/generate_random_id.dart';
 
 String ROOM_CREATOR_RANDOM_ID = "";
 
-extension StateExtension on Signaling {
+extension StateExtension on CallViewState {
   Future<Room> create_room({
     required BuildContext context,
     required ValueNotifier<List<RemoteRenderer>> remote_renderers,
@@ -37,7 +37,7 @@ extension StateExtension on Signaling {
     Room room = Room(
       id: room_ref.id,
       created: DateTime.now(),
-      host_id: user_id,
+      host_id: widget.user_id,
       temp_id: ROOM_CREATOR_RANDOM_ID,
     );
 

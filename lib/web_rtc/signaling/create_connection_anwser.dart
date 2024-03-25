@@ -3,17 +3,15 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/model/user.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_peer_connection.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
-import 'signaling.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
-extension StateExtension on Signaling {
+extension StateExtension on CallViewState {
   create_connection_anwser({
     required Connection connection,
     required DocumentReference room_ref,
-    required ValueNotifier<List<RemoteRenderer>> remote_renderers,
     required Function setState,
     Function? callback,
   }) async {
@@ -48,7 +46,7 @@ extension StateExtension on Signaling {
     await peer_connections.last.value.setLocalDescription(answer);
 
     await connection_ref.update({
-      'destination_user_id': user_id,
+      'destination_user_id': widget.user_id,
       'answer': {
         'type': answer.type,
         'sdp': answer.sdp,

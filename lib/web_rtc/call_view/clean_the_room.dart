@@ -10,7 +10,7 @@ extension StateExtension on CallViewState {
       remote_renderers.value.clear();
       DocumentReference room_ref = db.collection('rooms').doc(widget.room_id.value);
 
-      await signaling.create_connection_offer(
+      await create_connection_offer(
         room_ref: room_ref,
         remote_renderers: remote_renderers,
         setState: setState,

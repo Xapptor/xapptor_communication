@@ -6,10 +6,12 @@ import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 extension StateExtension on CallViewState {
   init_video_renderers() {
     local_renderer.initialize();
-    signaling.on_add_remote_stream = ((stream) async {
+
+    on_add_remote_stream = ((stream) async {
       await add_remote_renderer(
         remote_renderers: remote_renderers,
         stream: stream,
+        setState: setState,
       );
       setState(() {});
     });

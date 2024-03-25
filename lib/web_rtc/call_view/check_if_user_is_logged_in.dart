@@ -18,7 +18,6 @@ extension StateExtension on CallViewState {
       communication_user_model.User communication_user = await communication_user_model.get_user_from_id(user.uid);
       widget.user_name = communication_user.name;
 
-      signaling.init(user_id: widget.user_id);
       init_video_renderers();
 
       if (widget.room_id.value == '') {
@@ -26,7 +25,7 @@ extension StateExtension on CallViewState {
       }
 
       if (widget.room_id.value != "" && widget.room_id.value != "room" && widget.room_id.value.length > 6) {
-        join_room(widget.room_id.value);
+        call_join_room(widget.room_id.value);
       }
       await get_media_devices();
       await call_open_user_media();

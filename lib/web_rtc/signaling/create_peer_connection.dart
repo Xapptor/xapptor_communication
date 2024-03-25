@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/peer_connection.dart';
 import 'package:xapptor_communication/web_rtc/signaling/register_peer_connection_listeners.dart';
-import 'signaling.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
-extension StateExtension on Signaling {
+extension StateExtension on CallViewState {
   Future create_peer_connection({
     required String collection_name,
     required DocumentReference connection_ref,

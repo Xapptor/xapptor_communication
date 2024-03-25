@@ -11,8 +11,8 @@ import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
 import 'package:xapptor_router/update_path/update_path.dart';
 
 extension StateExtension on CallViewState {
-  join_room(String room_id) async {
-    await signaling.join_room(
+  call_join_room(String room_id) async {
+    await join_room(
       room_id: widget.room_id.value,
       remote_renderers: remote_renderers,
       setState: setState,
@@ -25,15 +25,10 @@ extension StateExtension on CallViewState {
 
     if (context.mounted) {
       listen_connections(
-        user_id: widget.user_id,
-        remote_renderers: remote_renderers,
         setState: setState,
-        signaling: signaling,
         clean_the_room: clean_the_room,
         exit_from_room: exit_from_room,
-        connections_listener: connections_listener,
         context: context,
-        room: room!,
       );
     }
     update_path('home/room/${widget.room_id.value}');

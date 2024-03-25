@@ -5,7 +5,7 @@ import 'package:xapptor_communication/web_rtc/signaling/open_user_media.dart';
 
 extension StateExtension on CallViewState {
   Future call_open_user_media() async {
-    await signaling.open_user_media(
+    await open_user_media(
       local_renderer: local_renderer,
       audio_device_id: current_audio_device_id.value,
       video_device_id: current_video_device_id.value,

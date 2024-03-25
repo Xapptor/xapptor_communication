@@ -1,14 +1,14 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
-import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-extension StateExtension on Signaling {
+extension StateExtension on CallViewState {
   Future hang_up({
     required BuildContext context,
     required ValueNotifier<Room> room,

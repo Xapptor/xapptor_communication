@@ -12,4 +12,12 @@ class RemoteRenderer {
     required this.user_id,
     required this.user_name,
   });
+
+  to_json() {
+    return {
+      'connection_id': connection_id,
+      'user_id': user_id,
+      'user_name': user_name,
+    };
+  }
 }

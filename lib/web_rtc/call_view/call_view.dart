@@ -21,8 +21,8 @@ import 'package:xapptor_communication/web_rtc/join_another_room_container.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/settings_icons.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
+import 'package:xapptor_communication/web_rtc/signaling/model/peer_connection.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
-import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
 import 'package:xapptor_communication/web_rtc/signaling/hang_up.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 
@@ -56,6 +56,8 @@ class CallView extends StatefulWidget {
   State<CallView> createState() => CallViewState();
 }
 
+typedef StreamStateCallback = Function(MediaStream stream);
+
 class CallViewState extends State<CallView> {
   FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -65,7 +67,6 @@ class CallViewState extends State<CallView> {
   ValueNotifier<List<MediaDeviceInfo>> video_devices = ValueNotifier<List<MediaDeviceInfo>>([]);
   ValueNotifier<double> zoom = ValueNotifier<double>(0);
 
-  Signaling signaling = Signaling();
   RTCVideoRenderer local_renderer = RTCVideoRenderer();
   ValueNotifier<List<RemoteRenderer>> remote_renderers = ValueNotifier<List<RemoteRenderer>>([]);
 
@@ -85,8 +86,34 @@ class CallViewState extends State<CallView> {
   ValueNotifier<StreamSubscription?> connections_listener = ValueNotifier(null);
   ValueNotifier<Room>? room;
 
+  // New Params from Signaling
+
+  Map<String, dynamic> configuration = {
+    'iceServers': [
+      {
+        'urls': [
+          'stun:stun1.l.google.com:19302',
+          'stun:stun2.l.google.com:19302',
+        ]
+      }
+    ]
+  };
+  late CollectionReference rooms_ref;
+
+  String? current_room_text;
+  ValueNotifier<String?> room_id = ValueNotifier<String?>(null);
+  MediaStream? local_stream;
+  List<MediaStream> remote_streams = [];
+  List<PeerConnection> peer_connections = [];
+
+  StreamStateCallback? on_add_remote_stream;
+
+  // New Params from Signaling
+
   @override
   void initState() {
+    rooms_ref = db.collection('rooms');
+
     if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) mirror_local_renderer.value = false;
     enable_audio.value = widget.enable_audio;
     enable_video.value = widget.enable_video;
@@ -160,7 +187,7 @@ class CallViewState extends State<CallView> {
                                             child: FloatingActionButton(
                                               backgroundColor: Colors.red,
                                               onPressed: () async {
-                                                await signaling.hang_up(
+                                                await hang_up(
                                                     context: context,
                                                     room: room!,
                                                     user_id: widget.user_id,
@@ -207,7 +234,7 @@ class CallViewState extends State<CallView> {
                                                 widget.room_id.value = room_id_controller.text;
                                               }
 
-                                              join_room(widget.room_id.value);
+                                              call_join_room(widget.room_id.value);
                                             },
                                             room_id_controller: room_id_controller,
                                           ),

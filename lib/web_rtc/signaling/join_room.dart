@@ -6,9 +6,9 @@ import 'package:xapptor_communication/web_rtc/signaling/create_connection_anwser
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
 import 'model/room.dart';
-import 'signaling.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
-extension StateExtension on Signaling {
+extension StateExtension on CallViewState {
   Future join_room({
     required String room_id,
     required ValueNotifier<List<RemoteRenderer>> remote_renderers,
@@ -32,7 +32,6 @@ extension StateExtension on Signaling {
         create_connection_anwser(
           connection: connections.first,
           room_ref: room_ref,
-          remote_renderers: remote_renderers,
           setState: setState,
         );
       } else {

@@ -17,7 +17,7 @@ extension StateExtension on CallViewState {
             backgroundColor: widget.main_color,
           ),
           onPressed: () async {
-            create_room();
+            call_create_room();
           },
           child: Text(
             widget.text_list.last,
