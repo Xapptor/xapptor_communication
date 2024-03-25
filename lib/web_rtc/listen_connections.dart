@@ -1,38 +1,30 @@
-import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc/add_remote_renderer.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/model/user.dart';
-import 'package:xapptor_communication/web_rtc/signaling/create_connection_anwser.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
-import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
-import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
+import 'package:xapptor_communication/web_rtc/signaling/create_connection_anwser.dart';
 
 listen_connections({
-  required ValueNotifier<Room> room,
-  required String user_id,
-  required ValueNotifier<List<RemoteRenderer>> remote_renderers,
   required Function setState,
-  required Signaling signaling,
   required Function clean_the_room,
   required Function({
     required String message,
   }) exit_from_room,
-  required ValueNotifier<StreamSubscription?> connections_listener,
   required BuildContext context,
 }) {
   bool first_time = true;
-  FirebaseFirestore db = FirebaseFirestore.instance;
-  DocumentReference room_ref = db.collection('rooms').doc(room.value.id);
+  DocumentReference room_ref = db.collection('rooms').doc(room?.value.id);
   CollectionReference connections_ref = room_ref.collection("connections");
 
   // At first call "snapshots().listen" retrieve all docs in the collection
   connections_listener.value = connections_ref.snapshots().listen((connections) async {
     if (!first_time) {
       if (connections.docs.isEmpty) {
-        if (user_id == room.value.host_id && ROOM_CREATOR_RANDOM_ID == room.value.temp_id) {
+        if (widget.user_id == room?.value.host_id && ROOM_CREATOR_RANDOM_ID == room?.value.temp_id) {
           clean_the_room();
         } else {
           exit_from_room(
@@ -50,19 +42,18 @@ listen_connections({
 
             //
             // Check if the new connection is for me
-            if (user_id == connection.destination_user_id) {
+            if (widget.user_id == connection.destination_user_id) {
               debugPrint('new_connection_is_for_me');
 
-              signaling.create_connection_anwser(
+              create_connection_anwser(
                 connection: connection,
                 room_ref: room_ref,
-                remote_renderers: remote_renderers,
                 setState: setState,
                 callback: () {
                   _add_remote_renderer(
                     remote_renderers: remote_renderers,
                     connection: connection,
-                    user_id: user_id,
+                    user_id: widget.user_id,
                     setState: setState,
                   );
                 },
@@ -93,6 +84,7 @@ _add_remote_renderer({
     await add_remote_renderer(
       remote_renderers: remote_renderers,
       stream: null,
+      setState: setState,
     );
   }
   remote_renderers.value.last.connection_id = connection.id;
