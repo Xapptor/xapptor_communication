@@ -29,7 +29,7 @@ extension StateExtension on CallViewState {
         debugPrint('Got remote track: ${event.streams[0]}');
         event.streams[0].getTracks().forEach((track) {
           debugPrint('Add a track to the remoteStream: $track');
-          remote_streams.last.addTrack(track);
+          remote_renderers.value.last.video_renderer.srcObject?.addTrack(track);
         });
       };
     });

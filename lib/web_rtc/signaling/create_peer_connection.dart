@@ -18,8 +18,12 @@ extension StateExtension on CallViewState {
     );
     register_peer_connection_listeners();
 
-    local_stream?.getTracks().forEach((track) {
-      peer_connections.last.value.addTrack(track, local_stream!);
+    print('create_peer_connection__');
+
+    local_renderer.value.srcObject?.getTracks().forEach((track) {
+      print('create_peer_connection__&');
+
+      peer_connections.last.value.addTrack(track, local_renderer.value.srcObject!);
     });
 
     var candidates_collection = connection_ref.collection(collection_name);

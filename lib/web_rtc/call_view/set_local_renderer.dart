@@ -8,7 +8,7 @@ extension StateExtension on CallViewState {
     current_video_device.value = new_value;
     current_video_device_id.value = video_devices.value.firstWhere((device) => device.label == new_value).deviceId;
 
-    local_renderer.srcObject?.getVideoTracks().forEach((element) {
+    local_renderer.value.srcObject?.getVideoTracks().forEach((element) {
       element.stop();
     });
     call_open_user_media();

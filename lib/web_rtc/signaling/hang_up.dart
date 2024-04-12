@@ -66,8 +66,8 @@ extension StateExtension on CallViewState {
     exit_from_room();
 
     if (room_id.value != null) {
-      for (var remote_stream in remote_streams) {
-        remote_stream.getTracks().forEach((track) => track.stop());
+      for (var remote_renderer in remote_renderers.value) {
+        remote_renderer.video_renderer.srcObject?.getTracks().forEach((track) => track.stop());
       }
       for (var peer_connection in peer_connections) {
         peer_connection.value.close();
@@ -94,8 +94,8 @@ extension StateExtension on CallViewState {
         }
       });
 
-      for (var remote_stream in remote_streams) {
-        await remote_stream.dispose();
+      for (var remote_renderer in remote_renderers.value) {
+        await remote_renderer.video_renderer.srcObject?.dispose();
       }
     }
   }

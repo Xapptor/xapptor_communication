@@ -83,9 +83,7 @@ extension StateExtension on CallViewState {
   }) async {
     if (remote_renderers.value.isEmpty) {
       await add_remote_renderer(
-        remote_renderers: remote_renderers,
         stream: null,
-        setState: setState,
       );
     }
     remote_renderers.value.last.connection_id = connection.id;

@@ -21,9 +21,14 @@ extension StateExtension on CallViewState {
     };
 
     peer_connections.last.value.onAddStream = (MediaStream stream) {
-      debugPrint("Add remote stream");
+      print("add_remote_STREAM___");
       on_add_remote_stream?.call(stream);
-      remote_streams.add(stream);
+      //remote_streams.add(stream);
+    };
+
+    peer_connections.last.value.onAddTrack = (MediaStream stream, MediaStreamTrack track) {
+      print("add_remote_TRACK___");
+      on_add_remote_stream?.call(stream);
     };
   }
 }

@@ -15,7 +15,7 @@ extension StateExtension on CallViewState {
         current_audio_device.value = new_value;
         current_audio_device_id.value = audio_devices.value.firstWhere((device) => device.label == new_value).deviceId;
 
-        local_renderer.srcObject?.getAudioTracks().forEach((audio_track) {
+        local_renderer.value.srcObject?.getAudioTracks().forEach((audio_track) {
           audio_track.stop();
         });
         call_open_user_media();

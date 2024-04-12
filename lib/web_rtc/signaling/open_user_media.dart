@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:xapptor_communication/web_rtc/signaling/signaling.dart';
+import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
-extension StateExtension on Signaling {
+extension StateExtension on CallViewState {
   Future open_user_media({
-    required RTCVideoRenderer local_renderer,
+    required ValueNotifier<RTCVideoRenderer> local_renderer,
     required String audio_device_id,
     required String video_device_id,
     required bool enable_audio,
@@ -38,18 +39,30 @@ extension StateExtension on Signaling {
       },
     );
 
-    local_renderer.srcObject = stream;
-    local_stream = stream;
+    // if (local_renderer.value.srcObject != null) {
+    //   local_renderer.value.srcObject!.getTracks().forEach((track) {
+    //     track.stop();
+    //   });
+    // }
 
-    if (local_renderer.srcObject!.getVideoTracks().isNotEmpty) {
-      local_renderer.srcObject!.getVideoTracks()[0].enabled = enable_video;
+    local_renderer.value.srcObject = stream;
+
+    List<MediaStreamTrack>? video_tracks = local_renderer.value.srcObject?.getVideoTracks();
+
+    if (video_tracks != null && video_tracks.isNotEmpty) {
+      for (var track in video_tracks) {
+        track.enabled = enable_video;
+      }
     }
 
-    List<MediaStreamTrack>? audio_tracks = local_stream?.getAudioTracks();
+    List<MediaStreamTrack>? audio_tracks = local_renderer.value.srcObject?.getAudioTracks();
 
     if (audio_tracks != null && audio_tracks.isNotEmpty) {
-      local_renderer.muted = !enable_audio;
-      audio_tracks.first.enabled = enable_audio;
+      local_renderer.value.muted = !enable_audio;
+
+      for (var track in audio_tracks) {
+        track.enabled = enable_audio;
+      }
     }
     setState(() {});
   }

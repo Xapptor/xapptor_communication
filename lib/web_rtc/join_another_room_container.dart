@@ -6,7 +6,7 @@ import 'package:xapptor_ui/widgets/is_portrait.dart';
 
 class JoinAnotherRoomContainer extends StatelessWidget {
   final List<String> text_list;
-  RTCVideoRenderer local_renderer;
+  ValueNotifier<RTCVideoRenderer> local_renderer;
   final ValueNotifier<bool> show_qr_scanner;
   final Function setState;
   final Color main_color;
@@ -41,7 +41,7 @@ class JoinAnotherRoomContainer extends StatelessWidget {
               ),
               IconButton(
                 onPressed: () {
-                  local_renderer.srcObject?.getVideoTracks().forEach((element) {
+                  local_renderer.value.srcObject?.getVideoTracks().forEach((element) {
                     element.stop();
                   });
 

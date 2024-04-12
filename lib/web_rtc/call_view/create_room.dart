@@ -12,11 +12,13 @@ import 'package:xapptor_router/update_path/update_path.dart';
 extension StateExtension on CallViewState {
   call_create_room() async {
     if (room_id_controller.text.isEmpty) {
-      room = ValueNotifier<Room>(await create_room(
-        context: context,
-        remote_renderers: remote_renderers,
-        setState: setState,
-      ));
+      room = ValueNotifier<Room>(
+        await create_room(
+          context: context,
+          remote_renderers: remote_renderers,
+          setState: setState,
+        ),
+      );
 
       widget.room_id.value = room!.value.id;
 

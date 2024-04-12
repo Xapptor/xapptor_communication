@@ -7,7 +7,7 @@ import 'package:xapptor_logic/get_random_color.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 
 class GridVideoView extends StatefulWidget {
-  final RTCVideoRenderer local_renderer;
+  final ValueNotifier<RTCVideoRenderer> local_renderer;
   final ValueNotifier<List<RemoteRenderer>> remote_renderers;
   final bool mirror_local_renderer;
   final String user_name;
@@ -87,7 +87,7 @@ class _GridVideoViewState extends State<GridVideoView> {
 
           if (index == 0) {
             video_view = RTCVideoView(
-              widget.local_renderer,
+              widget.local_renderer.value,
               mirror: widget.mirror_local_renderer,
             );
 

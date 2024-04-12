@@ -72,8 +72,7 @@ extension StateExtension on CallViewState {
                       'video': true,
                     };
                     var stream = await navigator.mediaDevices.getDisplayMedia(media_constraints);
-
-                    local_renderer.srcObject = stream;
+                    local_renderer.value.srcObject = stream;
                   } else {
                     stop_screen_share_function();
                   }

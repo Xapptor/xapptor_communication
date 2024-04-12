@@ -67,7 +67,7 @@ class CallViewState extends State<CallView> {
   ValueNotifier<List<MediaDeviceInfo>> video_devices = ValueNotifier<List<MediaDeviceInfo>>([]);
   ValueNotifier<double> zoom = ValueNotifier<double>(0);
 
-  RTCVideoRenderer local_renderer = RTCVideoRenderer();
+  ValueNotifier<RTCVideoRenderer> local_renderer = ValueNotifier<RTCVideoRenderer>(RTCVideoRenderer());
   ValueNotifier<List<RemoteRenderer>> remote_renderers = ValueNotifier<List<RemoteRenderer>>([]);
 
   ValueNotifier<bool> mirror_local_renderer = ValueNotifier<bool>(true);
@@ -102,8 +102,6 @@ class CallViewState extends State<CallView> {
 
   String? current_room_text;
   ValueNotifier<String?> room_id = ValueNotifier<String?>(null);
-  MediaStream? local_stream;
-  List<MediaStream> remote_streams = [];
   List<PeerConnection> peer_connections = [];
 
   StreamStateCallback? on_add_remote_stream;
@@ -124,7 +122,7 @@ class CallViewState extends State<CallView> {
 
   @override
   void dispose() {
-    local_renderer.srcObject?.getVideoTracks().forEach((track) => track.stop());
+    local_renderer.value.srcObject?.getVideoTracks().forEach((track) => track.stop());
     local_renderer.dispose();
 
     for (var remote_renderer in remote_renderers.value) {
