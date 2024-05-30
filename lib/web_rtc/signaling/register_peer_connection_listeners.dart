@@ -20,15 +20,14 @@ extension StateExtension on CallViewState {
       debugPrint('ICE connection state change: $state');
     };
 
-    peer_connections.last.value.onAddStream = (MediaStream stream) {
-      print("add_remote_STREAM___");
-      on_add_remote_stream?.call(stream);
-      //remote_streams.add(stream);
-    };
+    // *Deprecated* Use onTrack instead
+    // peer_connections.last.value.onAddStream = (MediaStream stream) {
+    //   print('__onAddStream_');
+    //   on_add_remote_stream?.call(stream);
+    // };
 
-    peer_connections.last.value.onAddTrack = (MediaStream stream, MediaStreamTrack track) {
-      print("add_remote_TRACK___");
-      on_add_remote_stream?.call(stream);
+    peer_connections.last.value.onTrack = (RTCTrackEvent event) {
+      on_add_remote_stream?.call(event.streams[0]);
     };
   }
 }

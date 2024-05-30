@@ -24,11 +24,9 @@ extension StateExtension on CallViewState {
       connection_ref: connection_ref,
     );
 
-    RTCPeerConnection peer_connection = peer_connections.firstWhere((element) => element.id == connection_ref.id).value;
-
     // Add code for creating a connection
-    RTCSessionDescription offer = await peer_connection.createOffer();
-    await peer_connection.setLocalDescription(offer);
+    RTCSessionDescription offer = await peer_connections.last.value.createOffer();
+    await peer_connections.last.value.setLocalDescription(offer);
     //debugPrint('Created offer: ${offer.toMap()}');
 
     Connection connection = Connection(
@@ -47,11 +45,12 @@ extension StateExtension on CallViewState {
     // Created a connection
 
     Timer(const Duration(seconds: 2), () {
-      peer_connection.onTrack = (RTCTrackEvent event) {
+      peer_connections.last.value.onTrack = (RTCTrackEvent event) {
         debugPrint('Got remote track: ${event.streams[0]}');
 
         event.streams[0].getTracks().forEach((track) {
-          debugPrint('Add a track to the remoteStream $track');
+          debugPrint('Add a track to the remoteStream: $track');
+          debugPrint('CCO - Remote renderers length: ${remote_renderers.value.length}');
           remote_renderers.value.last.video_renderer.srcObject?.addTrack(track);
         });
       };
@@ -70,7 +69,7 @@ extension StateExtension on CallViewState {
           );
 
           debugPrint("Someone tried to connect");
-          await peer_connection.setRemoteDescription(answer);
+          await peer_connections.last.value.setRemoteDescription(answer);
         }
 
         // Updating last remote renderer
@@ -96,7 +95,7 @@ extension StateExtension on CallViewState {
           Map<String, dynamic> data = change.doc.data() as Map<String, dynamic>;
 
           debugPrint('Got new remote ICE candidate: ${jsonEncode(data)}');
-          peer_connection.addCandidate(
+          peer_connections.last.value.addCandidate(
             RTCIceCandidate(
               data['candidate'],
               data['sdpMid'],

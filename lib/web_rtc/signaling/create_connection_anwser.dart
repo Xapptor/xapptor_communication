@@ -27,8 +27,10 @@ extension StateExtension on CallViewState {
     Timer(const Duration(seconds: 2), () {
       peer_connections.last.value.onTrack = (RTCTrackEvent event) {
         debugPrint('Got remote track: ${event.streams[0]}');
+
         event.streams[0].getTracks().forEach((track) {
           debugPrint('Add a track to the remoteStream: $track');
+          debugPrint('CCA - Remote renderers length: ${remote_renderers.value.length}');
           remote_renderers.value.last.video_renderer.srcObject?.addTrack(track);
         });
       };

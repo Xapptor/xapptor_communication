@@ -9,6 +9,12 @@ extension StateExtension on CallViewState {
 
     on_add_remote_stream = ((stream) async {
       print("on_add_remote_stream______");
+
+      // Verify if stream id already exists
+      if (remote_renderers.value.any((remote_renderer) => remote_renderer.video_renderer.srcObject?.id == stream.id)) {
+        return;
+      }
+
       await add_remote_renderer(
         stream: stream,
       );
