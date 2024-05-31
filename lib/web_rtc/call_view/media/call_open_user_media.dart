@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
-import 'package:xapptor_communication/web_rtc/signaling/open_user_media.dart';
+import 'package:xapptor_communication/web_rtc/call_view/media/open_user_media.dart';
 
 extension StateExtension on CallViewState {
   Future call_open_user_media() async {

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/model/peer_connection.dart';
-import 'package:xapptor_communication/web_rtc/signaling/register_peer_connection_listeners.dart';
+import 'package:xapptor_communication/web_rtc/call_view/connection/register_peer_connection_listeners.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
 extension StateExtension on CallViewState {

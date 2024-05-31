@@ -23,7 +23,7 @@ import 'package:xapptor_communication/web_rtc/call_view/settings/settings_icons.
 import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
 import 'package:xapptor_communication/web_rtc/model/peer_connection.dart';
 import 'package:xapptor_communication/web_rtc/model/room.dart';
-import 'package:xapptor_communication/web_rtc/signaling/hang_up.dart';
+import 'package:xapptor_communication/web_rtc/call_view/room/hang_up.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 
 class CallView extends StatefulWidget {
