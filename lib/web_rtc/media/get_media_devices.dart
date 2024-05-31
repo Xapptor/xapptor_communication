@@ -3,6 +3,7 @@
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
+import 'package:xapptor_communication/web_rtc/media/open_user_media.dart';
 
 extension StateExtension on CallViewState {
   Future get_media_devices() async {
@@ -26,5 +27,6 @@ extension StateExtension on CallViewState {
       current_video_device_id.value = video_devices.value[array_index].deviceId;
     }
     setState(() {});
+    await open_user_media();
   }
 }
