@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
-import 'package:xapptor_communication/web_rtc/room_info.dart';
-import 'package:xapptor_communication/web_rtc/settings_menu.dart';
+import 'package:xapptor_communication/web_rtc/call_view/room/room_info.dart';
+import 'package:xapptor_communication/web_rtc/call_view/settings/settings_menu.dart';
 
 extension StateExtension on CallViewState {
   List<Widget> floating_menus({

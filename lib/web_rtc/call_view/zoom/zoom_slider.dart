@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
-import 'package:xapptor_communication/web_rtc/call_view/set_zoom.dart';
+import 'package:xapptor_communication/web_rtc/call_view/zoom/set_zoom.dart';
 
 extension StateExtension on CallViewState {
   Widget zoom_slider() {

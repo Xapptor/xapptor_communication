@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
-import 'package:xapptor_communication/web_rtc/call_view/set_local_renderer.dart';
-import 'package:xapptor_communication/web_rtc/custom_dropdown_button.dart';
+import 'package:xapptor_communication/web_rtc/call_view/renderer/set_local_renderer.dart';
+import 'package:xapptor_communication/web_rtc/call_view/custom_dropdown_button/custom_dropdown_button.dart';
 
 extension StateExtension on CallViewState {
   CustomDropdownButton video_dropdown_button({

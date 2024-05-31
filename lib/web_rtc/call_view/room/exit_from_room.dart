@@ -1,7 +1,7 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
-import 'package:xapptor_communication/web_rtc/show_exit_alert.dart';
+import 'package:xapptor_communication/web_rtc/call_view/room/show_exit_from_room_alert.dart';
 import 'package:xapptor_router/update_path/update_path.dart';
 
 extension StateExtension on CallViewState {
@@ -13,7 +13,7 @@ extension StateExtension on CallViewState {
     room_id_controller.clear();
     widget.room_id.value = "";
     setState(() {});
-    show_exit_alert(
+    show_exit_from_room_alert(
       context: context,
       message: message,
     );

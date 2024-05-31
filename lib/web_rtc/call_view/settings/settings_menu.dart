@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:xapptor_communication/web_rtc/call_view/audio_dropdown_button.dart';
+import 'package:xapptor_communication/web_rtc/call_view/custom_dropdown_button/audio_dropdown_button.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
-import 'package:xapptor_communication/web_rtc/call_view/video_dropdown_button.dart';
-import 'package:xapptor_communication/web_rtc/call_view/zoom_slider.dart';
+import 'package:xapptor_communication/web_rtc/call_view/custom_dropdown_button/video_dropdown_button.dart';
+import 'package:xapptor_communication/web_rtc/call_view/zoom/zoom_slider.dart';
 
 extension StateExtension on CallViewState {
   settings_menu({
