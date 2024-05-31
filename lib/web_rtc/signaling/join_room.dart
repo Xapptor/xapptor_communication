@@ -4,8 +4,8 @@ import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/model/user.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_anwser.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
-import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
-import 'model/room.dart';
+import 'package:xapptor_communication/web_rtc/model/connection.dart';
+import 'package:xapptor_communication/web_rtc/model/room.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
 extension StateExtension on CallViewState {

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc/model/user.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_peer_connection.dart';
-import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
+import 'package:xapptor_communication/web_rtc/model/connection.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
 extension StateExtension on CallViewState {

@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:xapptor_communication/web_rtc/signaling/model/connection.dart';
-import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
+import 'package:xapptor_communication/web_rtc/model/connection.dart';
+import 'package:xapptor_communication/web_rtc/model/room.dart';
 
 class User {
   final String id;

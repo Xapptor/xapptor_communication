@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_connection_offer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'model/room.dart';
+import 'package:xapptor_communication/web_rtc/model/room.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 import 'package:xapptor_ui/utils/copy_to_clipboard.dart';
 import 'package:xapptor_logic/generate_random_id.dart';

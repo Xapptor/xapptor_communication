@@ -21,8 +21,8 @@ import 'package:xapptor_communication/web_rtc/call_view/room/join_another_room_c
 import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/call_view/settings/settings_icons.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
-import 'package:xapptor_communication/web_rtc/signaling/model/peer_connection.dart';
-import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
+import 'package:xapptor_communication/web_rtc/model/peer_connection.dart';
+import 'package:xapptor_communication/web_rtc/model/room.dart';
 import 'package:xapptor_communication/web_rtc/signaling/hang_up.dart';
 import 'package:xapptor_ui/widgets/is_portrait.dart';
 

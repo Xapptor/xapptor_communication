@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc/signaling/create_room.dart';
-import 'package:xapptor_communication/web_rtc/signaling/model/room.dart';
+import 'package:xapptor_communication/web_rtc/model/room.dart';
 
 class VideoViewContainer extends StatelessWidget {
   final Widget child;
