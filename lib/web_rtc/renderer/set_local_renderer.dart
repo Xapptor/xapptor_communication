@@ -1,6 +1,6 @@
 // ignore_for_file: invalid_use_of_protected_member
 
-import 'package:xapptor_communication/web_rtc/media/call_open_user_media.dart';
+import 'package:xapptor_communication/web_rtc/media/open_user_media.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
 extension StateExtension on CallViewState {
@@ -11,6 +11,6 @@ extension StateExtension on CallViewState {
     local_renderer.value.srcObject?.getVideoTracks().forEach((element) {
       element.stop();
     });
-    call_open_user_media();
+    open_user_media();
   }
 }

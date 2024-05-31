@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
-import 'package:xapptor_communication/web_rtc/zoom/set_zoom.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 extension StateExtension on CallViewState {
   Widget zoom_slider() {
@@ -27,13 +27,23 @@ extension StateExtension on CallViewState {
           onChanged: (double value) {
             zoom.value = value;
             setState(() {});
-            set_zoom(
+            _set_zoom(
               local_renderer: local_renderer,
               zoom: zoom.value,
             );
           },
         ),
       ],
+    );
+  }
+
+  _set_zoom({
+    required ValueNotifier<RTCVideoRenderer> local_renderer,
+    required double zoom,
+  }) {
+    Helper.setZoom(
+      local_renderer.value.srcObject!.getVideoTracks()[0],
+      zoom,
     );
   }
 }

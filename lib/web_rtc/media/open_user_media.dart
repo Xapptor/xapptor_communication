@@ -1,25 +1,19 @@
-import 'package:flutter/material.dart';
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
 extension StateExtension on CallViewState {
-  Future open_user_media({
-    required ValueNotifier<RTCVideoRenderer> local_renderer,
-    required String audio_device_id,
-    required String video_device_id,
-    required bool enable_audio,
-    required bool enable_video,
-    required Function setState,
-  }) async {
+  Future open_user_media() async {
     String facing_mode = '';
     if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
-      facing_mode = video_device_id.contains("0") ? 'environment' : 'user';
+      facing_mode = current_video_device_id.value.contains("0") ? 'environment' : 'user';
     }
 
     Map video_json = {
       'mandatory': {
-        'deviceId': video_device_id,
+        'deviceId': current_video_device_id.value,
         'minWidth': '640',
         'minHeight': '480',
         'minFrameRate': '30',
@@ -33,7 +27,7 @@ extension StateExtension on CallViewState {
     MediaStream stream = await navigator.mediaDevices.getUserMedia(
       {
         'audio': {
-          'deviceId': audio_device_id,
+          'deviceId': current_audio_device_id.value,
         },
         'video': video_json,
       },
@@ -51,17 +45,17 @@ extension StateExtension on CallViewState {
 
     if (video_tracks != null && video_tracks.isNotEmpty) {
       for (var track in video_tracks) {
-        track.enabled = enable_video;
+        track.enabled = enable_video.value;
       }
     }
 
     List<MediaStreamTrack>? audio_tracks = local_renderer.value.srcObject?.getAudioTracks();
 
     if (audio_tracks != null && audio_tracks.isNotEmpty) {
-      local_renderer.value.muted = !enable_audio;
+      local_renderer.value.muted = !enable_audio.value;
 
       for (var track in audio_tracks) {
-        track.enabled = enable_audio;
+        track.enabled = enable_audio.value;
       }
     }
     setState(() {});

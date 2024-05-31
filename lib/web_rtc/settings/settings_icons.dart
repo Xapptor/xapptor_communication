@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:xapptor_communication/web_rtc/media/call_open_user_media.dart';
+import 'package:xapptor_communication/web_rtc/media/open_user_media.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 
 extension StateExtension on CallViewState {
@@ -18,7 +18,7 @@ extension StateExtension on CallViewState {
           ),
           onPressed: () {
             enable_audio.value = !enable_audio.value;
-            call_open_user_media();
+            open_user_media();
           },
         ),
         IconButton(
@@ -28,7 +28,7 @@ extension StateExtension on CallViewState {
           ),
           onPressed: () {
             enable_video.value = !enable_video.value;
-            call_open_user_media();
+            open_user_media();
           },
         ),
         // Settings icon button
