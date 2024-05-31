@@ -39,7 +39,7 @@ extension StateExtension on CallViewState {
               child: const Text("Hang Up"),
               onPressed: () async {
                 Navigator.of(context).pop();
-                await perform_hang_up(
+                await _hang_up(
                   context: context,
                   room: room,
                   user_id: user_id,
@@ -54,7 +54,7 @@ extension StateExtension on CallViewState {
     );
   }
 
-  Future perform_hang_up({
+  Future _hang_up({
     required BuildContext context,
     required ValueNotifier<Room> room,
     required String user_id,

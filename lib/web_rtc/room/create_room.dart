@@ -16,10 +16,39 @@ import 'package:xapptor_router/update_path/update_path.dart';
 String ROOM_CREATOR_RANDOM_ID = "";
 
 extension StateExtension on CallViewState {
-  call_create_room() async {
+  // MARK: Button Wdiget
+  create_room_button() {
+    return Align(
+      alignment: Alignment.center,
+      child: Container(
+        height: 40,
+        margin: const EdgeInsets.only(
+          top: 20,
+          bottom: 20,
+        ),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: widget.main_color,
+          ),
+          onPressed: () async {
+            create_room();
+          },
+          child: Text(
+            widget.text_list.last,
+            style: const TextStyle(
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // MARK: Main Function
+  create_room() async {
     if (room_id_controller.text.isEmpty) {
       room = ValueNotifier<Room>(
-        await create_room(
+        await _create_room(
           context: context,
           remote_renderers: remote_renderers,
           setState: setState,
@@ -51,7 +80,7 @@ extension StateExtension on CallViewState {
     }
   }
 
-  Future<Room> create_room({
+  Future<Room> _create_room({
     required BuildContext context,
     required ValueNotifier<List<RemoteRenderer>> remote_renderers,
     required Function setState,

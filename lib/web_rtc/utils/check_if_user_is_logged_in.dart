@@ -25,7 +25,7 @@ extension StateExtension on CallViewState {
       }
 
       if (widget.room_id.value != "" && widget.room_id.value != "room" && widget.room_id.value.length > 6) {
-        call_join_room(widget.room_id.value);
+        join_room(widget.room_id.value);
       }
       await get_media_devices();
       await call_open_user_media();

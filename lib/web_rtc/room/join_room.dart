@@ -15,8 +15,8 @@ import 'package:xapptor_communication/web_rtc/connection/listen_connections.dart
 import 'package:xapptor_router/update_path/update_path.dart';
 
 extension StateExtension on CallViewState {
-  call_join_room(String room_id) async {
-    await join_room(
+  join_room(String room_id) async {
+    await _join_room(
       room_id: widget.room_id.value,
       remote_renderers: remote_renderers,
       setState: setState,
@@ -39,7 +39,7 @@ extension StateExtension on CallViewState {
     setState(() {});
   }
 
-  Future join_room({
+  Future _join_room({
     required String room_id,
     required ValueNotifier<List<RemoteRenderer>> remote_renderers,
     required Function setState,
@@ -51,7 +51,7 @@ extension StateExtension on CallViewState {
     List<Connection> connections = await room.connections();
 
     if (connections.length > 1) {
-      create_pending_connections(
+      _create_pending_connections(
         connections: connections,
         room_ref: room_ref,
         remote_renderers: remote_renderers,
@@ -65,7 +65,7 @@ extension StateExtension on CallViewState {
           setState: setState,
         );
       } else {
-        create_pending_connections(
+        _create_pending_connections(
           connections: connections,
           room_ref: room_ref,
           remote_renderers: remote_renderers,
@@ -75,7 +75,7 @@ extension StateExtension on CallViewState {
     }
   }
 
-  create_pending_connections({
+  _create_pending_connections({
     required List<Connection> connections,
     required DocumentReference room_ref,
     required ValueNotifier<List<RemoteRenderer>> remote_renderers,

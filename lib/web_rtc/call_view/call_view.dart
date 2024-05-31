@@ -9,7 +9,6 @@ import 'package:xapptor_communication/web_rtc/custom_dropdown_button/audio_dropd
 import 'package:xapptor_communication/web_rtc/call_view/call_view_wrapper.dart';
 import 'package:xapptor_communication/web_rtc/utils/check_if_user_is_logged_in.dart';
 import 'package:xapptor_communication/web_rtc/utils/check_permissions.dart';
-import 'package:xapptor_communication/web_rtc/room/create_room_button.dart';
 import 'package:xapptor_communication/web_rtc/room/exit_from_room.dart';
 import 'package:xapptor_communication/web_rtc/settings/floating_menus.dart';
 import 'package:xapptor_communication/web_rtc/room/join_room.dart';
@@ -232,7 +231,7 @@ class CallViewState extends State<CallView> {
                                                 widget.room_id.value = room_id_controller.text;
                                               }
 
-                                              call_join_room(widget.room_id.value);
+                                              join_room(widget.room_id.value);
                                             },
                                             room_id_controller: room_id_controller,
                                           ),
