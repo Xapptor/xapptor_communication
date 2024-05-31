@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: invalid_use_of_protected_member
 
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 import 'package:xapptor_communication/web_rtc/room/create_room.dart';
@@ -6,9 +6,43 @@ import 'package:xapptor_communication/web_rtc/model/connection.dart';
 import 'package:xapptor_communication/web_rtc/model/room.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:xapptor_communication/web_rtc/room/exit_from_room.dart';
 import 'dart:async';
 
 extension StateExtension on CallViewState {
+  // MARK: Button Wdiget
+  Widget hang_up_button() {
+    return FloatingActionButton(
+      backgroundColor: Colors.red,
+      onPressed: () async {
+        await hang_up(
+            context: context,
+            room: room!,
+            user_id: widget.user_id,
+            connections_listener: connections_listener,
+            exit_from_room: () {
+              String message = '';
+              if (widget.user_id == room!.value.host_id) {
+                message = 'You closed the room';
+              } else {
+                message = 'You exit the room';
+              }
+
+              if (context.mounted) {
+                exit_from_room(
+                  message: message,
+                );
+              }
+              ROOM_CREATOR_RANDOM_ID = "";
+              room = null;
+              setState(() {});
+            });
+      },
+      child: const Icon(Icons.call_end),
+    );
+  }
+
+  // MARK: Main Function
   Future hang_up({
     required BuildContext context,
     required ValueNotifier<Room> room,

@@ -9,7 +9,6 @@ import 'package:xapptor_communication/web_rtc/custom_dropdown_button/audio_dropd
 import 'package:xapptor_communication/web_rtc/call_view/call_view_wrapper.dart';
 import 'package:xapptor_communication/web_rtc/utils/check_if_user_is_logged_in.dart';
 import 'package:xapptor_communication/web_rtc/utils/check_permissions.dart';
-import 'package:xapptor_communication/web_rtc/room/exit_from_room.dart';
 import 'package:xapptor_communication/web_rtc/settings/floating_menus.dart';
 import 'package:xapptor_communication/web_rtc/room/join_room.dart';
 import 'package:xapptor_communication/web_rtc/utils/qr_scanner.dart';
@@ -181,34 +180,7 @@ class CallViewState extends State<CallView> {
                                         children: [
                                           Align(
                                             alignment: Alignment.bottomRight,
-                                            child: FloatingActionButton(
-                                              backgroundColor: Colors.red,
-                                              onPressed: () async {
-                                                await hang_up(
-                                                    context: context,
-                                                    room: room!,
-                                                    user_id: widget.user_id,
-                                                    connections_listener: connections_listener,
-                                                    exit_from_room: () {
-                                                      String message = '';
-                                                      if (widget.user_id == room!.value.host_id) {
-                                                        message = 'You closed the room';
-                                                      } else {
-                                                        message = 'You exit the room';
-                                                      }
-
-                                                      if (context.mounted) {
-                                                        exit_from_room(
-                                                          message: message,
-                                                        );
-                                                      }
-                                                      ROOM_CREATOR_RANDOM_ID = "";
-                                                      room = null;
-                                                      setState(() {});
-                                                    });
-                                              },
-                                              child: const Icon(Icons.call_end),
-                                            ),
+                                            child: hang_up_button(),
                                           ),
                                         ],
                                       )

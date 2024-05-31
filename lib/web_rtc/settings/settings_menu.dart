@@ -5,7 +5,7 @@ import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_communication/web_rtc/custom_dropdown_button/audio_dropdown_button.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 import 'package:xapptor_communication/web_rtc/custom_dropdown_button/video_dropdown_button.dart';
-import 'package:xapptor_communication/web_rtc/zoom/zoom_slider.dart';
+import 'package:xapptor_communication/web_rtc/settings/zoom_slider.dart';
 
 extension StateExtension on CallViewState {
   settings_menu({
