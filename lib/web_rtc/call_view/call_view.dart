@@ -105,9 +105,6 @@ class CallViewState extends State<CallView> {
 
   // New Params from Signaling
 
-  bool camera_permission_granted = false;
-  bool microphone_permission_granted = false;
-
   @override
   void initState() {
     rooms_ref = db.collection('rooms');
