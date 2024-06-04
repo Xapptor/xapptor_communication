@@ -30,9 +30,8 @@ extension StateExtension on CallViewState {
       label_no: label_no,
       label_yes: label_yes,
       permission_type: Permission.camera,
-      is_last_permission_asked: false,
       callback: (camera_granted) {
-        Timer(Duration(seconds: camera_granted ? 0 : 2), () async {
+        Timer(Duration(milliseconds: camera_granted ? 0 : 1300), () async {
           await check_permission(
             platform_name: platform_name,
             browser_name: browser_name,
@@ -41,7 +40,6 @@ extension StateExtension on CallViewState {
             label_no: label_no,
             label_yes: label_yes,
             permission_type: Permission.microphone,
-            is_last_permission_asked: true,
             callback: (microphone_granted) async {
               if (camera_granted && microphone_granted) {
                 await get_media_devices();
