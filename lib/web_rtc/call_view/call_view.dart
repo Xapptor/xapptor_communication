@@ -109,7 +109,7 @@ class CallViewState extends State<CallView> {
   void initState() {
     rooms_ref = db.collection('rooms');
 
-    if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) mirror_local_renderer.value = false;
+    if (UniversalPlatform.isMobile) mirror_local_renderer.value = false;
     enable_audio.value = widget.enable_audio;
     enable_video.value = widget.enable_video;
     super.initState();

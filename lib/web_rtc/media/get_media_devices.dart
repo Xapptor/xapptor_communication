@@ -18,7 +18,7 @@ extension StateExtension on CallViewState {
     if (video_devices.value.isNotEmpty) {
       int array_index = 0;
       if (video_devices.value.length > 1) {
-        if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+        if (UniversalPlatform.isMobile) {
           array_index = 1;
           mirror_local_renderer.value = true;
         }
@@ -26,7 +26,6 @@ extension StateExtension on CallViewState {
       current_video_device.value = video_devices.value[array_index].label;
       current_video_device_id.value = video_devices.value[array_index].deviceId;
     }
-    setState(() {});
     await open_user_media();
   }
 }

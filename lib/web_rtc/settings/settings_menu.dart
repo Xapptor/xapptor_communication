@@ -54,7 +54,7 @@ extension StateExtension on CallViewState {
           video_dropdown_button(
             text_color: Colors.white,
           ),
-          if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) zoom_slider(),
+          if (UniversalPlatform.isMobile) zoom_slider(),
         ],
       ),
     );

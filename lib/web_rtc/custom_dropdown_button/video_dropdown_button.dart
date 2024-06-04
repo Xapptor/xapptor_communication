@@ -13,7 +13,7 @@ extension StateExtension on CallViewState {
       on_changed: (new_value) {
         if (new_value == current_video_device.value) return;
 
-        if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+        if (UniversalPlatform.isMobile) {
           if (new_value.toLowerCase().contains("back")) {
             mirror_local_renderer.value = false;
           } else if (new_value.toLowerCase().contains("front")) {

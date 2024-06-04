@@ -7,7 +7,7 @@ import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 extension StateExtension on CallViewState {
   Future open_user_media() async {
     String facing_mode = '';
-    if (UniversalPlatform.isAndroid || UniversalPlatform.isIOS) {
+    if (UniversalPlatform.isMobile) {
       facing_mode = current_video_device_id.value.contains("0") ? 'environment' : 'user';
     }
 
@@ -41,6 +41,7 @@ extension StateExtension on CallViewState {
 
     local_renderer.value.srcObject = stream;
 
+    // MARK: - Enable/Disable Video
     List<MediaStreamTrack>? video_tracks = local_renderer.value.srcObject?.getVideoTracks();
 
     if (video_tracks != null && video_tracks.isNotEmpty) {
@@ -49,6 +50,7 @@ extension StateExtension on CallViewState {
       }
     }
 
+    // MARK: - Enable/Disable Audio
     List<MediaStreamTrack>? audio_tracks = local_renderer.value.srcObject?.getAudioTracks();
 
     if (audio_tracks != null && audio_tracks.isNotEmpty) {
