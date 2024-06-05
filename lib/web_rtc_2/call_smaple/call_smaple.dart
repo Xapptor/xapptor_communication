@@ -15,12 +15,10 @@ import 'package:xapptor_communication/web_rtc_2/signaling/switch_to_screen_shari
 
 class CallSample extends StatefulWidget {
   static String tag = 'call_sample';
-  final String host;
   String user_id;
 
   CallSample({
     super.key,
-    required this.host,
     required this.user_id,
   });
 

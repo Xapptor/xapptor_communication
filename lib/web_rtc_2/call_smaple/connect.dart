@@ -12,7 +12,6 @@ import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
 extension CallSampleStateExtension on CallSampleState {
   void connect(BuildContext context) async {
     signaling ??= Signaling(
-      host: widget.host,
       context: context,
       user_id: widget.user_id,
     )..connect();

@@ -8,12 +8,10 @@ import 'package:xapptor_communication/web_rtc_2/signaling/model/session.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/offer_and_answer.dart';
 
 class Signaling {
-  final String host;
   final BuildContext? context;
   final String user_id;
 
   Signaling({
-    required this.host,
     required this.context,
     required this.user_id,
   });
@@ -21,7 +19,6 @@ class Signaling {
   final JsonEncoder encoder = const JsonEncoder();
   final JsonDecoder decoder = const JsonDecoder();
 
-  final port = 8086;
   Map? turn_credential;
   final Map<String, Session> sessions = {};
   MediaStream? local_stream;
@@ -43,16 +40,11 @@ class Signaling {
   Map<String, dynamic> ice_servers = {
     'iceServers': [
       {
-        'url': 'stun:stun.l.google.com:19302',
-      },
-      /*
-       * turn server configuration example.
-      {
-        'url': 'turn:123.45.67.89:3478',
-        'username': 'change_to_real_user',
-        'credential': 'change_to_real_secret'
-      },
-      */
+        'urls': [
+          'stun:stun1.l.google.com:19302',
+          'stun:stun2.l.google.com:19302',
+        ]
+      }
     ]
   };
 
