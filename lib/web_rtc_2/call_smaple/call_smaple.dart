@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/build_row.dart';
@@ -14,10 +16,12 @@ import 'package:xapptor_communication/web_rtc_2/signaling/switch_to_screen_shari
 class CallSample extends StatefulWidget {
   static String tag = 'call_sample';
   final String host;
+  String user_id;
 
-  const CallSample({
+  CallSample({
     super.key,
     required this.host,
+    required this.user_id,
   });
 
   @override
@@ -27,7 +31,6 @@ class CallSample extends StatefulWidget {
 class CallSampleState extends State<CallSample> {
   Signaling? signaling;
   List<dynamic> peers = [];
-  String? self_id;
   final RTCVideoRenderer local_renderer = RTCVideoRenderer();
   final RTCVideoRenderer remote_renderer = RTCVideoRenderer();
   bool in_calling = false;
@@ -57,12 +60,12 @@ class CallSampleState extends State<CallSample> {
 
   invite_peer(
     BuildContext context,
-    String peer_id,
+    String new_peer_id,
     bool use_screen,
   ) async {
-    if (signaling != null && peer_id != self_id) {
+    if (signaling != null && new_peer_id != widget.user_id) {
       signaling?.invite(
-        peer_id,
+        new_peer_id,
         'video',
         use_screen,
       );
@@ -70,22 +73,22 @@ class CallSampleState extends State<CallSample> {
   }
 
   accept() {
-    if (_session != null) signaling?.accept(_session!.sid, 'video');
+    if (_session != null) signaling?.accept(_session!.id, 'video');
   }
 
   reject() {
-    if (_session != null) signaling?.reject(_session!.sid);
+    if (_session != null) signaling?.reject(_session!.id);
   }
 
   hang_up() {
-    if (_session != null) signaling?.bye(_session!.sid);
+    if (_session != null) signaling?.bye(_session!.id);
   }
 
   mute_mic() => signaling?.mute_mic();
 
   @override
   Widget build(BuildContext context) {
-    String title = 'P2P Call Sample${self_id != null ? ' [Your ID ($self_id)] ' : ''}';
+    String title = 'P2P Call Sample - Your ID (${widget.user_id})';
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
@@ -165,7 +168,7 @@ class CallSampleState extends State<CallSample> {
                 return build_row(
                   context: context,
                   peer: peers[i],
-                  self_id: self_id!,
+                  self_id: widget.user_id,
                   invite_peer: invite_peer,
                 );
               },

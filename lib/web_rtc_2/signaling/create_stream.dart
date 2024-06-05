@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
-import 'package:xapptor_communication/web_rtc_2/utils/screen_select_dialog.dart';
+import 'package:xapptor_communication/web_rtc_2/utils/screen_select_dialog/screen_select_dialog.dart';
 
 extension SignalingExtension on Signaling {
   Future<MediaStream> create_stream(

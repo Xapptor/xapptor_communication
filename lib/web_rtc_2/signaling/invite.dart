@@ -11,7 +11,8 @@ extension SignalingExtension on Signaling {
     String media,
     bool use_screen,
   ) async {
-    var session_id = '$self_id-$peer_id';
+    // Unique session id (sessio_id is the same as connection_id in other examples)
+    var session_id = '$user_id-$peer_id';
 
     Session session = await create_session(
       null,

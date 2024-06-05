@@ -15,8 +15,8 @@ extension SignalingExtension on Signaling {
   }) async {
     Session new_session = session ??
         Session(
-          sid: session_id,
-          pid: peer_id,
+          id: session_id,
+          peer_id: peer_id,
         );
 
     if (media != 'data') {
@@ -106,22 +106,21 @@ extension SignalingExtension on Signaling {
       // This delay is needed to allow enough time to try an ICE candidate
       // before skipping to the next one. 1 second is just an heuristic value
       // and should be thoroughly tested in your own environment.
-      await Future.delayed(
-        const Duration(seconds: 1),
-        () => send(
-          'candidate',
-          {
-            'to': peer_id,
-            'from': self_id,
-            'candidate': {
-              'sdpMLineIndex': candidate.sdpMLineIndex,
-              'sdpMid': candidate.sdpMid,
-              'candidate': candidate.candidate,
-            },
-            'session_id': session_id,
-          },
-        ),
-      );
+
+      // MARK: Code Migrated from on_message function
+      if (session != null) {
+        if (session.peer_connection != null) {
+          await session.peer_connection?.addCandidate(candidate);
+        } else {
+          session.remote_candidates.add(candidate);
+        }
+      } else {
+        sessions[session_id] = Session(
+          peer_id: peer_id,
+          id: session_id,
+        )..remote_candidates.add(candidate);
+      }
+      // MARK: Code Migrated from on_message function
     };
 
     pc.onIceConnectionState = (state) {};
@@ -137,7 +136,7 @@ extension SignalingExtension on Signaling {
       add_data_channel(new_session, channel);
     };
 
-    new_session.pc = pc;
+    new_session.peer_connection = pc;
     return new_session;
   }
 }

@@ -6,21 +6,21 @@ import 'package:xapptor_communication/web_rtc_2/signaling/close_session.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/enums.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/session.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/offer_and_answer.dart';
-import 'package:xapptor_communication/web_rtc_2/utils/websocket.dart'
-    if (dart.library.js) 'package:xapptor_communication/web_rtc_2/utils/websocket_web.dart';
 
 class Signaling {
-  Signaling(
-    this.host,
-    this.context,
-  );
+  final String host;
+  final BuildContext? context;
+  final String user_id;
+
+  Signaling({
+    required this.host,
+    required this.context,
+    required this.user_id,
+  });
 
   final JsonEncoder encoder = const JsonEncoder();
   final JsonDecoder decoder = const JsonDecoder();
-  final String self_id = "awrgq35harfhdf"; // TODO: generate random id
-  SimpleWebSocket? socket;
-  final BuildContext? context;
-  final String host;
+
   final port = 8086;
   Map? turn_credential;
   final Map<String, Session> sessions = {};
@@ -65,7 +65,7 @@ class Signaling {
     ]
   };
 
-  final Map<String, dynamic> dc_constraints = {
+  final Map<String, dynamic> session_description_constraints = {
     'mandatory': {
       'OfferToReceiveAudio': false,
       'OfferToReceiveVideo': false,
@@ -75,21 +75,17 @@ class Signaling {
 
   close() async {
     await clean_essions();
-    socket?.close();
   }
 
-  void bye(String sessionId) {
-    send(
-      'bye',
-      {
-        'session_id': sessionId,
-        'from': self_id,
-      },
-    );
-    var session = sessions[sessionId];
+  void bye(String session_id) {
+    // MARK: Code Migrated from on_message function
+    debugPrint('bye: $session_id');
+    var session = sessions.remove(session_id);
     if (session != null) {
+      on_call_state_change?.call(session, CallState.cl_bye);
       close_session(session);
     }
+    // MARK: Code Migrated from on_message function
   }
 
   void accept(String session_id, String media) {
@@ -105,13 +101,6 @@ class Signaling {
     if (session == null) {
       return;
     }
-    bye(session.sid);
-  }
-
-  send(event, data) {
-    var request = {};
-    request["type"] = event;
-    request["data"] = data;
-    socket?.send(encoder.convert(request));
+    bye(session.id);
   }
 }

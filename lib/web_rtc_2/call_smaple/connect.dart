@@ -11,7 +11,11 @@ import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
 
 extension CallSampleStateExtension on CallSampleState {
   void connect(BuildContext context) async {
-    signaling ??= Signaling(widget.host, context)..connect();
+    signaling ??= Signaling(
+      host: widget.host,
+      context: context,
+      user_id: widget.user_id,
+    )..connect();
     signaling?.on_signaling_state_change = (SignalingState state) {
       switch (state) {
         case SignalingState.closed:
@@ -81,7 +85,7 @@ extension CallSampleStateExtension on CallSampleState {
 
     signaling?.on_peers_update = ((event) {
       setState(() {
-        self_id = event['self'];
+        widget.user_id = event['self'];
         peers = event['peers'];
       });
     });

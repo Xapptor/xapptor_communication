@@ -17,7 +17,7 @@ extension SignalingExtension on Signaling {
           List<dynamic> peers = data;
           if (on_peers_update != null) {
             Map<String, dynamic> event = <String, dynamic>{};
-            event['self'] = self_id;
+            event['self'] = user_id;
             event['peers'] = peers;
             on_peers_update?.call(event);
           }
@@ -25,6 +25,7 @@ extension SignalingExtension on Signaling {
         break;
       case 'offer':
         {
+          // MARK: Code Migrated to create_offer function
           var peer_id = data['from'];
           var description = data['description'];
           var media = data['media'];
@@ -40,12 +41,14 @@ extension SignalingExtension on Signaling {
 
           sessions[session_id] = new_session;
 
-          await new_session.pc?.setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
+          await new_session.peer_connection?.setRemoteDescription(
+            RTCSessionDescription(description['sdp'], description['type']),
+          );
           // await _createAnswer(newSession, media);
 
           if (new_session.remote_candidates.isNotEmpty) {
             for (var candidate in new_session.remote_candidates) {
-              await new_session.pc?.addCandidate(candidate);
+              await new_session.peer_connection?.addCandidate(candidate);
             }
             new_session.remote_candidates.clear();
           }
@@ -55,15 +58,19 @@ extension SignalingExtension on Signaling {
         break;
       case 'answer':
         {
+          // MARK: Code Migrated to create_answer function
           var description = data['description'];
           var sessionId = data['session_id'];
           var session = sessions[sessionId];
-          session?.pc?.setRemoteDescription(RTCSessionDescription(description['sdp'], description['type']));
+          session?.peer_connection?.setRemoteDescription(
+            RTCSessionDescription(description['sdp'], description['type']),
+          );
           on_call_state_change?.call(session!, CallState.cl_connected);
         }
         break;
       case 'candidate':
         {
+          // MARK: Code Migrated to create_session function
           var peer_id = data['from'];
           var candidate_map = data['candidate'];
           var session_id = data['session_id'];
@@ -76,13 +83,13 @@ extension SignalingExtension on Signaling {
           );
 
           if (session != null) {
-            if (session.pc != null) {
-              await session.pc?.addCandidate(candidate);
+            if (session.peer_connection != null) {
+              await session.peer_connection?.addCandidate(candidate);
             } else {
               session.remote_candidates.add(candidate);
             }
           } else {
-            sessions[session_id] = Session(pid: peer_id, sid: session_id)..remote_candidates.add(candidate);
+            sessions[session_id] = Session(peer_id: peer_id, id: session_id)..remote_candidates.add(candidate);
           }
         }
         break;
@@ -94,6 +101,7 @@ extension SignalingExtension on Signaling {
         break;
       case 'bye':
         {
+          // MARK: Code Migrated to bye function
           var session_id = data['session_id'];
           debugPrint('bye: $session_id');
           var session = sessions.remove(session_id);

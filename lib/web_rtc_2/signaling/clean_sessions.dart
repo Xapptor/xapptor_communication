@@ -10,8 +10,8 @@ extension SignalingExtension on Signaling {
       local_stream = null;
     }
     sessions.forEach((key, session) async {
-      await session.pc?.close();
-      await session.dc?.close();
+      await session.peer_connection?.close();
+      await session.data_channel?.close();
     });
     sessions.clear();
   }

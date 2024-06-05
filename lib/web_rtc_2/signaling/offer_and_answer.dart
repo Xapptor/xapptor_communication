@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/create_session.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/model/enums.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/session.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
 
@@ -9,22 +11,37 @@ extension SignalingExtension on Signaling {
     String media,
   ) async {
     try {
-      RTCSessionDescription session_description = await session.pc!.createOffer(media == 'data' ? dc_constraints : {});
-
-      await session.pc!.setLocalDescription(fix_sdp(session_description));
-      send(
-        'offer',
-        {
-          'to': session.pid,
-          'from': self_id,
-          'description': {
-            'sdp': session_description.sdp,
-            'type': session_description.type,
-          },
-          'session_id': session.sid,
-          'media': media,
-        },
+      RTCSessionDescription session_description = await session.peer_connection!.createOffer(
+        media == 'data' ? session_description_constraints : {},
       );
+
+      await session.peer_connection!.setLocalDescription(fix_sdp(session_description));
+
+      // MARK: Code Migrated from on_message function
+      var new_session = await create_session(
+        session,
+        peer_id: session.peer_id,
+        session_id: session.id,
+        media: media,
+        screen_sharing: false,
+      );
+
+      sessions[session.id] = new_session;
+
+      await new_session.peer_connection?.setRemoteDescription(
+        RTCSessionDescription(session_description.sdp, session_description.type),
+      );
+      // await _createAnswer(newSession, media);
+
+      if (new_session.remote_candidates.isNotEmpty) {
+        for (var candidate in new_session.remote_candidates) {
+          await new_session.peer_connection?.addCandidate(candidate);
+        }
+        new_session.remote_candidates.clear();
+      }
+      on_call_state_change?.call(new_session, CallState.cl_new);
+      on_call_state_change?.call(new_session, CallState.cl_ringing);
+      // MARK: Code Migrated from on_message function
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -44,20 +61,17 @@ extension SignalingExtension on Signaling {
     String media,
   ) async {
     try {
-      RTCSessionDescription session_description = await session.pc!.createAnswer(media == 'data' ? dc_constraints : {});
-      await session.pc!.setLocalDescription(fix_sdp(session_description));
-      send(
-        'answer',
-        {
-          'to': session.pid,
-          'from': self_id,
-          'description': {
-            'sdp': session_description.sdp,
-            'type': session_description.type,
-          },
-          'session_id': session.sid,
-        },
-      );
+      RTCSessionDescription session_description =
+          await session.peer_connection!.createAnswer(media == 'data' ? session_description_constraints : {});
+      await session.peer_connection!.setLocalDescription(fix_sdp(session_description));
+
+      // MARK: Code Migrated from on_message function
+      session.peer_connection?.setRemoteDescription(RTCSessionDescription(
+        session_description.sdp,
+        session_description.type,
+      ));
+      on_call_state_change?.call(session, CallState.cl_connected);
+      // MARK: Code Migrated from on_message function
     } catch (e) {
       debugPrint(e.toString());
     }

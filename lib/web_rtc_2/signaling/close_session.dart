@@ -10,8 +10,8 @@ extension SignalingExtension on Signaling {
     await local_stream?.dispose();
     local_stream = null;
 
-    await session.pc?.close();
-    await session.dc?.close();
+    await session.peer_connection?.close();
+    await session.data_channel?.close();
     senders.clear();
     video_source = VideoSource.camera;
   }

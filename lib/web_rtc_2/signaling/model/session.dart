@@ -1,14 +1,14 @@
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 class Session {
-  String pid;
-  String sid;
-  RTCPeerConnection? pc;
-  RTCDataChannel? dc;
+  String peer_id;
+  String id;
+  RTCPeerConnection? peer_connection;
+  RTCDataChannel? data_channel;
   List<RTCIceCandidate> remote_candidates = [];
 
   Session({
-    required this.sid,
-    required this.pid,
+    required this.id,
+    required this.peer_id,
   });
 }
