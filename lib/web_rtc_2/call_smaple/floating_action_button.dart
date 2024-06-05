@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-floating_action_button({
+Widget? floating_action_button({
   required BuildContext context,
   required Function switch_camera,
   required Function select_screen_source_dialog,

@@ -1,19 +1,23 @@
 import 'package:flutter/material.dart';
 
-build_row({
+Widget peer_row({
   required BuildContext context,
   required Map peer,
   required String self_id,
   required Function invite_peer,
 }) {
-  var self = (peer['id'] == self_id);
+  var self = peer['id'] == self_id;
 
-  String title = self ? peer['name'] + ', ID: ${peer['id']} ' + ' [Your self]' : peer['name'] + ', ID: ${peer['id']} ';
+  String title = peer['name'] + ', ID: ${peer['id']}';
+
+  if (self) {
+    title += ' [Your self]';
+  }
 
   return ListBody(
     children: [
       ListTile(
-        title: Text(
+        title: SelectableText(
           title,
         ),
         onTap: null,

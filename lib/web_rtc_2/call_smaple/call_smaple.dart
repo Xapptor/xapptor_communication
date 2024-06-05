@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:xapptor_communication/web_rtc_2/call_smaple/build_row.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/connect.dart';
+import 'package:xapptor_communication/web_rtc_2/call_smaple/contact_list.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/floating_action_button.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/select_screen_source_dialog.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/invite.dart';
@@ -28,7 +28,63 @@ class CallSample extends StatefulWidget {
 
 class CallSampleState extends State<CallSample> {
   Signaling? signaling;
-  List<dynamic> peers = [];
+  List<dynamic> peers = [
+    {
+      'id': 'FcqQqDVf8FNmF9tw1TsmZhykr8G3',
+      'name': 'My name',
+      'user_agent': 'Flutter',
+    },
+    {
+      'id': '1',
+      'name': 'User 1',
+      'user_agent': 'Flutter',
+    },
+    {
+      'id': '2',
+      'name': 'User 2',
+      'user_agent': 'Flutter',
+    },
+    {
+      'id': '3',
+      'name': 'User 3',
+      'user_agent': 'Flutter',
+    },
+    {
+      'id': '4',
+      'name': 'User 4',
+      'user_agent': 'Flutter',
+    },
+    {
+      'id': '5',
+      'name': 'User 5',
+      'user_agent': 'Flutter',
+    },
+    {
+      'id': '6',
+      'name': 'User 6',
+      'user_agent': 'Flutter',
+    },
+    {
+      'id': '7',
+      'name': 'User 7',
+      'user_agent': 'Flutter',
+    },
+    {
+      'id': '8',
+      'name': 'User 8',
+      'user_agent': 'Flutter',
+    },
+    {
+      'id': '9',
+      'name': 'User 9',
+      'user_agent': 'Flutter',
+    },
+    {
+      'id': '10',
+      'name': 'User 10',
+      'user_agent': 'Flutter',
+    },
+  ];
   final RTCVideoRenderer local_renderer = RTCVideoRenderer();
   final RTCVideoRenderer remote_renderer = RTCVideoRenderer();
   bool in_calling = false;
@@ -89,7 +145,7 @@ class CallSampleState extends State<CallSample> {
     String title = 'P2P Call Sample - Your ID (${widget.user_id})';
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: SelectableText(title),
         actions: const [
           IconButton(
             icon: Icon(
@@ -136,7 +192,9 @@ class CallSampleState extends State<CallSample> {
                         decoration: const BoxDecoration(
                           color: Colors.black54,
                         ),
-                        child: RTCVideoView(remote_renderer),
+                        child: RTCVideoView(
+                          remote_renderer,
+                        ),
                       ),
                     ),
                     Positioned(
@@ -158,19 +216,7 @@ class CallSampleState extends State<CallSample> {
                 );
               },
             )
-          : ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.all(0.0),
-              itemCount: peers.length,
-              itemBuilder: (context, i) {
-                return build_row(
-                  context: context,
-                  peer: peers[i],
-                  self_id: widget.user_id,
-                  invite_peer: invite_peer,
-                );
-              },
-            ),
+          : contact_list(),
     );
   }
 }
