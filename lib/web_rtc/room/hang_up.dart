@@ -62,7 +62,7 @@ extension StateExtension on CallViewState {
         return AlertDialog(
           title: const Text("Hang Up"),
           content: Text(content),
-          actions: <Widget>[
+          actions: [
             TextButton(
               child: const Text("Cancel"),
               onPressed: () {

@@ -19,6 +19,7 @@ dependencies:
   barcode_widget: ^2.0.4
   universal_platform: ^1.1.0
   permission_handler: ^11.3.1
+  http: ^1.2.0
 
   # xapptor_logic: ^0.0.3
   # xapptor_router: ^0.0.2

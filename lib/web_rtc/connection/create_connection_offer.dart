@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
@@ -24,25 +26,10 @@ extension StateExtension on CallViewState {
       connection_ref: connection_ref,
     );
 
-    // Add code for creating a connection
-    RTCSessionDescription offer = await peer_connections.last.value.createOffer();
-    await peer_connections.last.value.setLocalDescription(offer);
-    //debugPrint('Created offer: ${offer.toMap()}');
-
-    Connection connection = Connection(
-      id: connection_ref.id,
-      created: DateTime.now(),
-      source_user_id: widget.user_id,
+    Connection connection = await _create_offer(
+      connection_ref: connection_ref,
       destination_user_id: destination_user_id,
-      offer: ConnectionOfferAnswer.from_map(offer.toMap()),
     );
-
-    await connection_ref.set(connection.to_json());
-    String connection_id = connection_ref.id;
-
-    debugPrint('New connection created with SDK offer. Connection ID: $connection_id');
-    current_room_text = 'Current connection is $connection_id - You are the source!';
-    // Created a connection
 
     Timer(const Duration(seconds: 2), () {
       peer_connections.last.value.onTrack = (RTCTrackEvent event) {
@@ -60,30 +47,21 @@ extension StateExtension on CallViewState {
     connection_ref.snapshots().listen((snapshot) async {
       //debugPrint('Got updated connection: ${snapshot.data()}');
       if (snapshot.exists) {
-        Map<String, dynamic> data = snapshot.data() as Map<String, dynamic>;
+        Map<String, dynamic> connection_data = snapshot.data() as Map<String, dynamic>;
 
-        if (data['answer'] != null) {
+        if (connection_data['answer'] != null) {
           var answer = RTCSessionDescription(
-            data['answer']['sdp'],
-            data['answer']['type'],
+            connection_data['answer']['sdp'],
+            connection_data['answer']['type'],
           );
 
           debugPrint("Someone tried to connect");
           await peer_connections.last.value.setRemoteDescription(answer);
         }
 
-        // Updating last remote renderer
-        if (data['destination_user_id'] != '') {
-          User user = await get_user_from_id(data['destination_user_id']);
-          Timer(const Duration(seconds: 1), () {
-            if (remote_renderers.value.last.user_id == '') {
-              remote_renderers.value.last
-                ..user_id = user.id
-                ..user_name = user.name;
-              setState(() {});
-            }
-          });
-        }
+        updating_last_remote_renderer(
+          connection_data: connection_data,
+        );
       }
     });
     // Listening for remote session description above
@@ -106,6 +84,49 @@ extension StateExtension on CallViewState {
       }
     });
     // Listen for remote ICE candidates above
-    return connection_id;
+    return connection.id;
+  }
+
+  Future<Connection> _create_offer({
+    required DocumentReference connection_ref,
+    required String destination_user_id,
+  }) async {
+    // Add code for creating a connection
+    RTCSessionDescription offer = await peer_connections.last.value.createOffer();
+    await peer_connections.last.value.setLocalDescription(offer);
+    //debugPrint('Created offer: ${offer.toMap()}');
+
+    Connection connection = Connection(
+      id: connection_ref.id,
+      created: DateTime.now(),
+      source_user_id: widget.user_id,
+      destination_user_id: destination_user_id,
+      offer: ConnectionOfferAnswer.from_map(offer.toMap()),
+    );
+
+    await connection_ref.set(connection.to_json());
+    String connection_id = connection_ref.id;
+
+    debugPrint('New connection created with SDK offer. Connection ID: $connection_id');
+    current_room_text = 'Current connection is $connection_id - You are the source!';
+    // Created a connection
+    return connection;
+  }
+
+  Future updating_last_remote_renderer({
+    required Map<String, dynamic> connection_data,
+  }) async {
+    // Updating last remote renderer
+    if (connection_data['destination_user_id'] != '') {
+      User user = await get_user_from_id(connection_data['destination_user_id']);
+      Timer(const Duration(seconds: 1), () {
+        if (remote_renderers.value.last.user_id == '') {
+          remote_renderers.value.last
+            ..user_id = user.id
+            ..user_name = user.name;
+          setState(() {});
+        }
+      });
+    }
   }
 }

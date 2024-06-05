@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,6 +26,11 @@ extension StateExtension on CallViewState {
       connection_ref: connection_ref,
     );
 
+    await _create_answer(
+      connection: connection,
+      connection_ref: connection_ref,
+    );
+
     Timer(const Duration(seconds: 2), () {
       peer_connections.last.value.onTrack = (RTCTrackEvent event) {
         debugPrint('Got remote track: ${event.streams[0]}');
@@ -36,6 +43,40 @@ extension StateExtension on CallViewState {
       };
     });
 
+    // Listening for remote ICE candidates below
+    connection_ref.collection('source_candidates').snapshots().listen((snapshot) {
+      for (var doc_change in snapshot.docChanges) {
+        if (doc_change.type == DocumentChangeType.added) {
+          Map<String, dynamic> doc_change_data = doc_change.doc.data() as Map<String, dynamic>;
+
+          RTCPeerConnection peer_connection =
+              peer_connections.firstWhere((peer_connection) => peer_connection.id == connection_ref.id).value;
+
+          debugPrint('Got new remote ICE candidate: ${jsonEncode(doc_change_data)}');
+          peer_connection.addCandidate(
+            RTCIceCandidate(
+              doc_change_data['candidate'],
+              doc_change_data['sdpMid'],
+              doc_change_data['sdpMLineIndex'],
+            ),
+          );
+        }
+      }
+    });
+
+    await updating_last_remote_renderer(
+      connection: connection,
+    );
+
+    if (callback != null) {
+      callback();
+    }
+  }
+
+  Future _create_answer({
+    required Connection connection,
+    required DocumentReference connection_ref,
+  }) async {
     // Code for creating SDP answer below
     //debugPrint('Got offer ${connection.to_json()}');
     var offer = connection.offer;
@@ -55,28 +96,11 @@ extension StateExtension on CallViewState {
       }
     });
     // Finished creating SDP answer
+  }
 
-    // Listening for remote ICE candidates below
-    connection_ref.collection('source_candidates').snapshots().listen((snapshot) {
-      for (var change in snapshot.docChanges) {
-        if (change.type == DocumentChangeType.added) {
-          Map<String, dynamic> data = change.doc.data() as Map<String, dynamic>;
-
-          RTCPeerConnection peer_connection =
-              peer_connections.firstWhere((peer_connection) => peer_connection.id == connection_ref.id).value;
-
-          debugPrint('Got new remote ICE candidate: ${jsonEncode(data)}');
-          peer_connection.addCandidate(
-            RTCIceCandidate(
-              data['candidate'],
-              data['sdpMid'],
-              data['sdpMLineIndex'],
-            ),
-          );
-        }
-      }
-    });
-
+  Future updating_last_remote_renderer({
+    required Connection connection,
+  }) async {
     // Updating last remote renderer
     if (connection.source_user_id != '') {
       User user = await get_user_from_id(connection.source_user_id);
@@ -88,10 +112,6 @@ extension StateExtension on CallViewState {
           setState(() {});
         }
       });
-    }
-
-    if (callback != null) {
-      callback();
     }
   }
 }
