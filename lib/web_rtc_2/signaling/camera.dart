@@ -18,4 +18,24 @@ extension SignalingExtension on Signaling {
       }
     }
   }
+
+  turn_on_camera() {
+    toggle_camera();
+  }
+
+  turn_off_camera() {
+    toggle_camera();
+  }
+
+  toggle_camera() {
+    if (local_stream != null) {
+      if (video_source == VideoSource.camera) {
+        for (var sender in senders) {
+          if (sender.track!.kind == 'video') {
+            sender.track?.enabled != sender.track?.enabled;
+          }
+        }
+      }
+    }
+  }
 }

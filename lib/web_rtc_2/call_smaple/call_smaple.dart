@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/connect.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/contact_list.dart';
-import 'package:xapptor_communication/web_rtc_2/call_smaple/floating_action_button.dart';
+import 'package:xapptor_communication/web_rtc_2/call_smaple/fab/floating_action_button.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/select_screen_source_dialog.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/invite.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/session.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/mute_mic.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
-import 'package:xapptor_communication/web_rtc_2/signaling/switch_camera.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/camera.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/switch_to_screen_sharing.dart';
 
 class CallSample extends StatefulWidget {
@@ -31,57 +31,12 @@ class CallSampleState extends State<CallSample> {
   List<dynamic> peers = [
     {
       'id': 'FcqQqDVf8FNmF9tw1TsmZhykr8G3',
-      'name': 'My name',
+      'name': 'Javier Garcia',
       'user_agent': 'Flutter',
     },
     {
-      'id': '1',
-      'name': 'User 1',
-      'user_agent': 'Flutter',
-    },
-    {
-      'id': '2',
-      'name': 'User 2',
-      'user_agent': 'Flutter',
-    },
-    {
-      'id': '3',
-      'name': 'User 3',
-      'user_agent': 'Flutter',
-    },
-    {
-      'id': '4',
-      'name': 'User 4',
-      'user_agent': 'Flutter',
-    },
-    {
-      'id': '5',
-      'name': 'User 5',
-      'user_agent': 'Flutter',
-    },
-    {
-      'id': '6',
-      'name': 'User 6',
-      'user_agent': 'Flutter',
-    },
-    {
-      'id': '7',
-      'name': 'User 7',
-      'user_agent': 'Flutter',
-    },
-    {
-      'id': '8',
-      'name': 'User 8',
-      'user_agent': 'Flutter',
-    },
-    {
-      'id': '9',
-      'name': 'User 9',
-      'user_agent': 'Flutter',
-    },
-    {
-      'id': '10',
-      'name': 'User 10',
+      'id': 'escUi2UnlINqYrpBzU5JL5M8GTk2',
+      'name': 'Jesus Garcia',
       'user_agent': 'Flutter',
     },
   ];
@@ -91,6 +46,8 @@ class CallSampleState extends State<CallSample> {
   Session? _session;
   DesktopCapturerSource? desktop_capturer_selected_source;
   bool wait_accept = false;
+
+  GlobalKey expandable_fab_key = GlobalKey();
 
   @override
   initState() {
@@ -119,9 +76,9 @@ class CallSampleState extends State<CallSample> {
   ) async {
     if (signaling != null && new_peer_id != widget.user_id) {
       signaling?.invite(
-        new_peer_id,
-        'video',
-        use_screen,
+        peer_id: new_peer_id,
+        media: 'video',
+        use_screen: use_screen,
       );
     }
   }
@@ -169,6 +126,7 @@ class CallSampleState extends State<CallSample> {
         hang_up: hang_up,
         in_calling: in_calling,
         mute_mic: mute_mic,
+        expandable_fab_key: expandable_fab_key,
       ),
       body: in_calling
           ? OrientationBuilder(

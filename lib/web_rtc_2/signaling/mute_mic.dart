@@ -5,6 +5,7 @@ extension SignalingExtension on Signaling {
     if (local_stream != null) {
       bool enabled = local_stream!.getAudioTracks()[0].enabled;
       local_stream!.getAudioTracks()[0].enabled = !enabled;
+      is_mute = !enabled;
     }
   }
 }

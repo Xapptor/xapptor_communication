@@ -6,11 +6,11 @@ import 'package:xapptor_communication/web_rtc_2/signaling/offer_and_answer.dart'
 import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
 
 extension SignalingExtension on Signaling {
-  void invite(
-    String peer_id,
-    String media,
-    bool use_screen,
-  ) async {
+  void invite({
+    required String peer_id,
+    required String media,
+    required bool use_screen,
+  }) async {
     // Unique session id (sessio_id is the same as connection_id in other examples)
     var session_id = '$user_id-$peer_id';
 

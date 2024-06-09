@@ -19,7 +19,6 @@ class Signaling {
   final JsonEncoder encoder = const JsonEncoder();
   final JsonDecoder decoder = const JsonDecoder();
 
-  Map? turn_credential;
   final Map<String, Session> sessions = {};
   MediaStream? local_stream;
   final List<MediaStream> remote_streams = <MediaStream>[];
@@ -64,6 +63,8 @@ class Signaling {
     },
     'optional': [],
   };
+
+  bool is_mute = false;
 
   close() async {
     await clean_essions();

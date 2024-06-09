@@ -7,6 +7,7 @@ Widget? floating_action_button({
   required Function hang_up,
   required bool in_calling,
   required Function mute_mic,
+  required GlobalKey expandable_fab_key,
 }) {
   return in_calling
       ? SizedBox(

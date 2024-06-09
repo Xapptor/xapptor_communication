@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:xapptor_communication/web_rtc/model/room.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 import 'package:xapptor_ui/utils/copy_to_clipboard.dart';
-import 'package:xapptor_logic/generate_random_id.dart';
+import 'package:xapptor_logic/random/generate_random_id.dart';
 import 'package:xapptor_communication/web_rtc/room/clean_the_room.dart';
 import 'package:xapptor_communication/web_rtc/room/exit_from_room.dart';
 import 'package:xapptor_communication/web_rtc/connection/listen_connections.dart';
