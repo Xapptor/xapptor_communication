@@ -4,14 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/connect.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/contact_list.dart';
-import 'package:xapptor_communication/web_rtc_2/call_smaple/fab/floating_action_button.dart';
-import 'package:xapptor_communication/web_rtc_2/call_smaple/select_screen_source_dialog.dart';
+import 'package:xapptor_communication/web_rtc_2/call_smaple/fab/fab_on_call.dart';
+import 'package:xapptor_communication/web_rtc_2/call_smaple/fab/fab_out_of_call.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/invite.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/session.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/mute_mic.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
-import 'package:xapptor_communication/web_rtc_2/signaling/camera.dart';
-import 'package:xapptor_communication/web_rtc_2/signaling/switch_to_screen_sharing.dart';
 
 class CallSample extends StatefulWidget {
   static String tag = 'call_sample';
@@ -114,20 +112,7 @@ class CallSampleState extends State<CallSample> {
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: floating_action_button(
-        context: context,
-        switch_camera: signaling!.switch_camera,
-        select_screen_source_dialog: () => select_screen_source_dialog(
-          context: context,
-          switch_to_screen_sharing: (screen_stream) {
-            signaling?.switch_to_screen_sharing(screen_stream);
-          },
-        ),
-        hang_up: hang_up,
-        in_calling: in_calling,
-        mute_mic: mute_mic,
-        expandable_fab_key: expandable_fab_key,
-      ),
+      floatingActionButton: in_calling ? fab_on_call() : fab_out_of_call(),
       body: in_calling
           ? OrientationBuilder(
               builder: (context, orientation) {

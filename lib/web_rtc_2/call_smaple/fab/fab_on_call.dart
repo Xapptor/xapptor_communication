@@ -3,11 +3,12 @@ import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/call_smaple.dart';
+import 'package:xapptor_communication/web_rtc_2/call_smaple/select_screen_source_dialog.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/camera.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/switch_to_screen_sharing.dart';
 
 extension CallSampleStateExtension on CallSampleState {
-  ExpandableFab fab_on_call({
-    required GlobalKey expandable_fab_key,
-  }) {
+  ExpandableFab fab_on_call() {
     return ExpandableFab(
       key: expandable_fab_key,
       distance: 200,
@@ -42,12 +43,10 @@ extension CallSampleStateExtension on CallSampleState {
         },
       ),
       children: [
-        // MARK: Camera
+        // MARK: Toggle Camera
         FloatingActionButton.extended(
           heroTag: null,
-          onPressed: () {
-            signaling?.toggle_camera();
-          },
+          onPressed: () => signaling?.toggle_camera(),
           backgroundColor: Colors.pink,
           label: const Icon(
             FontAwesomeIcons.video,
@@ -56,12 +55,15 @@ extension CallSampleStateExtension on CallSampleState {
           ),
         ),
 
-        // MARK: Screen Sharing
+        // MARK: Select Screen Sharing Source
         FloatingActionButton.extended(
           heroTag: null,
-          onPressed: () {
-            //signaling?.switch_to_screen_sharing(screen_stream);
-          },
+          onPressed: () => select_screen_source_dialog(
+            context: context,
+            switch_to_screen_sharing: (screen_stream) {
+              signaling?.switch_to_screen_sharing(screen_stream);
+            },
+          ),
           backgroundColor: Colors.green,
           label: Icon(
             UniversalPlatform.isMobile ? FontAwesomeIcons.mobileScreen : FontAwesomeIcons.display,
@@ -73,9 +75,7 @@ extension CallSampleStateExtension on CallSampleState {
         // MARK: Hang Up
         FloatingActionButton.extended(
           heroTag: null,
-          onPressed: () {
-            hang_up();
-          },
+          onPressed: () => hang_up(),
           backgroundColor: Colors.green,
           label: const Icon(
             FontAwesomeIcons.xmark,
@@ -87,9 +87,7 @@ extension CallSampleStateExtension on CallSampleState {
         // MARK: Mute
         FloatingActionButton.extended(
           heroTag: null,
-          onPressed: () {
-            mute_mic();
-          },
+          onPressed: () => mute_mic(),
           backgroundColor: Colors.green,
           label: Icon(
             signaling == null
