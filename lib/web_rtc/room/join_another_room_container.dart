@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
-import 'package:xapptor_ui/widgets/is_portrait.dart';
+import 'package:xapptor_ui/utils/is_portrait.dart';
 
 class JoinAnotherRoomContainer extends StatelessWidget {
   final List<String> text_list;

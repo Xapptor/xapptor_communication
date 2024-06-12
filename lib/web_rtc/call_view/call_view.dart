@@ -21,7 +21,7 @@ import 'package:xapptor_communication/web_rtc/room/create_room.dart';
 import 'package:xapptor_communication/web_rtc/model/peer_connection.dart';
 import 'package:xapptor_communication/web_rtc/model/room.dart';
 import 'package:xapptor_communication/web_rtc/room/hang_up.dart';
-import 'package:xapptor_ui/widgets/is_portrait.dart';
+import 'package:xapptor_ui/utils/is_portrait.dart';
 
 class CallView extends StatefulWidget {
   final Color main_color;

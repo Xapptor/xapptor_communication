@@ -4,7 +4,7 @@ import 'package:xapptor_communication/web_rtc/model/remote_renderer.dart';
 import 'package:xapptor_communication/web_rtc/model/room.dart';
 import 'package:xapptor_communication/web_rtc/video_view/video_view_container.dart';
 import 'package:xapptor_logic/color/get_random_color.dart';
-import 'package:xapptor_ui/widgets/is_portrait.dart';
+import 'package:xapptor_ui/utils/is_portrait.dart';
 
 class GridVideoView extends StatefulWidget {
   final ValueNotifier<RTCVideoRenderer> local_renderer;

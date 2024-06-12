@@ -4,7 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
-import 'package:xapptor_ui/widgets/check_permission.dart';
+import 'package:xapptor_ui/utils/check_permission.dart';
 import 'package:xapptor_communication/web_rtc/media/get_media_devices.dart';
 import 'package:xapptor_ui/utils/get_platform_name.dart';
 import 'package:xapptor_ui/utils/get_browser_name.dart';
