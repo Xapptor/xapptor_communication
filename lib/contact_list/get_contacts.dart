@@ -5,13 +5,26 @@ Future<List<Contact>> get_contacts({
   required String user_id,
 }) async {
   DocumentSnapshot contacts_snap = await FirebaseFirestore.instance.collection('contacts').doc(user_id).get();
-  List<String> contacts_ids = List<String>.from(contacts_snap['contacts']);
-  List<Contact> contacts = [];
 
-  for (String contact_id in contacts_ids) {
-    DocumentSnapshot contact_snap = await FirebaseFirestore.instance.collection('users').doc(contact_id).get();
-    Contact contact = Contact.from_snapshot(contact_id, contact_snap.data() as Map<dynamic, dynamic>);
-    contacts.add(contact);
+  if (contacts_snap.data() == null) {
+    return [];
+  } else {
+    List<Map> contacts_maps = List<Map>.from(contacts_snap['contacts'] ?? []);
+    List<Contact> contacts = [];
+
+    for (var contacts_map in contacts_maps) {
+      String contact_id = contacts_map['id'];
+      bool contact_blocked = contacts_map['blocked'];
+
+      DocumentSnapshot contact_snap = await FirebaseFirestore.instance.collection('users').doc(contact_id).get();
+
+      Contact contact = Contact.from_snapshot(
+        contact_id,
+        contact_blocked,
+        contact_snap.data() as Map<dynamic, dynamic>,
+      );
+      contacts.add(contact);
+    }
+    return contacts;
   }
-  return contacts;
 }

@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/connect.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/contact_list.dart';
@@ -45,7 +46,7 @@ class CallSampleState extends State<CallSample> {
   DesktopCapturerSource? desktop_capturer_selected_source;
   bool wait_accept = false;
 
-  GlobalKey expandable_fab_key = GlobalKey();
+  GlobalKey<ExpandableFabState> expandable_fab_key = GlobalKey<ExpandableFabState>();
 
   @override
   initState() {
@@ -111,7 +112,7 @@ class CallSampleState extends State<CallSample> {
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: in_calling ? fab_on_call() : fab_out_of_call(),
       body: in_calling
           ? OrientationBuilder(

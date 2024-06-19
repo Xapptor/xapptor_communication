@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:xapptor_communication/contact_list/add_contact_alert.dart';
 import 'package:xapptor_communication/contact_list/contact_list_alert.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/call_smaple.dart';
 
@@ -41,7 +42,6 @@ extension CallSampleStateExtension on CallSampleState {
       ),
       children: [
         // MARK: Create an Empty Call
-
         FloatingActionButton.extended(
           heroTag: null,
           onPressed: () {
@@ -55,11 +55,25 @@ extension CallSampleStateExtension on CallSampleState {
           ),
         ),
 
-        // MARK: Open Contact List
-
+        // MARK: Add Contact
         FloatingActionButton.extended(
           heroTag: null,
-          onPressed: () => show_contact_list_alert(
+          onPressed: () => contact_list_alert(
+            context: context,
+            user_id: widget.user_id,
+          ),
+          backgroundColor: Colors.green,
+          label: const Icon(
+            FontAwesomeIcons.addressBook,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+
+        // MARK: Open Contact List
+        FloatingActionButton.extended(
+          heroTag: null,
+          onPressed: () => add_contact_alert(
             context: context,
             user_id: widget.user_id,
           ),

@@ -10,15 +10,17 @@ Future update_contact({
   required String contact_id,
   required UpdateContactType update_contact_type,
 }) async {
-  DocumentReference doc_reference = FirebaseFirestore.instance.collection('contacts').doc(user_id);
-  List contact_id_array = [contact_id];
-
-  FieldValue field_value = update_contact_type == UpdateContactType.add
-      ? FieldValue.arrayUnion(contact_id_array)
-      : FieldValue.arrayRemove(contact_id_array);
-
-  Map<String, dynamic> contact_array_map = {
-    'contacts': field_value,
+  Map contact = {
+    'user_id': contact_id,
+    'blocked': false,
   };
-  await doc_reference.update(contact_array_map);
+
+  await FirebaseFirestore.instance.collection('contacts').doc(user_id).set(
+    {
+      'contacts': update_contact_type == UpdateContactType.add
+          ? FieldValue.arrayUnion([contact])
+          : FieldValue.arrayRemove([contact]),
+    },
+    SetOptions(merge: true),
+  );
 }

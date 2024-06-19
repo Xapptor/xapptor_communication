@@ -1,30 +1,30 @@
 class Contact {
   String id;
-  String name;
-  String email;
+  String firstname;
+  String lastname;
   String photo_url;
   bool blocked;
 
   Contact({
     required this.id,
-    required this.name,
-    required this.email,
+    required this.firstname,
+    required this.lastname,
     required this.photo_url,
     required this.blocked,
   });
 
   Contact.from_snapshot(
     this.id,
+    this.blocked,
     Map<dynamic, dynamic> snapshot,
-  )   : name = snapshot['name'],
-        email = snapshot['email'],
-        photo_url = snapshot['photo_url'],
-        blocked = snapshot['blocked'];
+  )   : firstname = snapshot['firstname'] ?? '',
+        lastname = snapshot['lastname'] ?? '',
+        photo_url = snapshot['photo_url'] ?? '';
 
   Map<String, dynamic> to_json() {
     return {
-      'name': name,
-      'email': email,
+      'firstname': firstname,
+      'lastname': lastname,
       'photo_url': photo_url,
       'blocked': blocked,
     };
