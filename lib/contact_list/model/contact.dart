@@ -30,3 +30,25 @@ class Contact {
     };
   }
 }
+
+class SimpleContact {
+  String id;
+  bool blocked;
+
+  SimpleContact({
+    required this.id,
+    required this.blocked,
+  });
+
+  SimpleContact.from_snapshot(
+    Map<dynamic, dynamic> snapshot,
+  )   : id = snapshot['user_id'] ?? '',
+        blocked = snapshot['blocked'] ?? '';
+
+  Map<String, dynamic> to_json() {
+    return {
+      'user_id': id,
+      'blocked': blocked,
+    };
+  }
+}

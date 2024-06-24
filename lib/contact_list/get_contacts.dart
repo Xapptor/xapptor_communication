@@ -13,7 +13,7 @@ Future<List<Contact>> get_contacts({
     List<Contact> contacts = [];
 
     for (var contacts_map in contacts_maps) {
-      String contact_id = contacts_map['id'];
+      String contact_id = contacts_map['user_id'];
       bool contact_blocked = contacts_map['blocked'];
 
       DocumentSnapshot contact_snap = await FirebaseFirestore.instance.collection('users').doc(contact_id).get();

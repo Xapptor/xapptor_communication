@@ -55,7 +55,7 @@ extension CallSampleStateExtension on CallSampleState {
           ),
         ),
 
-        // MARK: Add Contact
+        // MARK: Open Contact List
         FloatingActionButton.extended(
           heroTag: null,
           onPressed: () => contact_list_alert(
@@ -70,7 +70,7 @@ extension CallSampleStateExtension on CallSampleState {
           ),
         ),
 
-        // MARK: Open Contact List
+        // MARK: Add Contact
         FloatingActionButton.extended(
           heroTag: null,
           onPressed: () => add_contact_alert(
