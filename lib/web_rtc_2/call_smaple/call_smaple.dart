@@ -11,6 +11,7 @@ import 'package:xapptor_communication/web_rtc_2/signaling/invite.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/session.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/mute_mic.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/call_line/subscribe_to_call_line.dart';
 
 class CallSample extends StatefulWidget {
   static String tag = 'call_sample';
@@ -53,6 +54,10 @@ class CallSampleState extends State<CallSample> {
     super.initState();
     init_renderers();
     connect(context);
+
+    signaling?.subscribe_to_call_line(
+      user_id: widget.user_id,
+    );
   }
 
   init_renderers() async {
@@ -75,7 +80,7 @@ class CallSampleState extends State<CallSample> {
   ) async {
     if (signaling != null && new_peer_id != widget.user_id) {
       signaling?.invite(
-        peer_id: new_peer_id,
+        contact_id: new_peer_id,
         media: 'video',
         use_screen: use_screen,
       );

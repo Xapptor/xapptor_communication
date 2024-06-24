@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/call_smaple.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/show_accept_dialog.dart';
-import 'package:xapptor_communication/web_rtc_2/call_smaple/show_invate_dialog.dart';
+import 'package:xapptor_communication/web_rtc_2/call_smaple/show_invite_dialog.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/connect.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/enums.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/session.dart';
@@ -63,7 +63,7 @@ extension CallSampleStateExtension on CallSampleState {
           break;
         case CallState.cl_invite:
           wait_accept = true;
-          show_invate_dialog(
+          show_invite_dialog(
             context: context,
             hang_up: hang_up(),
           );

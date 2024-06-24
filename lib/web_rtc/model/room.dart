@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:xapptor_communication/web_rtc/model/connection.dart';
 
 class Room {
-  final String id;
+  String id;
   final DateTime created;
   final String host_id;
   final String temp_id;

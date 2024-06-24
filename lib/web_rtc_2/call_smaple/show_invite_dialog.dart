@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Future<bool?> show_invate_dialog({
+Future<bool?> show_invite_dialog({
   required BuildContext context,
   required Function hang_up,
 }) {

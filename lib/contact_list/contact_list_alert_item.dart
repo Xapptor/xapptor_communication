@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:xapptor_communication/contact_list/model/contact.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/invite.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
 
 Widget contact_list_alert_item({
   required String user_id,
@@ -8,6 +10,7 @@ Widget contact_list_alert_item({
   required bool blocked,
   required Function blocked_callback,
   required Function delete_callback,
+  required Signaling signaling,
 }) {
   WidgetStatePropertyAll<Icon> thumb_icon = WidgetStatePropertyAll(
     Icon(
@@ -50,7 +53,11 @@ Widget contact_list_alert_item({
                 Icons.call,
               ),
               onPressed: () {
-                //signaling?.invite(peer_id, media, use_screen);
+                signaling.invite(
+                  contact_id: contact.id,
+                  media: 'audio',
+                  use_screen: false,
+                );
               },
             ),
             IconButton(
@@ -58,7 +65,11 @@ Widget contact_list_alert_item({
                 Icons.video_call,
               ),
               onPressed: () {
-                //signaling?.invite(peer_id, media, use_screen);
+                signaling.invite(
+                  contact_id: contact.id,
+                  media: 'video',
+                  use_screen: false,
+                );
               },
             ),
           ],

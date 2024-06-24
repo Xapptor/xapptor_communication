@@ -27,7 +27,6 @@ extension SignalingExtension on Signaling {
       );
     }
 
-    debugPrint(ice_servers.toString());
     RTCPeerConnection pc = await createPeerConnection({
       ...ice_servers,
       ...{'sdpSemantics': sdp_semantics}

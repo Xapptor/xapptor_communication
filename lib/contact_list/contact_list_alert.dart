@@ -7,12 +7,14 @@ import 'package:xapptor_communication/contact_list/contact_list_alert_item.dart'
 import 'package:xapptor_communication/contact_list/get_contacts.dart';
 import 'package:xapptor_communication/contact_list/model/contact.dart';
 import 'package:xapptor_communication/contact_list/update_contact.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
 import 'package:xapptor_ui/utils/is_portrait.dart';
 import 'package:xapptor_ui/values/ui.dart';
 
 contact_list_alert({
   required BuildContext context,
   required String user_id,
+  required Signaling signaling,
 }) async {
   bool portrait = is_portrait(context);
   double screen_height = MediaQuery.of(context).size.height;
@@ -110,6 +112,7 @@ contact_list_alert({
                                         blocked: contact.blocked,
                                       );
                                     },
+                                    signaling: signaling,
                                   );
                                 }
                               },

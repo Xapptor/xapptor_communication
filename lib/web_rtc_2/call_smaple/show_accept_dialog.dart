@@ -7,8 +7,8 @@ Future<bool?> show_accept_dialog({
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text("title"),
-        content: const Text("accept?"),
+        title: const Text("Some one is calling you!"),
+        content: const Text("Accept?"),
         actions: [
           MaterialButton(
             child: const Text(
