@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:xapptor_communication/contact_list/model/contact.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/connect.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/contact_list.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/fab/fab_on_call.dart';
@@ -80,7 +81,7 @@ class CallSampleState extends State<CallSample> {
   ) async {
     if (signaling != null && new_peer_id != widget.user_id) {
       signaling?.invite(
-        contact_id: new_peer_id,
+        contact: Contact.empty(),
         media: 'video',
         use_screen: use_screen,
       );

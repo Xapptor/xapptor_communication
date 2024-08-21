@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:xapptor_communication/contact_list/model/contact.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/clean_sessions.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/close_session.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/enums.dart';
@@ -26,7 +27,9 @@ class Signaling {
   VideoSource video_source = VideoSource.camera;
 
   Function(SignalingState state)? on_signaling_state_change;
-  Function(Session session, CallState state)? on_call_state_change;
+
+  Function(Session session, CallState state, Contact? contact)? on_call_state_change;
+
   Function(MediaStream stream)? on_local_stream;
   Function(Session session, MediaStream stream)? on_add_remote_stream;
   Function(Session session, MediaStream stream)? on_remove_remote_stream;
@@ -75,7 +78,7 @@ class Signaling {
     debugPrint('bye: $session_id');
     var session = sessions.remove(session_id);
     if (session != null) {
-      on_call_state_change?.call(session, CallState.cl_bye);
+      on_call_state_change?.call(session, CallState.cl_bye, null);
       close_session(session);
     }
     // MARK: Code Migrated from on_message function

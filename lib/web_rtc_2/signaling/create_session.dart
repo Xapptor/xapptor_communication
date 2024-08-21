@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/create_stream.dart';
@@ -107,18 +108,13 @@ extension SignalingExtension on Signaling {
       // and should be thoroughly tested in your own environment.
 
       // MARK: Code Migrated from on_message function
-      if (session != null) {
-        if (session.peer_connection != null) {
-          await session.peer_connection?.addCandidate(candidate);
-        } else {
-          session.remote_candidates.add(candidate);
-        }
+
+      if (new_session.peer_connection != null) {
+        await new_session.peer_connection?.addCandidate(candidate);
       } else {
-        sessions[session_id] = Session(
-          peer_id: peer_id,
-          id: session_id,
-        )..remote_candidates.add(candidate);
+        new_session.remote_candidates.add(candidate);
       }
+
       // MARK: Code Migrated from on_message function
     };
 
@@ -136,6 +132,17 @@ extension SignalingExtension on Signaling {
     };
 
     new_session.peer_connection = pc;
+
+    await _create_session_on_db(new_session);
+
     return new_session;
+  }
+
+  Future _create_session_on_db(Session session) async {
+    Map<String, dynamic> session_json = session.to_json();
+
+    print(session_json);
+
+    await FirebaseFirestore.instance.collection('sessions').doc(session.id).set(session_json);
   }
 }

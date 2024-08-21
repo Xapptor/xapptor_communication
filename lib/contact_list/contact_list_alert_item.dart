@@ -54,7 +54,7 @@ Widget contact_list_alert_item({
               ),
               onPressed: () {
                 signaling.invite(
-                  contact_id: contact.id,
+                  contact: contact,
                   media: 'audio',
                   use_screen: false,
                 );
@@ -66,7 +66,7 @@ Widget contact_list_alert_item({
               ),
               onPressed: () {
                 signaling.invite(
-                  contact_id: contact.id,
+                  contact: contact,
                   media: 'video',
                   use_screen: false,
                 );

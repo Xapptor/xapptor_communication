@@ -73,11 +73,12 @@ extension CallSampleStateExtension on CallSampleState {
         ),
 
         // MARK: Hang Up
-        FloatingActionButton.extended(
+        const FloatingActionButton.extended(
           heroTag: null,
-          onPressed: () => hang_up(),
+          // onPressed: () => hang_up(session),
+          onPressed: null,
           backgroundColor: Colors.green,
-          label: const Icon(
+          label: Icon(
             FontAwesomeIcons.xmark,
             color: Colors.white,
             size: 20,

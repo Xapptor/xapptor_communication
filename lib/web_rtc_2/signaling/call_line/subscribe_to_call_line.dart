@@ -7,18 +7,22 @@ import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
 extension SignalingExtension on Signaling {
   subscribe_to_call_line({
     required String user_id,
-  }) {
-    DocumentReference call_line = FirebaseFirestore.instance.collection('call_lines').doc(user_id);
-    call_line.snapshots().listen((event) {
-      print('Call Line: ${event.data()}');
-      CallLine call_line = CallLine.from_snapshot(user_id, event.data() as Map<String, dynamic>);
-      if (call_line.caller_id != '' && call_line.room_id != '') {
-        Session session = Session(
-          id: '',
-          peer_id: '',
-        );
+  }) async {
+    print("user_id______");
+    print(user_id);
 
-        on_call_state_change?.call(session, CallState.cl_ringing);
+    DocumentReference call_line_ref = FirebaseFirestore.instance.collection('call_lines').doc(user_id);
+    call_line_ref.snapshots().listen((event) async {
+      if (event.data() != null) {
+        CallLine call_line = CallLine.from_snapshot(user_id, event.data() as Map<String, dynamic>);
+        if (call_line.caller_id != '' && call_line.room_id != '') {
+          DocumentSnapshot session_snap =
+              await FirebaseFirestore.instance.collection('sessions').doc(call_line.session_id).get();
+
+          Session session = Session.from_snapshot(call_line.session_id, session_snap.data() as Map<String, dynamic>);
+
+          on_call_state_change?.call(session, CallState.cl_ringing, null);
+        }
       }
     });
   }

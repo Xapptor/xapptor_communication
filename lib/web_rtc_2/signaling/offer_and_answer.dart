@@ -4,6 +4,7 @@ import 'package:xapptor_communication/web_rtc/model/room.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/call_line/update_call_line.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/create_room.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/create_session.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/model/call_line.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/enums.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/session.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
@@ -16,6 +17,7 @@ extension SignalingExtension on Signaling {
     required String contact_id,
   }) async {
     try {
+      print('Creating_Offer____');
       RTCSessionDescription session_description = await session.peer_connection!.createOffer(
         media == 'data' ? session_description_constraints : {},
       );
@@ -23,7 +25,7 @@ extension SignalingExtension on Signaling {
       await session.peer_connection!.setLocalDescription(fix_sdp(session_description));
 
       // MARK: Code Migrated from on_message function
-      var new_session = await create_session(
+      Session new_session = await create_session(
         session,
         peer_id: session.peer_id,
         session_id: session.id,
@@ -44,7 +46,7 @@ extension SignalingExtension on Signaling {
         }
         new_session.remote_candidates.clear();
       }
-      on_call_state_change?.call(new_session, CallState.cl_new);
+      on_call_state_change?.call(new_session, CallState.cl_new, null);
       // TODO: This was commented on_call_state_change?.call(new_session, CallState.cl_ringing);
       // MARK: Code Migrated from on_message function
 
@@ -52,12 +54,14 @@ extension SignalingExtension on Signaling {
         user_id: user_id,
       );
 
-      update_call_line(
+      CallLine call_line = await update_call_line(
         caller_id: user_id,
         room_id: room.id,
         session_id: session.id,
         contact_id: contact_id,
       );
+
+      print('call_line: ${call_line.to_json()}');
     } catch (e) {
       debugPrint(e.toString());
     }
@@ -78,6 +82,9 @@ extension SignalingExtension on Signaling {
     required Session session,
     required String media,
   }) async {
+    print("session_to_json");
+    print(session.to_json());
+
     try {
       RTCSessionDescription session_description = await session.peer_connection!.createAnswer(
         media == 'data' ? session_description_constraints : {},
@@ -92,7 +99,7 @@ extension SignalingExtension on Signaling {
           session_description.type,
         ),
       );
-      on_call_state_change?.call(session, CallState.cl_connected);
+      on_call_state_change?.call(session, CallState.cl_connected, null);
       // MARK: Code Migrated from on_message function
 
       print('create_answer_called__________________________');

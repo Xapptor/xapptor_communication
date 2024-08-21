@@ -52,8 +52,8 @@ extension SignalingExtension on Signaling {
             }
             new_session.remote_candidates.clear();
           }
-          on_call_state_change?.call(new_session, CallState.cl_new);
-          on_call_state_change?.call(new_session, CallState.cl_ringing);
+          on_call_state_change?.call(new_session, CallState.cl_new, null);
+          on_call_state_change?.call(new_session, CallState.cl_ringing, null);
         }
         break;
       case 'answer':
@@ -65,7 +65,7 @@ extension SignalingExtension on Signaling {
           session?.peer_connection?.setRemoteDescription(
             RTCSessionDescription(description['sdp'], description['type']),
           );
-          on_call_state_change?.call(session!, CallState.cl_connected);
+          on_call_state_change?.call(session!, CallState.cl_connected, null);
         }
         break;
       case 'candidate':
@@ -106,7 +106,7 @@ extension SignalingExtension on Signaling {
           debugPrint('bye: $session_id');
           var session = sessions.remove(session_id);
           if (session != null) {
-            on_call_state_change?.call(session, CallState.cl_bye);
+            on_call_state_change?.call(session, CallState.cl_bye, null);
             close_session(session);
           }
         }

@@ -1,6 +1,7 @@
 // ignore_for_file: invalid_use_of_protected_member
 
 import 'package:flutter/material.dart';
+import 'package:xapptor_communication/contact_list/model/contact.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/call_smaple.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/show_accept_dialog.dart';
 import 'package:xapptor_communication/web_rtc_2/call_smaple/show_invite_dialog.dart';
@@ -27,9 +28,12 @@ extension CallSampleStateExtension on CallSampleState {
     signaling?.on_call_state_change = (
       Session? session,
       CallState state,
+      Contact? contact,
     ) async {
       switch (state) {
         case CallState.cl_new:
+          print('Is not used anymore');
+          // Is not used anymore
           setState(() {
             session = session;
           });
@@ -62,11 +66,14 @@ extension CallSampleStateExtension on CallSampleState {
 
           break;
         case CallState.cl_invite:
-          wait_accept = true;
-          show_invite_dialog(
-            context: context,
-            hang_up: hang_up(),
-          );
+          if (contact != null) {
+            wait_accept = true;
+            show_invite_dialog(
+              context: context,
+              hang_up: hang_up,
+              contact: contact,
+            );
+          }
 
           break;
         case CallState.cl_connected:

@@ -25,7 +25,7 @@ extension SignalingExtension on Signaling {
     });
     if (session != null) {
       close_session(session!);
-      on_call_state_change?.call(session!, CallState.cl_bye);
+      on_call_state_change?.call(session!, CallState.cl_bye, null);
     }
   }
 }
