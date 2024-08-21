@@ -19,11 +19,7 @@ extension StateExtension on CallViewState {
     );
     _register_peer_connection_listeners();
 
-    print('create_peer_connection__');
-
     local_renderer.value.srcObject?.getTracks().forEach((track) {
-      print('create_peer_connection__&');
-
       peer_connections.last.value.addTrack(track, local_renderer.value.srcObject!);
     });
 
@@ -61,7 +57,6 @@ extension StateExtension on CallViewState {
     // };
 
     peer_connections.last.value.onTrack = (RTCTrackEvent event) {
-      print('listen__onTrack____________________________________');
       on_add_remote_stream?.call(event.streams[0]);
     };
   }

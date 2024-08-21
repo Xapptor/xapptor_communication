@@ -21,6 +21,13 @@ class Contact {
         lastname = snapshot['lastname'] ?? '',
         photo_url = snapshot['photo_url'] ?? '';
 
+  Contact.empty()
+      : id = '',
+        firstname = '',
+        lastname = '',
+        photo_url = '',
+        blocked = false;
+
   Map<String, dynamic> to_json() {
     return {
       'firstname': firstname,

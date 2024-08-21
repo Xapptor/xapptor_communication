@@ -19,5 +19,6 @@ Future<Room> create_room({
   room_json['created'] = FieldValue.serverTimestamp();
   await room_ref.set(room_json);
   room.id = room_ref.id;
+
   return room;
 }

@@ -5,7 +5,7 @@ Widget button_bar({
   required Function(BuildContext context) cancel,
   required Function(BuildContext context) ok,
 }) {
-  return ButtonBar(
+  return OverflowBar(
     children: [
       MaterialButton(
         child: const Text(
