@@ -21,7 +21,7 @@ dependencies:
   permission_handler: ^11.3.1
   http: ^1.2.0
   font_awesome_flutter: ^10.7.0
-  flutter_expandable_fab: ^2.0.0
+  flutter_expandable_fab: ^2.2.0
 
   # xapptor_logic: ^0.0.3
   # xapptor_router: ^0.0.2
