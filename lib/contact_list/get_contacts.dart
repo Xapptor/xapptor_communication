@@ -1,10 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:xapptor_communication/contact_list/model/contact.dart';
+import 'package:xapptor_db/xapptor_db.dart';
 
 Future<List<Contact>> get_contacts({
   required String user_id,
 }) async {
-  DocumentSnapshot contacts_snap = await FirebaseFirestore.instance.collection('contacts').doc(user_id).get();
+  DocumentSnapshot contacts_snap = await XapptorDB.instance.collection('contacts').doc(user_id).get();
 
   if (contacts_snap.data() == null) {
     return [];
@@ -16,7 +17,7 @@ Future<List<Contact>> get_contacts({
       String contact_id = contacts_map['user_id'];
       bool contact_blocked = contacts_map['blocked'];
 
-      DocumentSnapshot contact_snap = await FirebaseFirestore.instance.collection('users').doc(contact_id).get();
+      DocumentSnapshot contact_snap = await XapptorDB.instance.collection('users').doc(contact_id).get();
 
       Contact contact = Contact.from_snapshot(
         contact_id,

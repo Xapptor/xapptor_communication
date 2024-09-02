@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:xapptor_communication/web_rtc/model/connection.dart';
+import 'package:xapptor_db/xapptor_db.dart';
 
 class Room {
   String id;
@@ -31,7 +32,7 @@ class Room {
 
   Future<List<Connection>> connections() async {
     QuerySnapshot connections_snap =
-        await FirebaseFirestore.instance.collection('rooms').doc(id).collection('connections').get();
+        await XapptorDB.instance.collection('rooms').doc(id).collection('connections').get();
 
     List<Connection> connections = connections_snap.docs.map((connection_snap) {
       return Connection.from_snapshot(

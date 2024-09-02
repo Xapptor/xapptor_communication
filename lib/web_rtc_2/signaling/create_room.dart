@@ -1,12 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:xapptor_communication/web_rtc/model/room.dart';
 import 'package:xapptor_logic/random/generate_random_id.dart';
+import 'package:xapptor_db/xapptor_db.dart';
 
 Future<Room> create_room({
   required String user_id,
 }) async {
   String temp_id = generate_random_id();
-  DocumentReference room_ref = FirebaseFirestore.instance.collection('rooms').doc();
+  DocumentReference room_ref = XapptorDB.instance.collection('rooms').doc();
 
   Room room = Room(
     id: '',

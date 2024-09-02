@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:xapptor_communication/web_rtc/model/connection.dart';
 import 'package:xapptor_communication/web_rtc/model/room.dart';
+import 'package:xapptor_db/xapptor_db.dart';
 
 class User {
   final String id;
@@ -19,7 +20,7 @@ class User {
             : id;
 
   Future<List<User>> get_room_users_from_room_ids(String room_id) async {
-    DocumentSnapshot room_snap = await FirebaseFirestore.instance.collection('rooms').doc(room_id).get();
+    DocumentSnapshot room_snap = await XapptorDB.instance.collection('rooms').doc(room_id).get();
     Room room = Room.from_snapshot(room_id, room_snap.data() as Map<String, dynamic>);
 
     List<Connection> connections = await room.connections();
@@ -37,7 +38,7 @@ class User {
   Future<List<User>> _convert_users_ids_to_users(List<String> users_ids) async {
     List<User> users = [];
     await Future.forEach(users_ids, (String user_id) async {
-      DocumentSnapshot user_snap = await FirebaseFirestore.instance.collection('users').doc(user_id).get();
+      DocumentSnapshot user_snap = await XapptorDB.instance.collection('users').doc(user_id).get();
 
       User user = User.from_snapshot(
         id: user_id,
@@ -50,7 +51,7 @@ class User {
 }
 
 Future<User> get_user_from_id(String user_id) async {
-  DocumentSnapshot user_snap = await FirebaseFirestore.instance.collection('users').doc(user_id).get();
+  DocumentSnapshot user_snap = await XapptorDB.instance.collection('users').doc(user_id).get();
   return User.from_snapshot(
     id: user_id,
     snapshot: user_snap.data() as Map<String, dynamic>,

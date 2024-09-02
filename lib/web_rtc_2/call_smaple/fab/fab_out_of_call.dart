@@ -11,7 +11,7 @@ extension CallSampleStateExtension on CallSampleState {
       key: expandable_fab_key,
       distance: 200,
       duration: const Duration(milliseconds: 150),
-      overlayStyle: ExpandableFabOverlayStyle(
+      overlayStyle: const ExpandableFabOverlayStyle(
         blur: 5,
       ),
       openButtonBuilder: FloatingActionButtonBuilder(

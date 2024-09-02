@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/call_line.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/signaling.dart';
+import 'package:xapptor_db/xapptor_db.dart';
 
 extension SignalingExtension on Signaling {
   Future<CallLine> update_call_line({
@@ -16,7 +17,7 @@ extension SignalingExtension on Signaling {
       session_id: session_id,
     );
 
-    await FirebaseFirestore.instance.collection('call_lines').doc(contact_id).set(
+    await XapptorDB.instance.collection('call_lines').doc(contact_id).set(
           call_line.to_json(),
           SetOptions(merge: true),
         );

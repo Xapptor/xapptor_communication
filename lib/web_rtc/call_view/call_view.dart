@@ -22,6 +22,7 @@ import 'package:xapptor_communication/web_rtc/model/peer_connection.dart';
 import 'package:xapptor_communication/web_rtc/model/room.dart';
 import 'package:xapptor_communication/web_rtc/room/hang_up.dart';
 import 'package:xapptor_ui/utils/is_portrait.dart';
+import 'package:xapptor_db/xapptor_db.dart';
 
 class CallView extends StatefulWidget {
   final Color main_color;
@@ -56,7 +57,7 @@ class CallView extends StatefulWidget {
 typedef StreamStateCallback = Function(MediaStream stream);
 
 class CallViewState extends State<CallView> {
-  FirebaseFirestore db = FirebaseFirestore.instance;
+  FirebaseFirestore db = XapptorDB.instance;
 
   ValueNotifier<bool> enable_audio = ValueNotifier<bool>(true);
   ValueNotifier<bool> enable_video = ValueNotifier<bool>(true);

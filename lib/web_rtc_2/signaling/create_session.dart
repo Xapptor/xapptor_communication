@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:xapptor_db/xapptor_db.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/create_stream.dart';
@@ -143,6 +143,6 @@ extension SignalingExtension on Signaling {
 
     print(session_json);
 
-    await FirebaseFirestore.instance.collection('sessions').doc(session.id).set(session_json);
+    await XapptorDB.instance.collection('sessions').doc(session.id).set(session_json);
   }
 }

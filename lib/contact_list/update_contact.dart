@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:xapptor_communication/contact_list/model/contact.dart';
+import 'package:xapptor_db/xapptor_db.dart';
 
 enum UpdateContactType {
   add,
@@ -13,7 +14,7 @@ Future update_contact({
   required UpdateContactType update_contact_type,
   bool blocked = false,
 }) async {
-  DocumentReference contact_reference = FirebaseFirestore.instance.collection('contacts').doc(user_id);
+  DocumentReference contact_reference = XapptorDB.instance.collection('contacts').doc(user_id);
 
   Map contact = {
     'user_id': contact_id,
