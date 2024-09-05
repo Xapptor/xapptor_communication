@@ -65,7 +65,7 @@ class _ThumbnailWidgetState extends State<ThumbnailWidget> {
                       gaplessPlayback: true,
                       alignment: Alignment.center,
                     )
-                  : Container(),
+                  : null,
             ),
           ),
         ),

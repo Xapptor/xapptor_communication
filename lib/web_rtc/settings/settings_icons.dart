@@ -42,44 +42,41 @@ extension StateExtension on CallViewState {
             setState(() {});
           },
         ),
+        if (in_a_call.value)
+          IconButton(
+            icon: Icon(
+              Icons.info,
+              color: widget.main_color,
+            ),
+            onPressed: () {
+              show_info.value = !show_info.value;
+              setState(() {});
+            },
+          ),
+        if (in_a_call.value)
+          IconButton(
+            icon: Icon(
+              share_screen.value ? Icons.stop_screen_share_outlined : Icons.screen_share_outlined,
+              color: share_screen.value ? Colors.red : widget.main_color,
+            ),
+            tooltip: share_screen.value ? "Stop Screen Sharing" : "Init Screen Sharing",
+            onPressed: () async {
+              share_screen.value = !share_screen.value;
+              mirror_local_renderer.value = !share_screen.value;
 
-        in_a_call.value
-            ? IconButton(
-                icon: Icon(
-                  Icons.info,
-                  color: widget.main_color,
-                ),
-                onPressed: () {
-                  show_info.value = !show_info.value;
-                  setState(() {});
-                },
-              )
-            : Container(),
-        in_a_call.value
-            ? IconButton(
-                icon: Icon(
-                  share_screen.value ? Icons.stop_screen_share_outlined : Icons.screen_share_outlined,
-                  color: share_screen.value ? Colors.red : widget.main_color,
-                ),
-                tooltip: share_screen.value ? "Stop Screen Sharing" : "Init Screen Sharing",
-                onPressed: () async {
-                  share_screen.value = !share_screen.value;
-                  mirror_local_renderer.value = !share_screen.value;
-
-                  if (share_screen.value) {
-                    final media_constraints = <String, dynamic>{
-                      'audio': true,
-                      'video': true,
-                    };
-                    var stream = await navigator.mediaDevices.getDisplayMedia(media_constraints);
-                    local_renderer.value.srcObject = stream;
-                  } else {
-                    stop_screen_share_function();
-                  }
-                  setState(() {});
-                },
-              )
-            : Container(),
+              if (share_screen.value) {
+                final media_constraints = <String, dynamic>{
+                  'audio': true,
+                  'video': true,
+                };
+                var stream = await navigator.mediaDevices.getDisplayMedia(media_constraints);
+                local_renderer.value.srcObject = stream;
+              } else {
+                stop_screen_share_function();
+              }
+              setState(() {});
+            },
+          ),
       ],
     );
   }
