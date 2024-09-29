@@ -2,9 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:xapptor_communication/contact_list/model/contact.dart';
-import 'package:xapptor_communication/web_rtc_2/call_smaple/call_smaple.dart';
-import 'package:xapptor_communication/web_rtc_2/call_smaple/show_accept_dialog.dart';
-import 'package:xapptor_communication/web_rtc_2/call_smaple/show_invite_dialog.dart';
+import 'package:xapptor_communication/web_rtc_2/call_sample/call_sample.dart';
+import 'package:xapptor_communication/web_rtc_2/call_sample/show_accept_dialog.dart';
+import 'package:xapptor_communication/web_rtc_2/call_sample/show_invite_dialog.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/connect.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/enums.dart';
 import 'package:xapptor_communication/web_rtc_2/signaling/model/session.dart';

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:xapptor_communication/contact_list/add_contact_alert.dart';
-import 'package:xapptor_communication/contact_list/contact_list_alert.dart';
-import 'package:xapptor_communication/web_rtc_2/call_smaple/call_smaple.dart';
+import 'package:universal_platform/universal_platform.dart';
+import 'package:xapptor_communication/web_rtc_2/call_sample/call_sample.dart';
+import 'package:xapptor_communication/web_rtc_2/call_sample/select_screen_source_dialog.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/camera.dart';
+import 'package:xapptor_communication/web_rtc_2/signaling/switch_to_screen_sharing.dart';
 
 extension CallSampleStateExtension on CallSampleState {
-  ExpandableFab fab_out_of_call() {
+  ExpandableFab fab_on_call() {
     return ExpandableFab(
       key: expandable_fab_key,
       distance: 200,
@@ -41,46 +43,59 @@ extension CallSampleStateExtension on CallSampleState {
         },
       ),
       children: [
-        // MARK: Create an Empty Call
+        // MARK: Toggle Camera
         FloatingActionButton.extended(
           heroTag: null,
-          onPressed: () {
-            //signaling?.invite(peer_id, media, use_screen);
-          },
+          onPressed: () => signaling?.toggle_camera(),
           backgroundColor: Colors.pink,
           label: const Icon(
-            FontAwesomeIcons.phoneVolume,
+            FontAwesomeIcons.video,
             color: Colors.white,
             size: 20,
           ),
         ),
 
-        // MARK: Open Contact List
+        // MARK: Select Screen Sharing Source
         FloatingActionButton.extended(
           heroTag: null,
-          onPressed: () => contact_list_alert(
+          onPressed: () => select_screen_source_dialog(
             context: context,
-            user_id: widget.user_id,
-            signaling: signaling!,
+            switch_to_screen_sharing: (screen_stream) {
+              signaling?.switch_to_screen_sharing(screen_stream);
+            },
           ),
           backgroundColor: Colors.green,
-          label: const Icon(
-            FontAwesomeIcons.addressBook,
+          label: Icon(
+            UniversalPlatform.isMobile ? FontAwesomeIcons.mobileScreen : FontAwesomeIcons.display,
             color: Colors.white,
             size: 20,
           ),
         ),
 
-        // MARK: Add Contact
+        // MARK: Hang Up
+        const FloatingActionButton.extended(
+          heroTag: null,
+          // onPressed: () => hang_up(session),
+          onPressed: null,
+          backgroundColor: Colors.green,
+          label: Icon(
+            FontAwesomeIcons.xmark,
+            color: Colors.white,
+            size: 20,
+          ),
+        ),
+
+        // MARK: Mute
         FloatingActionButton.extended(
           heroTag: null,
-          onPressed: () => add_contact_alert(
-            context: context,
-            user_id: widget.user_id,
-          ),
+          onPressed: () => mute_mic(),
           backgroundColor: Colors.green,
-          label: const Icon(
-            FontAwesomeIcons.userPlus,
+          label: Icon(
+            signaling == null
+                ? FontAwesomeIcons.microphoneSlash
+                : signaling!.is_mute
+                    ? FontAwesomeIcons.microphoneSlash
+                    : FontAwesomeIcons.microphone,
             color: Colors.white,
             size: 20,
           ),
