@@ -14,7 +14,7 @@ Widget contact_list_alert_item({
 }) {
   WidgetStatePropertyAll<Icon> thumb_icon = WidgetStatePropertyAll(
     Icon(
-      blocked ? Icons.block : Icons.check_circle,
+      blocked ? Icons.block : Icons.circle,
     ),
   );
 
@@ -23,7 +23,14 @@ Widget contact_list_alert_item({
   );
 
   String contact_info = '${contact.firstname} ${contact.lastname}';
-  String short_contact_id = '${contact.id.substring(0, 4)}...${contact.id.substring(contact.id.length - 4)}';
+  String short_contact_id = '';
+
+  if (contact.id.length > 6) {
+    short_contact_id = '${contact.id.substring(0, 3)}...${contact.id.substring(contact.id.length - 3)}';
+  } else {
+    short_contact_id = contact.id;
+  }
+
   contact_info += '\nID: $short_contact_id';
 
   return Container(
@@ -46,34 +53,41 @@ Widget contact_list_alert_item({
             ),
           ],
         ),
-        Row(
-          children: [
-            IconButton(
-              icon: const Icon(
-                Icons.call,
+        contact.exists
+            ? Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.call,
+                    ),
+                    onPressed: () {
+                      signaling.invite(
+                        contact: contact,
+                        media: 'audio',
+                        use_screen: false,
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(
+                      Icons.video_call,
+                    ),
+                    onPressed: () {
+                      signaling.invite(
+                        contact: contact,
+                        media: 'video',
+                        use_screen: false,
+                      );
+                    },
+                  ),
+                ],
+              )
+            : const Text(
+                'User does not exist',
+                style: TextStyle(
+                  color: Colors.red,
+                ),
               ),
-              onPressed: () {
-                signaling.invite(
-                  contact: contact,
-                  media: 'audio',
-                  use_screen: false,
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(
-                Icons.video_call,
-              ),
-              onPressed: () {
-                signaling.invite(
-                  contact: contact,
-                  media: 'video',
-                  use_screen: false,
-                );
-              },
-            ),
-          ],
-        ),
         Switch(
           value: blocked,
           thumbIcon: thumb_icon,

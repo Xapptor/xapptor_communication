@@ -9,9 +9,6 @@ extension SignalingExtension on Signaling {
   subscribe_to_call_line({
     required String user_id,
   }) async {
-    print("user_id______");
-    print(user_id);
-
     DocumentReference call_line_ref = XapptorDB.instance.collection('call_lines').doc(user_id);
     call_line_ref.snapshots().listen((event) async {
       if (event.data() != null) {

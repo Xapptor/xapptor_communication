@@ -17,13 +17,15 @@ Future<List<Contact>> get_contacts({
       String contact_id = contacts_map['user_id'];
       bool contact_blocked = contacts_map['blocked'];
 
-      DocumentSnapshot contact_snap = await XapptorDB.instance.collection('users').doc(contact_id).get();
+      Contact contact = await check_if_contact_exists(
+            id: contact_id,
+            blocked: contact_blocked,
+          ) ??
+          Contact.empty(
+            id: contact_id,
+            blocked: contact_blocked,
+          );
 
-      Contact contact = Contact.from_snapshot(
-        contact_id,
-        contact_blocked,
-        contact_snap.data() as Map<dynamic, dynamic>,
-      );
       contacts.add(contact);
     }
     return contacts;

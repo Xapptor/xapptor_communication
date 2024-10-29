@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Contact {
   String id;
   String firstname;
   String lastname;
   String photo_url;
   bool blocked;
+  bool exists;
 
   Contact({
     required this.id,
@@ -11,6 +14,7 @@ class Contact {
     required this.lastname,
     required this.photo_url,
     required this.blocked,
+    required this.exists,
   });
 
   Contact.from_snapshot(
@@ -19,14 +23,22 @@ class Contact {
     Map<dynamic, dynamic> snapshot,
   )   : firstname = snapshot['firstname'] ?? '',
         lastname = snapshot['lastname'] ?? '',
-        photo_url = snapshot['photo_url'] ?? '';
+        photo_url = snapshot['photo_url'] ?? '',
+        exists = false;
 
-  Contact.empty()
-      : id = '',
-        firstname = '',
-        lastname = '',
-        photo_url = '',
-        blocked = false;
+  factory Contact.empty({
+    String id = '',
+    bool blocked = false,
+  }) {
+    return Contact(
+      id: id,
+      firstname: '',
+      lastname: '',
+      photo_url: '',
+      blocked: blocked,
+      exists: false,
+    );
+  }
 
   Map<String, dynamic> to_json() {
     return {
@@ -34,8 +46,28 @@ class Contact {
       'lastname': lastname,
       'photo_url': photo_url,
       'blocked': blocked,
+      'exists': exists,
     };
   }
+}
+
+Future<Contact?> check_if_contact_exists({
+  required String id,
+  required bool blocked,
+}) async {
+  DocumentSnapshot contact_snap = await FirebaseFirestore.instance.collection('users').doc(id).get();
+
+  Contact? contact;
+
+  if (contact_snap.data() != null) {
+    contact = Contact.from_snapshot(
+      id,
+      blocked,
+      contact_snap.data() as Map<dynamic, dynamic>,
+    );
+    contact.exists = true;
+  }
+  return contact;
 }
 
 class SimpleContact {
