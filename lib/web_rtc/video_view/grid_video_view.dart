@@ -39,7 +39,7 @@ class _GridVideoViewState extends State<GridVideoView> {
       random_colors.add(
         get_random_color(
           seed_color: null,
-        ).withOpacity(1),
+        ).withValues(alpha: 1),
       );
     }
     super.initState();

@@ -28,28 +28,28 @@ extension SignalingExtension on Signaling {
       );
     }
 
-    RTCPeerConnection pc = await createPeerConnection({
+    RTCPeerConnection peer_connection = await createPeerConnection({
       ...ice_servers,
       ...{'sdpSemantics': sdp_semantics}
     }, config);
     if (media != 'data') {
       switch (sdp_semantics) {
         case 'plan-b':
-          pc.onAddStream = (MediaStream stream) {
+          peer_connection.onAddStream = (MediaStream stream) {
             on_add_remote_stream?.call(new_session, stream);
             remote_streams.add(stream);
           };
-          await pc.addStream(local_stream!);
+          await peer_connection.addStream(local_stream!);
           break;
         case 'unified-plan':
           // Unified-Plan
-          pc.onTrack = (event) {
+          peer_connection.onTrack = (event) {
             if (event.track.kind == 'video') {
               on_add_remote_stream?.call(new_session, event.streams[0]);
             }
           };
           local_stream!.getTracks().forEach((track) async {
-            senders.add(await pc.addTrack(track, local_stream!));
+            senders.add(await peer_connection.addTrack(track, local_stream!));
           });
           break;
       }
@@ -98,7 +98,7 @@ extension SignalingExtension on Signaling {
         sender.setParameters(parameters);
       */
     }
-    pc.onIceCandidate = (RTCIceCandidate? candidate) async {
+    peer_connection.onIceCandidate = (RTCIceCandidate? candidate) async {
       if (candidate == null) {
         debugPrint('onIceCandidate: complete!');
         return;
@@ -118,20 +118,20 @@ extension SignalingExtension on Signaling {
       // MARK: Code Migrated from on_message function
     };
 
-    pc.onIceConnectionState = (state) {};
+    peer_connection.onIceConnectionState = (state) {};
 
-    pc.onRemoveStream = (stream) {
+    peer_connection.onRemoveStream = (stream) {
       on_remove_remote_stream?.call(new_session, stream);
       remote_streams.removeWhere((it) {
         return (it.id == stream.id);
       });
     };
 
-    pc.onDataChannel = (channel) {
+    peer_connection.onDataChannel = (channel) {
       add_data_channel(new_session, channel);
     };
 
-    new_session.peer_connection = pc;
+    new_session.peer_connection = peer_connection;
 
     await _create_session_on_db(new_session);
 

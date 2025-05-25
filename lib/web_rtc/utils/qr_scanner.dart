@@ -22,8 +22,8 @@ extension StateExtension on CallViewState {
         cut_out_size: 300,
         button_linear_gradient: LinearGradient(
           colors: [
-            Colors.blue.withOpacity(0.4),
-            Colors.green.withOpacity(0.4),
+            Colors.blue.withValues(alpha: 0.4),
+            Colors.green.withValues(alpha: 0.4),
           ],
         ),
         permission_title: "You must give the camera permission to capture QR codes",

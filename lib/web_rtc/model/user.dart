@@ -16,7 +16,7 @@ class User {
     required this.id,
     required Map<String, dynamic> snapshot,
   }) : name = snapshot['firstname'] != null && snapshot['lastname'] != null
-            ? (snapshot['firstname'] + ' ' + snapshot['lastname'])
+            ? '${snapshot['firstname']} ${snapshot['lastname']}'
             : id;
 
   Future<List<User>> get_room_users_from_room_ids(String room_id) async {

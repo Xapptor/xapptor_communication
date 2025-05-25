@@ -36,7 +36,10 @@ extension SignalingExtension on Signaling {
       sessions[session.id] = new_session;
 
       await new_session.peer_connection?.setRemoteDescription(
-        RTCSessionDescription(session_description.sdp, session_description.type),
+        RTCSessionDescription(
+          session_description.sdp,
+          session_description.type,
+        ),
       );
       // await _createAnswer(newSession, media);
 

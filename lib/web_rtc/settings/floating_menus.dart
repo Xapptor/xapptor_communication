@@ -21,7 +21,7 @@ extension StateExtension on CallViewState {
             maxWidth: width * 0.8,
           ),
           child: settings_menu(
-            background_color: Colors.blueGrey.withOpacity(0.95),
+            background_color: Colors.blueGrey.withValues(alpha: 0.95),
           ),
         ),
       if (show_info.value)
@@ -29,7 +29,7 @@ extension StateExtension on CallViewState {
           heightFactor: portrait ? 0.7 : 0.5,
           widthFactor: portrait ? 0.9 : 0.5,
           child: RoomInfo(
-            background_color: Colors.blueGrey.withOpacity(0.9),
+            background_color: Colors.blueGrey.withValues(alpha: 0.9),
             main_color: widget.main_color,
             room_id: widget.room_id.value,
             call_base_url: widget.call_base_url,

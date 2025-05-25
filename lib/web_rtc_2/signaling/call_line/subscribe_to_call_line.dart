@@ -17,7 +17,10 @@ extension SignalingExtension on Signaling {
           DocumentSnapshot session_snap =
               await XapptorDB.instance.collection('sessions').doc(call_line.session_id).get();
 
-          Session session = Session.from_snapshot(call_line.session_id, session_snap.data() as Map<String, dynamic>);
+          Session session = Session.from_snapshot(
+            call_line.session_id,
+            session_snap.data() as Map<String, dynamic>,
+          );
 
           on_call_state_change?.call(session, CallState.cl_ringing, null);
         }
