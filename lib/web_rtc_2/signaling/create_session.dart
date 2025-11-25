@@ -141,8 +141,6 @@ extension SignalingExtension on Signaling {
   Future _create_session_on_db(Session session) async {
     Map<String, dynamic> session_json = session.to_json();
 
-    print(session_json);
-
     await XapptorDB.instance.collection('sessions').doc(session.id).set(session_json);
   }
 }

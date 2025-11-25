@@ -59,18 +59,15 @@ extension CallViewStateExtension on CallViewState {
     });
 
     peer_connection.onIceCandidate = (RTCIceCandidate candidate) {
-      print("New ICE candidate generated: ${candidate.toMap()}");
-
       XapptorDB.instance
           .collection('calls')
-          .doc(call_input.text)
+          .doc(call_id_controller.text)
           .collection('answer_candidates')
           .add(candidate.toMap());
     };
 
     peer_connection.onTrack = (RTCTrackEvent event) {
       if (event.streams.isNotEmpty) {
-        print("Received remote stream: ${event.streams[0]}");
         setState(() {
           remote_video_renderer.srcObject = event.streams[0];
         });

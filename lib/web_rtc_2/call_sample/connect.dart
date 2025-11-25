@@ -32,7 +32,6 @@ extension CallSampleStateExtension on CallSampleState {
     ) async {
       switch (state) {
         case CallState.cl_new:
-          print('Is not used anymore');
           // Is not used anymore
           setState(() {
             session = session;

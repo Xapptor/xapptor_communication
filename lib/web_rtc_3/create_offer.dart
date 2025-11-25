@@ -69,7 +69,7 @@ extension CallViewStateExtension on CallViewState {
 
     // Generate a new call document in Firestore
     final callDoc = FirebaseFirestore.instance.collection('calls').doc();
-    call_input.text = callDoc.id;
+    call_id_controller.text = callDoc.id;
 
     // Set the offer in Firestore
     await callDoc.set({
@@ -94,7 +94,6 @@ extension CallViewStateExtension on CallViewState {
           if (await peer_connection.getRemoteDescription() != null) {
             peer_connection.addCandidate(candidate);
           } else {
-            print("Buffering ICE candidate until remote description is set");
             candidateBuffer.add(candidate);
           }
         }

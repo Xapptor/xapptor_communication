@@ -57,12 +57,11 @@ extension CallViewStateExtension on CallViewState {
   Future<void> create_answer() async {
     await initialize_peer_connection();
 
-    final callId = call_input.text;
+    final callId = call_id_controller.text;
     final callDoc = XapptorDB.instance.collection('calls').doc(callId);
     final callData = (await callDoc.get()).data();
 
     if (callData == null || callData['offer'] == null) {
-      print("Offer data is not available or invalid.");
       return;
     }
 
@@ -99,10 +98,8 @@ extension CallViewStateExtension on CallViewState {
 
           // Buffer candidates if remote description not set
           if (await peer_connection.getRemoteDescription() == null) {
-            print("Buffering candidate until remote description is set");
             candidate_buffer.add(candidate);
           } else {
-            print("Adding candidate directly");
             peer_connection.addCandidate(candidate);
           }
         }
