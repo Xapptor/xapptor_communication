@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:xapptor_communication/web_rtc/room/create_room.dart';
 import 'package:xapptor_communication/web_rtc/model/room.dart';
+import 'package:xapptor_ui/values/ui.dart';
 
 class VideoViewContainer extends StatelessWidget {
   final Widget child;
@@ -44,7 +45,7 @@ class VideoViewContainer extends StatelessWidget {
       width: screen_height / 2.5,
       decoration: BoxDecoration(
         color: background_color,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(outline_border_radius),
         border: Border.all(
           width: 3,
           color: Colors.grey,

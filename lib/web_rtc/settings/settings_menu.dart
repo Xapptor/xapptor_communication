@@ -6,6 +6,7 @@ import 'package:xapptor_communication/web_rtc/custom_dropdown_button/audio_dropd
 import 'package:xapptor_communication/web_rtc/call_view/call_view.dart';
 import 'package:xapptor_communication/web_rtc/custom_dropdown_button/video_dropdown_button.dart';
 import 'package:xapptor_communication/web_rtc/settings/zoom_slider.dart';
+import 'package:xapptor_ui/values/ui.dart';
 
 extension StateExtension on CallViewState {
   settings_menu({
@@ -15,7 +16,7 @@ extension StateExtension on CallViewState {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: background_color,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(outline_border_radius),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,

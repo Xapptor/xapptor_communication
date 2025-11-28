@@ -126,9 +126,7 @@ class ScreenSelectDialog extends Dialog {
                                 ],
                               ),
                             ),
-                            const SizedBox(
-                              height: 2,
-                            ),
+                            const SizedBox(height: 2),
                             Expanded(
                               child: tab_bar_view(
                                 setState: setState,

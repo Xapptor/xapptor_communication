@@ -73,9 +73,7 @@ contact_list_alert({
                           }
                         },
                       ),
-                      SizedBox(
-                        height: sized_box_space * 3,
-                      ),
+                      const SizedBox(height: sized_box_space * 3),
                       contacts.isNotEmpty
                           ? ListView.builder(
                               shrinkWrap: true,

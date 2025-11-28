@@ -5,6 +5,7 @@ import 'package:xapptor_communication/web_rtc/model/room.dart';
 import 'package:xapptor_communication/web_rtc/video_view/video_view_container.dart';
 import 'package:xapptor_logic/color/get_random_color.dart';
 import 'package:xapptor_ui/utils/is_portrait.dart';
+import 'package:xapptor_ui/values/ui.dart';
 
 class GridVideoView extends StatefulWidget {
   final ValueNotifier<RTCVideoRenderer> local_renderer;
@@ -123,7 +124,7 @@ class _GridVideoViewState extends State<GridVideoView> {
                         size: 100,
                         color: Colors.white,
                       ),
-                      SizedBox(height: 10),
+                      SizedBox(height: sized_box_space),
                       Text(
                         'Video off',
                         style: TextStyle(

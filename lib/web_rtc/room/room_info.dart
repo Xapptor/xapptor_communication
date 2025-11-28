@@ -33,7 +33,7 @@ class RoomInfo extends StatelessWidget {
       padding: const EdgeInsets.all(8.0),
       decoration: BoxDecoration(
         color: background_color,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(outline_border_radius),
       ),
       child: Column(
         children: [
@@ -93,7 +93,7 @@ class RoomInfo extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(height: sized_box_space),
+                const SizedBox(height: sized_box_space),
                 Text(
                   "Room URL:",
                   style: TextStyle(

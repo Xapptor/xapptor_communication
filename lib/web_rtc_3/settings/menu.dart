@@ -4,6 +4,7 @@ import 'package:universal_platform/universal_platform.dart';
 import 'package:xapptor_communication/web_rtc_3/settings/audio_dropdown_button.dart';
 import 'package:xapptor_communication/web_rtc_3/settings/video_dropdown_button.dart';
 import 'package:xapptor_communication/web_rtc_3/settings/zoom_slider.dart';
+import 'package:xapptor_ui/values/ui.dart';
 
 class SettingsMenu extends StatefulWidget {
   final Color background_color;
@@ -48,7 +49,7 @@ class _SettingsMenuState extends State<SettingsMenu> {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
         color: widget.background_color,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(outline_border_radius),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
