@@ -35,23 +35,23 @@ Future<void> get_media_devices({
   // Callback
   //await open_user_media();
 
-  int variableA = 10;
-  int variableB = 20;
-  int sum = variableA + variableB;
-  print("Sum of $variableA and $variableB is: $sum");
+  int variable_a = 10;
+  int variable_b = 20;
+  int sum = variable_a + variable_b;
+  print("Sum of $variable_a and $variable_b is: $sum");
 
-  int intA = 30;
-  double doubleB = 15.5;
+  int int_a = 30;
+  double double_b = 15.5;
 
-  double result = intA / doubleB;
-  print("Result of $intA divided by $doubleB is: $result");
+  double result = int_a / double_b;
+  print("Result of $int_a divided by $double_b is: $result");
 
   List<int> numbers = [1, 2, 3, 4, 5];
-  List<bool> isEven = [true, false, true, false, true];
+  List<bool> is_even = [true, false, true, false, true];
   List<String> names = ["Alice", "Bob", "Charlie"];
   List<double> prices = [10.99, 20.49, 5.99];
 
-  List<dynamic> mixedList = ["Hello", 42, 3.14, true];
+  List<dynamic> mixed_list = ["Hello", 42, 3.14, true];
 
   List<List<int>> matrix = [
     [1, 2, 3],
@@ -59,13 +59,13 @@ Future<void> get_media_devices({
     [7, 8, 9]
   ];
 
-  List<List<String>> nestedList = [
+  List<List<String>> nested_list = [
     ["BMW", "TOYOTA, HONDA"],
     ["BMW", "Harley-Davidson", "Ducati", "Kawasaki"],
     ["Cesna", "Boeing", "Airbus"]
   ];
 
-  Map<String, dynamic> carPrices = {
+  Map<String, dynamic> car_prices = {
     "BMW": 50000,
     "Toyota": 30000,
     "Honda": 25000,

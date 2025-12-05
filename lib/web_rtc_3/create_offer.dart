@@ -68,22 +68,22 @@ extension CallViewStateExtension on CallViewState {
     await peer_connection.setLocalDescription(offer);
 
     // Generate a new call document in Firestore
-    final callDoc = FirebaseFirestore.instance.collection('calls').doc();
-    call_id_controller.text = callDoc.id;
+    final call_doc = FirebaseFirestore.instance.collection('calls').doc();
+    call_id_controller.text = call_doc.id;
 
     // Set the offer in Firestore
-    await callDoc.set({
+    await call_doc.set({
       'offer': offer.toMap(),
     });
 
     // Buffer to store incoming ICE candidates until remote description is set
-    List<RTCIceCandidate> candidateBuffer = [];
+    List<RTCIceCandidate> candidate_buffer = [];
 
     // Listen for answer candidates from Firestore and add them when ready
-    callDoc.collection('answer_candidates').snapshots().listen((snapshot) async {
-      for (var docChange in snapshot.docChanges) {
-        if (docChange.type == DocumentChangeType.added) {
-          final data = docChange.doc.data();
+    call_doc.collection('answer_candidates').snapshots().listen((snapshot) async {
+      for (var doc_change in snapshot.docChanges) {
+        if (doc_change.type == DocumentChangeType.added) {
+          final data = doc_change.doc.data();
           final candidate = RTCIceCandidate(
             data?['candidate'],
             data?['sdpMid'],
@@ -94,14 +94,14 @@ extension CallViewStateExtension on CallViewState {
           if (await peer_connection.getRemoteDescription() != null) {
             peer_connection.addCandidate(candidate);
           } else {
-            candidateBuffer.add(candidate);
+            candidate_buffer.add(candidate);
           }
         }
       }
     });
 
     // Listen for changes to the call document to detect when the answer is available
-    callDoc.snapshots().listen((snapshot) async {
+    call_doc.snapshots().listen((snapshot) async {
       final data = snapshot.data();
       if (data != null && data['answer'] != null) {
         // Set the remote description with the answer
@@ -112,10 +112,10 @@ extension CallViewStateExtension on CallViewState {
         ));
 
         // Once the remote description is set, add any buffered ICE candidates
-        for (var candidate in candidateBuffer) {
+        for (var candidate in candidate_buffer) {
           await peer_connection.addCandidate(candidate);
         }
-        candidateBuffer.clear(); // Clear the buffer after adding candidates
+        candidate_buffer.clear(); // Clear the buffer after adding candidates
       }
     });
   }

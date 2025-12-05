@@ -57,16 +57,16 @@ extension CallViewStateExtension on CallViewState {
   Future<void> create_answer() async {
     await initialize_peer_connection();
 
-    final callId = call_id_controller.text;
-    final callDoc = XapptorDB.instance.collection('calls').doc(callId);
-    final callData = (await callDoc.get()).data();
+    final call_id = call_id_controller.text;
+    final call_doc = XapptorDB.instance.collection('calls').doc(call_id);
+    final call_data = (await call_doc.get()).data();
 
-    if (callData == null || callData['offer'] == null) {
+    if (call_data == null || call_data['offer'] == null) {
       return;
     }
 
     // Set remote description with the offer data
-    final offer = callData['offer'];
+    final offer = call_data['offer'];
     await peer_connection.setRemoteDescription(RTCSessionDescription(
       offer['sdp'],
       offer['type'],
@@ -75,7 +75,7 @@ extension CallViewStateExtension on CallViewState {
     // Create and set the local answer description
     final answer = await peer_connection.createAnswer();
     await peer_connection.setLocalDescription(answer);
-    callDoc.update({
+    call_doc.update({
       'answer': answer.toMap(),
     });
 
@@ -86,10 +86,10 @@ extension CallViewStateExtension on CallViewState {
     candidate_buffer.clear();
 
     // Listen for offer side candidates
-    callDoc.collection('offer_candidates').snapshots().listen((snapshot) async {
-      for (var docChange in snapshot.docChanges) {
-        if (docChange.type == DocumentChangeType.added) {
-          final data = docChange.doc.data();
+    call_doc.collection('offer_candidates').snapshots().listen((snapshot) async {
+      for (var doc_change in snapshot.docChanges) {
+        if (doc_change.type == DocumentChangeType.added) {
+          final data = doc_change.doc.data();
           final candidate = RTCIceCandidate(
             data?['candidate'],
             data?['sdpMid'],

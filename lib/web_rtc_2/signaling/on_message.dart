@@ -60,8 +60,8 @@ extension SignalingExtension on Signaling {
         {
           // MARK: Code Migrated to create_answer function
           var description = data['description'];
-          var sessionId = data['session_id'];
-          var session = sessions[sessionId];
+          var session_id = data['session_id'];
+          var session = sessions[session_id];
           session?.peer_connection?.setRemoteDescription(
             RTCSessionDescription(description['sdp'], description['type']),
           );
