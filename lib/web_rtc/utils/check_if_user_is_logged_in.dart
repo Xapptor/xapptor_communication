@@ -4,7 +4,7 @@ import 'package:xapptor_communication/web_rtc/renderer/init_video_renderers.dart
 import 'package:xapptor_communication/web_rtc/room/join_room.dart';
 import 'package:xapptor_communication/web_rtc/model/user.dart' as communication_user_model;
 import 'package:xapptor_communication/web_rtc/utils/check_permissions.dart';
-import 'package:xapptor_router/get_last_path_segment.dart';
+import 'package:xapptor_router/V2/get_last_path_segment_v2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 extension StateExtension on CallViewState {
@@ -18,7 +18,7 @@ extension StateExtension on CallViewState {
       init_video_renderers();
 
       if (widget.room_id.value == '') {
-        widget.room_id.value = get_last_path_segment();
+        widget.room_id.value = get_last_path_segment_v2();
       }
 
       if (widget.room_id.value != "" && widget.room_id.value != "room" && widget.room_id.value.length > 6) {
