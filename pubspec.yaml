@@ -20,7 +20,7 @@ dependencies:
   universal_platform: ^1.1.0
   permission_handler: ^12.0.1
   http: ^1.6.0
-  font_awesome_flutter: ^10.12.0
+  font_awesome_flutter: ^10.9.1
   flutter_expandable_fab: ^2.5.2
   web: ^1.1.1
 
